@@ -1249,6 +1249,25 @@ function cleanName(nome) {
   return nome.replace(/\[DLC\]\s*/gi,'').replace(/\(DLC\)/gi,'').replace(/\s+/g,' ').trim();
 }
 
+// Gera variações do nome para tentar no RAWG
+function getNameVariations(name) {
+  const base = cleanName(name);
+  const variations = new Set();
+  variations.add(base);
+  // Remove pontuação especial
+  variations.add(base.replace(/[:\-–]/g, ' ').replace(/\s+/g,' ').trim());
+  // Troca : por -
+  variations.add(base.replace(/:/g, ' -'));
+  // Troca - por :
+  variations.add(base.replace(/ - /g, ': '));
+  // Remove toda pontuação
+  variations.add(base.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim());
+  // Só primeiras palavras (título principal)
+  const words = base.split(' ');
+  if (words.length > 3) variations.add(words.slice(0,4).join(' '));
+  return [...variations].filter(v => v.length > 2);
+}
+
 function applyCover(gameId, url) {
   if (!url || url === 'none') return;
   document.querySelectorAll(`[data-gameid="${gameId}"]`).forEach(el => {
@@ -1280,85 +1299,68 @@ async function fetchCoverForGame(game, forceRefresh) {
   const rawName = game.nomeCapa || game.nome;
   const searchName = cleanName(rawName);
 
-  // 1. RAWG com algoritmo de matching melhorado
-  try {
-    // Busca com "game cover" para priorizar capas oficiais
-    const q = encodeURIComponent(searchName);
-    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=10&search_precise=false`);
-    if (res.ok) {
+  const rawName = game.nomeCapa || game.nome;
+  const searchName = cleanName(rawName);
+  const variations = getNameVariations(rawName);
+
+  // 1. RAWG — tenta cada variação do nome
+  for (const variant of variations) {
+    try {
+      const q = encodeURIComponent(variant);
+      const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=10&search_precise=false`);
+      if (!res.ok) continue;
       const data = await res.json();
       const results = (data.results || []).filter(r => r.background_image);
+      if (!results.length) continue;
 
-      if (results.length > 0) {
-        const nameLow = searchName.toLowerCase();
-        const year = game.lancamento;
+      const nameLow = searchName.toLowerCase();
+      const year = game.lancamento;
 
-        const scored = results.map(r => {
-          let score = 0;
-          const rName = r.name.toLowerCase();
-          if (rName === nameLow) score += 100;
-          else if (rName.includes(nameLow)) score += 50;
-          else if (nameLow.includes(rName)) score += 40;
-          const queryWords = nameLow.split(/\s+/).filter(w => w.length > 3);
-          const matchWords = queryWords.filter(w => rName.includes(w));
-          score += matchWords.length * 10;
-          if (year && r.released) {
-            const rYear = parseInt(r.released.split('-')[0]);
-            if (rYear === year) score += 30;
-            else if (Math.abs(rYear - year) <= 1) score += 10;
-          }
-          if (r.ratings_count > 100) score += 5;
-          if (r.ratings_count > 1000) score += 5;
-          return { r, score };
-        });
-
-        scored.sort((a, b) => b.score - a.score);
-        const best = scored[0];
-
-        if (best && best.score > 0) {
-          // Tenta buscar a capa oficial do jogo (não screenshot)
-          // O RAWG tem endpoint de screenshots — tenta pegar a primeira imagem vertical (cover-like)
-          let coverUrl = best.r.background_image;
-          try {
-            const detailRes = await fetch(`https://api.rawg.io/api/games/${best.r.id}?key=${RAWG_KEY}`);
-            if (detailRes.ok) {
-              const detail = await detailRes.json();
-              // clip_image é a imagem principal do jogo (geralmente capa box art)
-              if (detail.background_image_additional) {
-                coverUrl = detail.background_image_additional;
-              }
-            }
-          } catch(e) {}
-
-          coverCache[key] = 'found';
-          coverImgCache[key] = coverUrl;
-          saveCoverCache();
-          applyCover(key, coverUrl);
-          return;
+      const scored = results.map(r => {
+        let score = 0;
+        const rName = r.name.toLowerCase();
+        // Normaliza pontuação para comparar
+        const rNorm = rName.replace(/[:\-–]/g,' ').replace(/\s+/g,' ');
+        const qNorm = nameLow.replace(/[:\-–]/g,' ').replace(/\s+/g,' ');
+        if (rNorm === qNorm) score += 100;
+        else if (rName === nameLow) score += 100;
+        else if (rNorm.includes(qNorm)) score += 60;
+        else if (qNorm.includes(rNorm)) score += 50;
+        const queryWords = qNorm.split(/\s+/).filter(w => w.length > 3);
+        const matchWords = queryWords.filter(w => rNorm.includes(w));
+        score += matchWords.length * 10;
+        if (year && r.released) {
+          const rYear = parseInt(r.released.split('-')[0]);
+          if (rYear === year) score += 30;
+          else if (Math.abs(rYear - year) <= 1) score += 10;
         }
-      }
-    }
-  } catch(e) {}
+        if (r.ratings_count > 100) score += 5;
+        if (r.ratings_count > 1000) score += 5;
+        return { r, score };
+      });
 
-  // 2. Fallback: busca por box art no RAWG screenshots endpoint
-  // (quando background_image é screenshot, tenta pegar uma imagem mais parecida com capa)
-  try {
-    const q = encodeURIComponent(searchName + ' box art cover');
-    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=5&search_precise=true`);
-    if (res.ok) {
-      const data = await res.json();
-      const results = (data.results || []).filter(r => r.background_image);
-      if (results[0]?.background_image) {
+      scored.sort((a, b) => b.score - a.score);
+      const best = scored[0];
+
+      if (best && best.score >= 20) {
+        let coverUrl = best.r.background_image;
+        try {
+          const detailRes = await fetch(`https://api.rawg.io/api/games/${best.r.id}?key=${RAWG_KEY}`);
+          if (detailRes.ok) {
+            const detail = await detailRes.json();
+            if (detail.background_image_additional) coverUrl = detail.background_image_additional;
+          }
+        } catch(e) {}
         coverCache[key] = 'found';
-        coverImgCache[key] = results[0].background_image;
+        coverImgCache[key] = coverUrl;
         saveCoverCache();
-        applyCover(key, results[0].background_image);
+        applyCover(key, coverUrl);
         return;
       }
-    }
-  } catch(e) {}
+    } catch(e) {}
+  }
 
-  // 3. Fallback: Wikimedia map
+  // 2. Fallback: Wikimedia map
   const nameKey = searchName.toLowerCase();
   if (COVER_MAP[nameKey]) {
     const url = COVER_MAP[nameKey];
@@ -1369,7 +1371,7 @@ async function fetchCoverForGame(game, forceRefresh) {
     return;
   }
 
-  // 4. Fallback: Wikipedia API
+  // 3. Fallback: Wikipedia API
   try {
     for (const title of [`${searchName} (video game)`, searchName]) {
       const res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
@@ -1497,6 +1499,12 @@ const COVER_MAP = {
   "dragon quest xi: echoes of an elusive age": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dragon_Quest_XI.jpg",
   "earthbound": "https://en.wikipedia.org/wiki/Special:Redirect/file/EarthBound_Box.jpg",
   "elden ring": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Box_art.jpg",
+  "elden ring: shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "elden ring shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "destiny": "https://en.wikipedia.org/wiki/Special:Redirect/file/Destiny_box_art.jpg",
+  "destiny 2": "https://en.wikipedia.org/wiki/Special:Redirect/file/Destiny_2_cover_art.jpg",
+  "overwatch": "https://en.wikipedia.org/wiki/Special:Redirect/file/Overwatch_cover_art.jpg",
   "elden ring: nightreign": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Nightreign_cover_art.jpg",
   "[dlc] elden ring: shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
   "fallout 3": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fallout_3_cover_art.jpg",
