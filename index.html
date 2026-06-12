@@ -166,7 +166,11 @@
     transition: border-color 0.2s;
   }
 
-  .stat-card:hover { border-color: var(--accent); }
+  .bar-row-clickable { border-radius: 6px; padding: 2px 4px; margin: 0 -4px; transition: background 0.15s; }
+  .bar-row-clickable:hover { background: var(--surface3); }
+  .bar-row-clickable:hover .bar-label { color: var(--accent); }
+
+  .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); transition: all 0.15s; }
   .stat-card .num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
   .stat-card .label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
   .stat-card.c-jogando .num { color: var(--accent2); }
@@ -1099,27 +1103,27 @@ function buildDashboard() {
   const perfeitos = games.filter(g => g.nota === '5 - Perfeito').length;
 
   statsGrid.innerHTML = `
-    <div class="stat-card c-total"><div class="num">${total}</div><div class="label">Total</div></div>
-    <div class="stat-card c-concluido"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
-    <div class="stat-card c-platinado"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
-    <div class="stat-card c-jogando"><div class="num">${jogando}</div><div class="label">Jogando</div></div>
-    <div class="stat-card c-nao"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
-    <div class="stat-card c-drop"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
-    <div class="stat-card"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
-    <div class="stat-card"><div class="num" style="color:var(--accent2)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
+    <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num">${total}</div><div class="label">Total</div></div>
+    <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
+    <div class="stat-card c-platinado" style="cursor:pointer" onclick="filterFromDashboard('status','4 - Platinado')"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
+    <div class="stat-card c-jogando" style="cursor:pointer" onclick="filterFromDashboard('status','1 - Jogando')"><div class="num">${jogando}</div><div class="label">Jogando</div></div>
+    <div class="stat-card c-nao" style="cursor:pointer" onclick="filterFromDashboard('status','2 - Não jogado')"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
+    <div class="stat-card c-drop" style="cursor:pointer" onclick="filterFromDashboard('status','5 - Dropado')"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('favorito','true')"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" style="color:var(--accent2)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
   `;
 
   // Charts
-  buildBarChart('chart-genero', countField('genero'), 8);
-  buildBarChart('chart-plataforma', countField('plataforma'), 8);
+  buildBarChart('chart-genero', countField('genero'), 8, null, 'genero');
+  buildBarChart('chart-plataforma', countField('plataforma'), 8, null, 'plataforma');
   buildBarChart('chart-nota', {
     '5 - Perfeito': games.filter(g => g.nota === '5 - Perfeito').length,
     '4 - Ótimo': games.filter(g => g.nota === '4 - Ótimo').length,
     '3 - Bom': games.filter(g => g.nota === '3 - Bom').length,
     '2 - Fraco': games.filter(g => g.nota === '2 - Fraco').length,
     '1 - Ruim': games.filter(g => g.nota === '1 - Ruim').length,
-  }, 10, ['var(--accent2)','var(--green)','var(--blue)','var(--orange)','var(--red)']);
-  buildBarChart('chart-midia', countField('midia'), 10);
+  }, 10, ['var(--accent2)','var(--green)','var(--blue)','var(--orange)','var(--red)'], 'nota');
+  buildBarChart('chart-midia', countField('midia'), 10, null, 'midia');
 }
 
 function countField(field) {
@@ -1130,7 +1134,7 @@ function countField(field) {
   return Object.fromEntries(Object.entries(counts).sort((a,b) => b[1]-a[1]));
 }
 
-function buildBarChart(id, data, limit = 8, colors = null) {
+function buildBarChart(id, data, limit = 8, colors = null, filterField = null) {
   const el = document.getElementById(id);
   if (!el) return;
   const entries = Object.entries(data).slice(0, limit);
@@ -1139,12 +1143,46 @@ function buildBarChart(id, data, limit = 8, colors = null) {
     const color = colors ? colors[i % colors.length] : 'var(--accent)';
     const pct = Math.round((val / max) * 100);
     const shortLabel = label.length > 16 ? label.slice(0, 16) + '…' : label;
-    return `<div class="bar-row">
+    const clickable = filterField ? `onclick="filterFromDashboard('${filterField}','${label.replace(/'/g, "\\'")}')" style="cursor:pointer"` : '';
+    const hoverStyle = filterField ? 'class="bar-row bar-row-clickable"' : 'class="bar-row"';
+    return `<div ${hoverStyle} ${clickable}>
       <span class="bar-label" title="${label}">${shortLabel}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
       <span class="bar-num">${val}</span>
     </div>`;
   }).join('');
+}
+
+function filterFromDashboard(field, value) {
+  // Navega para Coleção e aplica o filtro
+  showPage('colecao');
+  // Reset todos os filtros primeiro
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-genero').value = '';
+  document.getElementById('filter-plataforma').value = '';
+  document.getElementById('filter-midia').value = '';
+  document.getElementById('filter-nota').value = '';
+  activeStatusFilter = '';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-all')?.classList.add('active');
+
+  // Aplica o filtro específico
+  if (field === 'status' && value) {
+    setStatusFilter(value);
+  } else if (field === 'genero') {
+    document.getElementById('filter-genero').value = value;
+  } else if (field === 'plataforma') {
+    document.getElementById('filter-plataforma').value = value;
+  } else if (field === 'nota') {
+    document.getElementById('filter-nota').value = value;
+  } else if (field === 'midia') {
+    document.getElementById('filter-midia').value = value;
+  } else if (field === 'favorito') {
+    // Filtra favoritos diretamente
+    showPage('favoritos');
+    return;
+  }
+  filterGames();
 }
 
 // ========== COLLECTION ==========
