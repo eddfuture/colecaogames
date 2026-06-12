@@ -1236,19 +1236,23 @@ function renderGameCards(containerId, list) {
 // ========== COVER SYSTEM (RAWG primário + Wikimedia fallback) ==========
 const COVER_CACHE_KEY = 'gamer_covers_v5';
 const RAWG_KEY = '0ecd9c14908a49e881508452138fb14b';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 async function rawgFetch(url) {
-  // Tenta direto primeiro, se falhar usa proxy CORS
+  // Tenta direto primeiro
   try {
     const res = await fetch(url);
-    if (res.ok) return res;
-    if (res.status === 429) return res; // rate limit, retorna mesmo assim
+    if (res.ok || res.status === 429) return res;
   } catch(e) {}
-  // Fallback: proxy CORS
+  // Fallback: proxy CORS allorigins
   try {
     const res = await fetch(CORS_PROXY + encodeURIComponent(url));
-    return res;
+    if (res.ok) return res;
+  } catch(e) {}
+  // Fallback 2: corsproxy.io
+  try {
+    const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+    if (res.ok) return res;
   } catch(e) {}
   return null;
 }
@@ -2117,7 +2121,9 @@ async function runDiag() {
   let rawgStatus = '⏳ Testando...';
   try {
     const res = await rawgFetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=elden+ring&page_size=1`);
-    if (res && res.ok) {
+    if (!res) {
+      rawgStatus = '❌ RAWG: sem resposta (todos os proxies falharam)';
+    } else if (res.ok) {
       const d = await res.json();
       rawgStatus = d.results?.[0]?.name ? `✅ RAWG OK — encontrou: ${d.results[0].name}` : '⚠️ RAWG conectou mas sem resultado';
     } else if (res.status === 429) {
