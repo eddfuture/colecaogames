@@ -962,6 +962,14 @@
               <option value="GAME AWARDS">GAME AWARDS</option>
             </select>
           </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label>Nome do Jogo (para busca de capa)</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="edit-nome" placeholder="Nome exato como aparece no RAWG">
+              <button class="btn btn-ghost" onclick="refreshCover()" style="white-space:nowrap;flex-shrink:0">🖼️ Atualizar Capa</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-top:4px">Se a capa estiver errada, edite o nome e clique em Atualizar Capa</p>
+          </div>
         </div>
         <div style="margin-top:14px">
           <div class="toggle-row">
@@ -1218,13 +1226,13 @@ function renderGameCards(containerId, list) {
   queueCoversForVisible();
 }
 
-// ========== COVER SYSTEM (Wikimedia direto, sem fetch) ==========
-// Usa mapa de URLs conhecidas do Wikimedia + fallback por img.onerror chain
-// Wikimedia permite hotlinking — confirmado funcionar de file://
-
-const COVER_CACHE_KEY = 'gamer_covers_v4';
-let coverCache = {};    // gameId -> 'found'|'none'
-let coverImgCache = {}; // gameId -> url (memória + localStorage)
+// ========== COVER SYSTEM (RAWG primário + Wikimedia fallback) ==========
+const COVER_CACHE_KEY = 'gamer_covers_v5';
+const RAWG_KEY = '3502e11a80474609a4a13b91c0cbde56';
+let coverCache = {};
+let coverImgCache = {};
+let coverQueue = [];
+let coverRunning = false;
 
 function loadCoverCache() {
   try {
@@ -1238,9 +1246,152 @@ function saveCoverCache() {
 }
 
 function cleanName(nome) {
-  return nome.replace(/\[DLC\]\s*/gi,'').replace(/\(DLC\)/gi,'').replace(/\s+/g,' ').trim().toLowerCase();
+  return nome.replace(/\[DLC\]\s*/gi,'').replace(/\(DLC\)/gi,'').replace(/\s+/g,' ').trim();
 }
 
+function applyCover(gameId, url) {
+  if (!url || url === 'none') return;
+  document.querySelectorAll(`[data-gameid="${gameId}"]`).forEach(el => {
+    el.style.backgroundImage = `url('${url}')`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center top';
+    const nc = el.querySelector('.no-cover');
+    if (nc) nc.style.display = 'none';
+  });
+  if (String(currentGameId) === String(gameId)) {
+    const mc = document.getElementById('modal-cover');
+    if (mc) {
+      mc.style.backgroundImage = `url('${url}')`;
+      mc.style.backgroundSize = 'cover';
+      mc.style.backgroundPosition = 'center top';
+      mc.innerHTML = '';
+    }
+  }
+}
+
+async function fetchCoverForGame(game, forceRefresh) {
+  const key = String(game.id);
+  if (!forceRefresh && coverCache[key] !== undefined) {
+    if (coverImgCache[key]) applyCover(key, coverImgCache[key]);
+    return;
+  }
+
+  // Nome para busca — usa nomeCapa se definido pelo usuário
+  const searchName = cleanName(game.nomeCapa || game.nome);
+
+  // 1. RAWG (funciona em HTTPS/GitHub Pages)
+  try {
+    const q = encodeURIComponent(searchName);
+    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=5&search_precise=false`);
+    if (res.ok) {
+      const data = await res.json();
+      const results = (data.results || []).filter(r => r.background_image);
+      const exact = results.find(r => r.name.toLowerCase() === searchName.toLowerCase());
+      const pick = exact || results[0];
+      if (pick?.background_image) {
+        coverCache[key] = 'found';
+        coverImgCache[key] = pick.background_image;
+        saveCoverCache();
+        applyCover(key, pick.background_image);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // 2. Fallback: Wikimedia map
+  const nameKey = searchName.toLowerCase();
+  if (COVER_MAP[nameKey]) {
+    const url = COVER_MAP[nameKey];
+    coverCache[key] = 'found';
+    coverImgCache[key] = url;
+    saveCoverCache();
+    applyCover(key, url);
+    return;
+  }
+
+  // 3. Fallback: Wikipedia API
+  try {
+    for (const title of [`${searchName} (video game)`, searchName]) {
+      const res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const page = Object.values(data?.query?.pages || {})[0];
+      if (page?.thumbnail?.source) {
+        coverCache[key] = 'found';
+        coverImgCache[key] = page.thumbnail.source;
+        saveCoverCache();
+        applyCover(key, page.thumbnail.source);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  coverCache[key] = 'none';
+  saveCoverCache();
+}
+
+async function processQueue() {
+  if (coverRunning) return;
+  coverRunning = true;
+  let n = 0;
+  while (coverQueue.length > 0) {
+    const game = coverQueue.shift();
+    await fetchCoverForGame(game);
+    n++;
+    if (n % 8 === 0) updateSidebar();
+    await new Promise(r => setTimeout(r, 150));
+  }
+  coverRunning = false;
+  updateSidebar();
+}
+
+function queueCoversForVisible() {
+  const cards = document.querySelectorAll('[data-gameid]');
+  cards.forEach(el => {
+    const url = coverImgCache[el.dataset.gameid];
+    if (url) applyCover(el.dataset.gameid, url);
+  });
+  const ids = new Set([...cards].map(c => c.dataset.gameid));
+  const toFetch = games.filter(g => ids.has(String(g.id)) && coverCache[String(g.id)] === undefined);
+  coverQueue.unshift(...toFetch.filter(g => !coverQueue.find(q => q.id === g.id)));
+  processQueue();
+}
+
+function startBackgroundCoverFetch() {
+  const uncached = games.filter(g => coverCache[String(g.id)] === undefined);
+  coverQueue.push(...uncached);
+  processQueue();
+}
+
+// Atualiza capa do jogo atualmente aberto no modal
+async function refreshCover() {
+  const g = games.find(x => x.id === currentGameId);
+  if (!g) return;
+  const btn = document.querySelector('[onclick="refreshCover()"]');
+  if (btn) { btn.textContent = '⏳ Buscando...'; btn.disabled = true; }
+
+  // Salva o nome editado antes de buscar
+  const nomeEditado = document.getElementById('edit-nome').value.trim();
+  if (nomeEditado) g.nomeCapa = nomeEditado;
+  save();
+
+  // Força rebusca
+  const key = String(g.id);
+  delete coverCache[key];
+  delete coverImgCache[key];
+  await fetchCoverForGame(g, true);
+
+  if (btn) { btn.textContent = '🖼️ Atualizar Capa'; btn.disabled = false; }
+
+  // Feedback
+  const found = coverCache[key] === 'found';
+  if (btn) btn.textContent = found ? '✅ Capa atualizada!' : '❌ Não encontrada';
+  setTimeout(() => { if (btn) btn.textContent = '🖼️ Atualizar Capa'; }, 2500);
+
+  filterGames();
+}
+
+function slugToCoverId() { return ''; }
 const COVER_MAP = {
   "a plague tale: requiem": "https://en.wikipedia.org/wiki/Special:Redirect/file/A_Plague_Tale_Requiem_cover.jpg",
   "astro's playroom": "https://en.wikipedia.org/wiki/Special:Redirect/file/ASTRO's_Playroom_cover_art.jpg",
@@ -1403,112 +1554,6 @@ const COVER_MAP = {
   "yakuza: like a dragon": "https://en.wikipedia.org/wiki/Special:Redirect/file/Yakuza_Like_a_Dragon_cover_art.jpg",
   "yakuza: like a dragon infinite wealth": "https://en.wikipedia.org/wiki/Special:Redirect/file/Like_a_Dragon_Infinite_Wealth_cover_art.jpg"
 };
-function applyCover(gameId, url) {
-  if (!url || url === 'none') return;
-  document.querySelectorAll(`[data-gameid="${gameId}"]`).forEach(el => {
-    el.style.backgroundImage = `url('${url}')`;
-    el.style.backgroundSize = 'cover';
-    el.style.backgroundPosition = 'center top';
-    const nc = el.querySelector('.no-cover');
-    if (nc) nc.style.display = 'none';
-  });
-  if (String(currentGameId) === String(gameId)) {
-    const mc = document.getElementById('modal-cover');
-    if (mc) {
-      mc.style.backgroundImage = `url('${url}')`;
-      mc.style.backgroundSize = 'cover';
-      mc.style.backgroundPosition = 'center top';
-      mc.innerHTML = '';
-    }
-  }
-}
-
-function tryLoadImg(url, minW) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const t = setTimeout(() => resolve(null), 6000);
-    img.onload = () => { clearTimeout(t); resolve(img.naturalWidth >= (minW||50) ? url : null); };
-    img.onerror = () => { clearTimeout(t); resolve(null); };
-    img.src = url;
-  });
-}
-
-function fetchCoverForGame(game) {
-  return new Promise(async resolve => {
-    const key = String(game.id);
-    if (coverCache[key] !== undefined) {
-      if (coverImgCache[key]) applyCover(key, coverImgCache[key]);
-      resolve(); return;
-    }
-
-    const nameKey = cleanName(game.nome);
-    let url = null;
-
-    // 1. Mapa manual (URLs Wikimedia confirmadas)
-    if (COVER_MAP[nameKey]) {
-      url = await tryLoadImg(COVER_MAP[nameKey], 50);
-    }
-
-    // 2. Fallback: tentar variações comuns de nome no mapa
-    if (!url) {
-      // Tenta sem subtítulo após ':'
-      const baseName = nameKey.split(':')[0].trim();
-      const mapKey = Object.keys(COVER_MAP).find(k => k.startsWith(baseName));
-      if (mapKey) url = await tryLoadImg(COVER_MAP[mapKey], 50);
-    }
-
-    if (url) {
-      coverCache[key] = 'found';
-      coverImgCache[key] = url;
-      saveCoverCache();
-      applyCover(key, url);
-    } else {
-      coverCache[key] = 'none';
-      saveCoverCache();
-    }
-    resolve();
-  });
-}
-
-let coverQueue = [];
-let coverRunning = false;
-
-async function processQueue() {
-  if (coverRunning) return;
-  coverRunning = true;
-  let n = 0;
-  while (coverQueue.length > 0) {
-    const game = coverQueue.shift();
-    await fetchCoverForGame(game);
-    n++;
-    if (n % 10 === 0) updateSidebar();
-    await new Promise(r => setTimeout(r, 50));
-  }
-  coverRunning = false;
-  updateSidebar();
-}
-
-function queueCoversForVisible() {
-  const cards = document.querySelectorAll('[data-gameid]');
-  cards.forEach(el => {
-    const url = coverImgCache[el.dataset.gameid];
-    if (url) applyCover(el.dataset.gameid, url);
-  });
-  const ids = new Set([...cards].map(c => c.dataset.gameid));
-  const toFetch = games.filter(g => ids.has(String(g.id)) && coverCache[String(g.id)] === undefined);
-  coverQueue.unshift(...toFetch.filter(g => !coverQueue.find(q => q.id === g.id)));
-  processQueue();
-}
-
-function startBackgroundCoverFetch() {
-  const uncached = games.filter(g => coverCache[String(g.id)] === undefined);
-  coverQueue.push(...uncached);
-  processQueue();
-}
-
-function slugToCoverId() { return ''; }
-
-
 
 function getGameEmoji(game) {
   const genreEmojis = {
@@ -1609,6 +1654,7 @@ function openModal(id) {
   document.getElementById('edit-nota').value = g.nota || '';
   document.getElementById('edit-quando').value = g.quando || '';
   document.getElementById('edit-categoria').value = g.categoria || '';
+  document.getElementById('edit-nome').value = g.nomeCapa || g.nome;
   const setToggle = (id, val) => { const el = document.getElementById(id); el.classList.toggle('on', !!val); };
   setToggle('edit-favorito', g.favorito);
   setToggle('edit-trilha', g.trilha);
@@ -1638,6 +1684,8 @@ function saveGame() {
   g.favorito = document.getElementById('edit-favorito').classList.contains('on');
   g.trilha = document.getElementById('edit-trilha').classList.contains('on');
   g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
+  const nomeEditado = document.getElementById('edit-nome').value.trim();
+  if (nomeEditado && nomeEditado !== g.nome) g.nomeCapa = nomeEditado;
 
   save();
   closeModalForce();
