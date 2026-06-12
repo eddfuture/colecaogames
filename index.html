@@ -1298,9 +1298,6 @@ async function fetchCoverForGame(game, forceRefresh) {
   // Nome para busca — usa nomeCapa se definido, senão limpa o nome original
   const rawName = game.nomeCapa || game.nome;
   const searchName = cleanName(rawName);
-
-  const rawName = game.nomeCapa || game.nome;
-  const searchName = cleanName(rawName);
   const variations = getNameVariations(rawName);
 
   // 1. RAWG — tenta cada variação do nome
