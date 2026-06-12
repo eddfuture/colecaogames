@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob:; font-src * data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob:; font-src * data:; style-src * 'unsafe-inline'">
 <title>Minha Coleção</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
@@ -1234,7 +1234,7 @@ function renderGameCards(containerId, list) {
 }
 
 // ========== COVER SYSTEM (RAWG primário + Wikimedia fallback) ==========
-const COVER_CACHE_KEY = 'gamer_covers_v5';
+const COVER_CACHE_KEY = 'gamer_covers_v6';
 const RAWG_KEY = '0ecd9c14908a49e881508452138fb14b';
 const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
@@ -1263,8 +1263,7 @@ let coverRunning = false;
 
 function loadCoverCache() {
   try {
-    // Limpa caches antigos com IDs errados
-    ['gamer_covers_v1','gamer_covers_v2','gamer_covers_v3','gamer_covers_v4'].forEach(k => localStorage.removeItem(k));
+    ['gamer_covers_v1','gamer_covers_v2','gamer_covers_v3','gamer_covers_v4','gamer_covers_v5'].forEach(k => localStorage.removeItem(k));
     const r = localStorage.getItem(COVER_CACHE_KEY);
     if (r) { const d = JSON.parse(r); coverCache = d.status || {}; coverImgCache = d.urls || {}; }
   } catch(e) { coverCache = {}; coverImgCache = {}; }
@@ -1363,7 +1362,6 @@ function getNameVariations(name) {
 function applyCover(gameId, url) {
   if (!url || url === 'none') return;
   const els = document.querySelectorAll(`[data-gameid="${gameId}"]`);
-  console.log(`applyCover: id=${gameId}, url=${url.slice(0,50)}, elements found=${els.length}`);
   els.forEach(el => {
     el.style.backgroundImage = `url('${url}')`;
     el.style.backgroundSize = 'cover';
