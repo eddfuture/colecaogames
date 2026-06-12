@@ -1502,9 +1502,21 @@ async function processQueue() {
     const game = coverQueue.shift();
     await fetchCoverForGame(game);
     n++;
-    if (n % 8 === 0) updateSidebar();
-    await new Promise(r => setTimeout(r, 400)); // max ~2.5 req/s com margem
+    // Reaplica todas as capas nos cards visíveis a cada 5 jogos
+    if (n % 5 === 0) {
+      document.querySelectorAll('[data-gameid]').forEach(el => {
+        const url = coverImgCache[el.dataset.gameid];
+        if (url) applyCover(el.dataset.gameid, url);
+      });
+      updateSidebar();
+    }
+    await new Promise(r => setTimeout(r, 400));
   }
+  // Aplica tudo no final
+  document.querySelectorAll('[data-gameid]').forEach(el => {
+    const url = coverImgCache[el.dataset.gameid];
+    if (url) applyCover(el.dataset.gameid, url);
+  });
   coverRunning = false;
   updateSidebar();
 }
