@@ -906,6 +906,12 @@
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Limpa o cache e busca tudo de novo</p>
           <button class="btn btn-ghost" onclick="clearCoversAndReload()">🗑️ Limpar cache de capas</button>
         </div>
+        <div class="chart-card" style="margin-top:16px">
+          <h3>Rebuscar não encontradas</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Tenta novamente os jogos sem capa usando variações automáticas do nome — sem pontuação, sem DLC, sem subtítulo, etc.</p>
+          <div id="retry-progress" style="font-size:12px;color:var(--accent2);margin-bottom:10px;min-height:18px"></div>
+          <button class="btn btn-primary" onclick="retryNotFound()" id="btn-retry">🔄 Rebuscar não encontradas</button>
+        </div>
       </div>
     </div>
   </main>
@@ -1249,22 +1255,85 @@ function cleanName(nome) {
   return nome.replace(/\[DLC\]\s*/gi,'').replace(/\(DLC\)/gi,'').replace(/\s+/g,' ').trim();
 }
 
-// Gera variações do nome para tentar no RAWG
+// Converte algarismos romanos para números e vice-versa
+const ROMAN_MAP = {
+  'I':1,'II':2,'III':3,'IV':4,'V':5,'VI':6,'VII':7,'VIII':8,'IX':9,'X':10,
+  'XI':11,'XII':12,'XIII':13,'XIV':14,'XV':15,'XVI':16,'XVII':17,'XVIII':18,'XIX':19,'XX':20
+};
+const NUM_TO_ROMAN = Object.fromEntries(Object.entries(ROMAN_MAP).map(([r,n]) => [n,r]));
+
+function convertRomans(str) {
+  // Substitui romanos por números: "Final Fantasy VIII" → "Final Fantasy 8"
+  return str.replace(/\b(X{0,2}(?:IX|IV|V?I{0,3}))\b/g, m => {
+    const upper = m.toUpperCase();
+    return ROMAN_MAP[upper] ? String(ROMAN_MAP[upper]) : m;
+  });
+}
+
+function convertNumbers(str) {
+  // Substitui números por romanos: "Final Fantasy 8" → "Final Fantasy VIII"
+  return str.replace(/\b(\d+)\b/g, m => {
+    const n = parseInt(m);
+    return NUM_TO_ROMAN[n] ? NUM_TO_ROMAN[n] : m;
+  });
+}
+
+// Gera todas as variações possíveis do nome para tentar no RAWG
 function getNameVariations(name) {
   const base = cleanName(name);
   const variations = new Set();
+
   variations.add(base);
-  // Remove pontuação especial
-  variations.add(base.replace(/[:\-–]/g, ' ').replace(/\s+/g,' ').trim());
+
+  // Remove pontuação toda
+  const noPunct = base.replace(/[:\-–—.,!?''""/\\()[\]]/g, ' ').replace(/\s+/g,' ').trim();
+  variations.add(noPunct);
+
   // Troca : por -
-  variations.add(base.replace(/:/g, ' -'));
+  variations.add(base.replace(/:/g, ' -').replace(/\s+/g,' ').trim());
   // Troca - por :
-  variations.add(base.replace(/ - /g, ': '));
-  // Remove toda pontuação
-  variations.add(base.replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim());
-  // Só primeiras palavras (título principal)
-  const words = base.split(' ');
-  if (words.length > 3) variations.add(words.slice(0,4).join(' '));
+  variations.add(base.replace(/ - /g, ': ').replace(/\s+/g,' ').trim());
+  // Troca : por nada
+  variations.add(base.replace(/:/g, '').replace(/\s+/g,' ').trim());
+  // Remove tudo após ':'
+  const beforeColon = base.split(':')[0].trim();
+  if (beforeColon !== base) variations.add(beforeColon);
+  // Remove tudo após ' - '
+  const beforeDash = base.split(' - ')[0].trim();
+  if (beforeDash !== base) variations.add(beforeDash);
+  // Remove parênteses e conteúdo
+  variations.add(base.replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim());
+  // Remove colchetes e conteúdo
+  variations.add(base.replace(/\[.*?\]/g,'').replace(/\s+/g,' ').trim());
+  // Remove ano entre parênteses ex: (2016)
+  variations.add(base.replace(/\(\d{4}\)/g,'').replace(/\s+/g,' ').trim());
+  // Só as 3 primeiras palavras
+  const words = noPunct.split(' ');
+  if (words.length > 3) variations.add(words.slice(0,3).join(' '));
+  // Só as 4 primeiras palavras
+  if (words.length > 4) variations.add(words.slice(0,4).join(' '));
+  // Só as 5 primeiras palavras
+  if (words.length > 5) variations.add(words.slice(0,5).join(' '));
+  // Remove "Remake", "Remastered", "HD", "Ultimate Edition" etc
+  variations.add(base.replace(/:\s*(remake|remastered|hd|definitive edition|ultimate edition|complete edition|game of the year)/gi,'').replace(/\s+/g,' ').trim());
+  // Remove "Part II", "Part 2", "Vol.1" etc
+  variations.add(base.replace(/\s+(part\s+[ivx\d]+|vol\.?\s*\d+|episode\s+\w+)$/gi,'').replace(/\s+/g,' ').trim());
+  // Versão sem acentos
+  const noAccents = base.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if (noAccents !== base) variations.add(noAccents);
+
+  // Converte romanos → números e números → romanos
+  const withNumbers = convertRomans(base);
+  if (withNumbers !== base) {
+    variations.add(withNumbers);
+    variations.add(convertRomans(noPunct));
+  }
+  const withRomans = convertNumbers(base);
+  if (withRomans !== base) {
+    variations.add(withRomans);
+    variations.add(convertNumbers(noPunct));
+  }
+
   return [...variations].filter(v => v.length > 2);
 }
 
@@ -1925,6 +1994,56 @@ function updateSidebar() {
     </div>
     ${coversTotal > 0 ? `<div style="margin-top:10px;font-size:10px;color:var(--muted)">🖼️ ${coversFound}/${games.length} capas</div>` : ''}
   `;
+}
+
+async function retryNotFound() {
+  const btn = document.getElementById('btn-retry');
+  const progress = document.getElementById('retry-progress');
+  btn.disabled = true;
+
+  let totalFound = 0;
+  let round = 1;
+
+  while (true) {
+    const failed = games.filter(g => coverCache[String(g.id)] === 'none');
+    if (!failed.length) {
+      progress.textContent = `✅ Todas as capas encontradas! Total: ${totalFound} novas.`;
+      break;
+    }
+
+    progress.textContent = `⏳ Rodada ${round} — tentando ${failed.length} jogos sem capa...`;
+    let foundThisRound = 0;
+
+    for (let i = 0; i < failed.length; i++) {
+      const g = failed[i];
+      const key = String(g.id);
+      delete coverCache[key];
+      delete coverImgCache[key];
+      await fetchCoverForGame(g, true);
+      if (coverCache[key] === 'found') { foundThisRound++; totalFound++; }
+      progress.textContent = `⏳ Rodada ${round} — ${i+1}/${failed.length} — novas: ${foundThisRound}`;
+      await new Promise(r => setTimeout(r, 80));
+    }
+
+    // Se não achou nenhuma nova nessa rodada, para
+    if (foundThisRound === 0) {
+      const remaining = games.filter(g => coverCache[String(g.id)] === 'none').length;
+      progress.textContent = `✅ Concluído! ${totalFound} novas capas encontradas. ${remaining > 0 ? `${remaining} jogos sem capa disponível.` : ''}`;
+      break;
+    }
+
+    round++;
+    // Máximo de 5 rodadas para não ficar em loop infinito
+    if (round > 5) {
+      const remaining = games.filter(g => coverCache[String(g.id)] === 'none').length;
+      progress.textContent = `✅ ${totalFound} novas capas encontradas. ${remaining} ainda sem capa — edite o nome manualmente.`;
+      break;
+    }
+  }
+
+  btn.disabled = false;
+  updateDiagCache();
+  filterGames();
 }
 
 // ========== DIAGNÓSTICO ==========
