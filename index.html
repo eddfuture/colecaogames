@@ -1276,29 +1276,89 @@ async function fetchCoverForGame(game, forceRefresh) {
     return;
   }
 
-  // Nome para busca — usa nomeCapa se definido pelo usuário
-  const searchName = cleanName(game.nomeCapa || game.nome);
+  // Nome para busca — usa nomeCapa se definido, senão limpa o nome original
+  const rawName = game.nomeCapa || game.nome;
+  const searchName = cleanName(rawName);
 
-  // 1. RAWG (funciona em HTTPS/GitHub Pages)
+  // 1. RAWG com algoritmo de matching melhorado
   try {
+    // Busca com "game cover" para priorizar capas oficiais
     const q = encodeURIComponent(searchName);
-    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=5&search_precise=false`);
+    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=10&search_precise=false`);
     if (res.ok) {
       const data = await res.json();
       const results = (data.results || []).filter(r => r.background_image);
-      const exact = results.find(r => r.name.toLowerCase() === searchName.toLowerCase());
-      const pick = exact || results[0];
-      if (pick?.background_image) {
+
+      if (results.length > 0) {
+        const nameLow = searchName.toLowerCase();
+        const year = game.lancamento;
+
+        const scored = results.map(r => {
+          let score = 0;
+          const rName = r.name.toLowerCase();
+          if (rName === nameLow) score += 100;
+          else if (rName.includes(nameLow)) score += 50;
+          else if (nameLow.includes(rName)) score += 40;
+          const queryWords = nameLow.split(/\s+/).filter(w => w.length > 3);
+          const matchWords = queryWords.filter(w => rName.includes(w));
+          score += matchWords.length * 10;
+          if (year && r.released) {
+            const rYear = parseInt(r.released.split('-')[0]);
+            if (rYear === year) score += 30;
+            else if (Math.abs(rYear - year) <= 1) score += 10;
+          }
+          if (r.ratings_count > 100) score += 5;
+          if (r.ratings_count > 1000) score += 5;
+          return { r, score };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+        const best = scored[0];
+
+        if (best && best.score > 0) {
+          // Tenta buscar a capa oficial do jogo (não screenshot)
+          // O RAWG tem endpoint de screenshots — tenta pegar a primeira imagem vertical (cover-like)
+          let coverUrl = best.r.background_image;
+          try {
+            const detailRes = await fetch(`https://api.rawg.io/api/games/${best.r.id}?key=${RAWG_KEY}`);
+            if (detailRes.ok) {
+              const detail = await detailRes.json();
+              // clip_image é a imagem principal do jogo (geralmente capa box art)
+              if (detail.background_image_additional) {
+                coverUrl = detail.background_image_additional;
+              }
+            }
+          } catch(e) {}
+
+          coverCache[key] = 'found';
+          coverImgCache[key] = coverUrl;
+          saveCoverCache();
+          applyCover(key, coverUrl);
+          return;
+        }
+      }
+    }
+  } catch(e) {}
+
+  // 2. Fallback: busca por box art no RAWG screenshots endpoint
+  // (quando background_image é screenshot, tenta pegar uma imagem mais parecida com capa)
+  try {
+    const q = encodeURIComponent(searchName + ' box art cover');
+    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=5&search_precise=true`);
+    if (res.ok) {
+      const data = await res.json();
+      const results = (data.results || []).filter(r => r.background_image);
+      if (results[0]?.background_image) {
         coverCache[key] = 'found';
-        coverImgCache[key] = pick.background_image;
+        coverImgCache[key] = results[0].background_image;
         saveCoverCache();
-        applyCover(key, pick.background_image);
+        applyCover(key, results[0].background_image);
         return;
       }
     }
   } catch(e) {}
 
-  // 2. Fallback: Wikimedia map
+  // 3. Fallback: Wikimedia map
   const nameKey = searchName.toLowerCase();
   if (COVER_MAP[nameKey]) {
     const url = COVER_MAP[nameKey];
@@ -1309,7 +1369,7 @@ async function fetchCoverForGame(game, forceRefresh) {
     return;
   }
 
-  // 3. Fallback: Wikipedia API
+  // 4. Fallback: Wikipedia API
   try {
     for (const title of [`${searchName} (video game)`, searchName]) {
       const res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
@@ -1908,15 +1968,15 @@ async function runDiag() {
 }
 
 function clearCoversAndReload() {
-  if (!confirm('Limpar cache de capas e rebuscar tudo?')) return;
-  localStorage.removeItem(COVER_CACHE_KEY);
+  if (!confirm('Limpar cache de capas e rebuscar tudo? Pode levar alguns minutos.')) return;
+  // Limpa todas as versões do cache
+  ['gamer_covers_v1','gamer_covers_v2','gamer_covers_v3','gamer_covers_v4','gamer_covers_v5'].forEach(k => localStorage.removeItem(k));
   coverCache = {};
   coverImgCache = {};
   coverQueue = [];
   coverRunning = false;
   startBackgroundCoverFetch();
   filterGames();
-  alert('Cache limpo! As capas serão rebuscadas em background.');
   updateDiagCache();
 }
 
