@@ -1073,6 +1073,15 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.getElementById('nav-' + id).classList.add('active');
   if (id === 'diagnostico') updateDiagCache();
+  // Quando volta pra coleção, reaplica todas as capas em cache
+  if (id === 'colecao' || id === 'favoritos' || id === 'prioridades') {
+    setTimeout(() => {
+      document.querySelectorAll('[data-gameid]').forEach(el => {
+        const url = coverImgCache[el.dataset.gameid];
+        if (url) applyCover(el.dataset.gameid, url);
+      });
+    }, 50);
+  }
 
   const topSearch = document.querySelector('.topbar .search-box');
   if (id === 'colecao') {
@@ -1229,7 +1238,12 @@ function renderGameCards(containerId, list) {
     return;
   }
   grid.innerHTML = list.map(g => gameCard(g)).join('');
-  // Apply cached covers immediately, queue uncached
+  // Aplica todas as capas já em cache imediatamente
+  grid.querySelectorAll('[data-gameid]').forEach(el => {
+    const url = coverImgCache[el.dataset.gameid];
+    if (url) applyCover(el.dataset.gameid, url);
+  });
+  // Enfileira as não encontradas ainda
   queueCoversForVisible();
 }
 
@@ -1362,6 +1376,10 @@ function getNameVariations(name) {
 function applyCover(gameId, url) {
   if (!url || url === 'none') return;
   const els = document.querySelectorAll(`[data-gameid="${gameId}"]`);
+  if (els.length === 0) {
+    // Card não está visível — salva pra aplicar depois
+    return;
+  }
   els.forEach(el => {
     el.style.backgroundImage = `url('${url}')`;
     el.style.backgroundSize = 'cover';
@@ -1502,17 +1520,15 @@ async function processQueue() {
     const game = coverQueue.shift();
     await fetchCoverForGame(game);
     n++;
-    // Reaplica todas as capas nos cards visíveis a cada 5 jogos
-    if (n % 5 === 0) {
-      document.querySelectorAll('[data-gameid]').forEach(el => {
-        const url = coverImgCache[el.dataset.gameid];
-        if (url) applyCover(el.dataset.gameid, url);
-      });
-      updateSidebar();
+    // Após cada capa encontrada, aplica imediatamente se o card estiver visível
+    const key = String(game.id);
+    if (coverImgCache[key]) {
+      applyCover(key, coverImgCache[key]);
     }
+    if (n % 5 === 0) updateSidebar();
     await new Promise(r => setTimeout(r, 400));
   }
-  // Aplica tudo no final
+  // Aplica tudo no final para garantir
   document.querySelectorAll('[data-gameid]').forEach(el => {
     const url = coverImgCache[el.dataset.gameid];
     if (url) applyCover(el.dataset.gameid, url);
