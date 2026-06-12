@@ -1374,6 +1374,11 @@ async function fetchCoverForGame(game, forceRefresh) {
     try {
       const q = encodeURIComponent(variant);
       const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${q}&page_size=10&search_precise=false`);
+      if (res.status === 429) {
+        // Rate limit — espera 3s e tenta próxima variação
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+      }
       if (!res.ok) continue;
       const data = await res.json();
       const results = (data.results || []).filter(r => r.background_image);
@@ -1410,13 +1415,20 @@ async function fetchCoverForGame(game, forceRefresh) {
 
       if (best && best.score >= 20) {
         let coverUrl = best.r.background_image;
-        try {
-          const detailRes = await fetch(`https://api.rawg.io/api/games/${best.r.id}?key=${RAWG_KEY}`);
-          if (detailRes.ok) {
-            const detail = await detailRes.json();
-            if (detail.background_image_additional) coverUrl = detail.background_image_additional;
-          }
-        } catch(e) {}
+        // Só busca detalhes se a pontuação for alta o suficiente (evita req extra)
+        if (best.score >= 50) {
+          try {
+            await new Promise(r => setTimeout(r, 300));
+            const detailRes = await fetch(`https://api.rawg.io/api/games/${best.r.id}?key=${RAWG_KEY}`);
+            if (detailRes.ok) {
+              const detail = await detailRes.json();
+              if (detail.background_image_additional) coverUrl = detail.background_image_additional;
+            } else if (detailRes.status === 429) {
+              // Rate limit — espera 2s e continua com a imagem que tem
+              await new Promise(r => setTimeout(r, 2000));
+            }
+          } catch(e) {}
+        }
         coverCache[key] = 'found';
         coverImgCache[key] = coverUrl;
         saveCoverCache();
@@ -1467,7 +1479,7 @@ async function processQueue() {
     await fetchCoverForGame(game);
     n++;
     if (n % 8 === 0) updateSidebar();
-    await new Promise(r => setTimeout(r, 150));
+    await new Promise(r => setTimeout(r, 400)); // max ~2.5 req/s com margem
   }
   coverRunning = false;
   updateSidebar();
@@ -2022,7 +2034,7 @@ async function retryNotFound() {
       await fetchCoverForGame(g, true);
       if (coverCache[key] === 'found') { foundThisRound++; totalFound++; }
       progress.textContent = `⏳ Rodada ${round} — ${i+1}/${failed.length} — novas: ${foundThisRound}`;
-      await new Promise(r => setTimeout(r, 80));
+      await new Promise(r => setTimeout(r, 400));
     }
 
     // Se não achou nenhuma nova nessa rodada, para
@@ -2080,12 +2092,28 @@ async function runDiag() {
   }
 
   const tests = await Promise.all([
-    testImg('https://cdn2.steamgriddb.com/grid/elden-ring.jpg', 'SteamGridDB slug'),
-    testImg('https://media.rawg.io/media/games/elden-ring.jpg', 'RAWG CDN slug'),
-    testImg('https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg', 'Wikimedia direto'),
+    testImg('https://upload.wikimedia.org/wikipedia/en/b/b9/Elden_Ring_Box_art.jpg', 'Wikimedia (img)'),
   ]);
 
-  let html = tests.map(r => `<div>${r}</div>`).join('');
+  // Testa RAWG via fetch
+  let rawgStatus = '⏳ Testando...';
+  try {
+    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=elden+ring&page_size=1`);
+    if (res.ok) {
+      const d = await res.json();
+      rawgStatus = d.results?.[0]?.name ? `✅ RAWG OK — encontrou: ${d.results[0].name}` : '⚠️ RAWG conectou mas sem resultado';
+    } else if (res.status === 429) {
+      rawgStatus = '⚠️ RAWG: rate limit atingido — aguarde alguns minutos';
+    } else if (res.status === 401 || res.status === 403) {
+      rawgStatus = `❌ RAWG: chave inválida (${res.status})`;
+    } else {
+      rawgStatus = `❌ RAWG: erro HTTP ${res.status}`;
+    }
+  } catch(e) {
+    rawgStatus = `❌ RAWG: ${e.message}`;
+  }
+
+  let html = `<div>${rawgStatus}</div>` + tests.map(r => `<div>${r}</div>`).join('');
   html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">Protocolo: <strong>${location.protocol}</strong></div>`;
   el.innerHTML = html;
   updateDiagCache();
