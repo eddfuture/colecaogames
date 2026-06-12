@@ -1073,6 +1073,7 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.getElementById('nav-' + id).classList.add('active');
   if (id === 'diagnostico') updateDiagCache();
+  setTimeout(applyAllVisible, 50);
 
   const topSearch = document.querySelector('.topbar .search-box');
   if (id === 'colecao') {
@@ -1222,41 +1223,6 @@ function renderGames() {
   filterGames();
 }
 
-function getGameEmoji(game) {
-  const e = {'RPG':'⚔️','Ação':'🥊','Aventura':'🗺️','Tiro':'🔫','Terror':'👻','Soulslike':'💀','Metroidvania':'🗝️','Corrida':'🏎️','Luta':'🥋','Esporte':'⚽','Simulação':'🏡','Estratégia':'♟️','Party Game':'🎉','Roguelike':'🎲','Ritmo e Música':'🎵','Cartas e Tabuleiro':'🃏','Puzzle':'🧩','MMO':'🌐'};
-  return e[game.genero] || '🎮';
-}
-
-function gameCard(g) {
-  const si = STATUS_INFO[g.status] || STATUS_INFO['2 - Não jogado'];
-  const stars = g.nota ? NOTA_STARS[g.nota] : '';
-  const emoji = getGameEmoji(g);
-  const catTag = g.categoria === 'PRIORIDADE' ? '<span class="badge" style="background:rgba(245,156,66,0.15);color:var(--orange)">🔥</span>'
-    : g.categoria === 'MUST-DO 26' ? '<span class="badge" style="background:rgba(66,165,245,0.15);color:var(--blue)">📌</span>'
-    : g.categoria === 'GAME AWARDS' ? '<span class="badge" style="background:rgba(192,66,245,0.15);color:var(--purple)">🏅</span>'
-    : '';
-  const favIcon = g.favorito ? '<span style="color:var(--gold)">⭐</span>' : '';
-  const platinadoBadge = g.status === '4 - Platinado' ? '<span class="badge badge-platinado">🏆</span>' : '';
-  const cachedCover = covers[String(g.id)];
-  const hasCover = cachedCover && cachedCover !== 'none';
-  const coverBg = hasCover ? `style="background-image:url('${cachedCover}');background-size:cover;background-position:center top"` : '';
-  const nocoverDisplay = hasCover ? 'display:none' : '';
-  return `<div class="game-card" onclick="openModal(${g.id})">
-    <div class="game-cover" data-gameid="${g.id}" ${coverBg}>
-      <span class="no-cover" style="font-size:36px;${nocoverDisplay}">${emoji}</span>
-      <div class="status-dot ${si.cls}"></div>
-    </div>
-    <div class="game-info">
-      <div class="game-name">${g.nome}</div>
-      <div class="game-meta">
-        <span style="color:var(--muted)">${g.plataforma}</span>
-        <span style="display:flex;gap:3px;align-items:center">${platinadoBadge}${catTag}${favIcon}</span>
-      </div>
-      ${stars ? `<div class="nota-stars" style="margin-top:4px;font-size:11px">${stars}</div>` : ''}
-    </div>
-  </div>`;
-}
-
 function renderGameCards(containerId, list) {
   const grid = document.getElementById(containerId);
   if (!list.length) {
@@ -1264,11 +1230,7 @@ function renderGameCards(containerId, list) {
     return;
   }
   grid.innerHTML = list.map(g => gameCard(g)).join('');
-  // Aplica capas em cache imediatamente
-  grid.querySelectorAll('[data-gameid]').forEach(el => {
-    const url = covers[el.dataset.gameid];
-    if (url && url !== 'none') applyCover(el.dataset.gameid, url);
-  });
+  applyAllVisible();
   queueCoversForVisible();
 }
 
@@ -1291,16 +1253,17 @@ function saveCovers() {
 
 function applyCover(id, url) {
   if (!url || url === 'none') return;
-  document.querySelectorAll(`[data-gameid="${id}"]`).forEach(el => {
-    el.style.backgroundImage = `url('${url}')`;
+  const sid = String(id);
+  document.querySelectorAll('[data-gameid="' + sid + '"]').forEach(el => {
+    el.style.backgroundImage = "url('" + url + "')";
     el.style.backgroundSize = 'cover';
     el.style.backgroundPosition = 'center top';
     const nc = el.querySelector('.no-cover');
     if (nc) nc.style.display = 'none';
   });
-  if (String(currentGameId) === String(id)) {
+  if (String(currentGameId) === sid) {
     const mc = document.getElementById('modal-cover');
-    if (mc) { mc.style.backgroundImage=`url('${url}')`; mc.style.backgroundSize='cover'; mc.style.backgroundPosition='center top'; mc.innerHTML=''; }
+    if (mc) { mc.style.backgroundImage = "url('" + url + "')"; mc.style.backgroundSize = 'cover'; mc.style.backgroundPosition = 'center top'; mc.innerHTML = ''; }
   }
 }
 
@@ -1311,84 +1274,70 @@ function applyAllVisible() {
   });
 }
 
-function cleanName(nome) {
-  return nome.replace(/\[DLC\]\s*/gi,'').replace(/\(DLC\)/gi,'').replace(/\s+/g,' ').trim();
+function normName(s) {
+  return s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function getNameVariations(name) {
-  const base = cleanName(name);
+function nameVariants(game) {
+  const raw = (game.nomeCapa || game.nome).replace(/\[DLC\]\s*/gi, '').replace(/\(DLC\)/gi, '').trim();
   const s = new Set();
-  s.add(base);
-  const noPunct = base.replace(/[:\-\u2013.,!?\'\"/\\()[\]]/g,' ').replace(/\s+/g,' ').trim();
-  s.add(noPunct);
-  s.add(base.replace(/:/g,' -').replace(/\s+/g,' ').trim());
-  s.add(base.replace(/ - /g,': ').replace(/\s+/g,' ').trim());
-  s.add(base.replace(/:/g,'').replace(/\s+/g,' ').trim());
-  s.add(base.split(':')[0].trim());
-  s.add(base.split(' - ')[0].trim());
-  s.add(base.replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim());
-  s.add(base.replace(/(:\s*)?(remake|remastered|hd|definitive edition|ultimate edition)/gi,'').replace(/\s+/g,' ').trim());
-  const words = noPunct.split(' ').filter(w=>w.length>1);
-  if (words.length > 3) s.add(words.slice(0,3).join(' '));
-  if (words.length > 4) s.add(words.slice(0,4).join(' '));
+  s.add(raw);
+  s.add(raw.replace(/[:\-]/g, ' ').replace(/\s+/g, ' ').trim());
+  s.add(raw.split(':')[0].trim());
+  s.add(raw.split(' - ')[0].trim());
+  s.add(raw.replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim());
+  s.add(raw.replace(/(:\s*)?(remake|remastered|hd edition|definitive edition)/gi, '').replace(/\s+/g, ' ').trim());
   const ROMAN = {I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15,XVI:16,XVII:17,XVIII:18,XIX:19,XX:20};
-  const NUM2R = Object.fromEntries(Object.entries(ROMAN).map(([r,n])=>[n,r]));
-  const toNum = str => str.replace(/\b(X{0,2}(?:IX|IV|V?I{0,3}))\b/g, m => ROMAN[m.toUpperCase()] != null ? String(ROMAN[m.toUpperCase()]) : m);
-  const toRom = str => str.replace(/\b(\d+)\b/g, m => NUM2R[+m] || m);
-  const bn = toNum(base); if (bn !== base) { s.add(bn); s.add(toNum(base.split(':')[0].trim())); }
-  const br = toRom(base); if (br !== base) s.add(br);
-  return [...s].filter(v => v && v.length > 2);
+  const NUM2R = {};
+  Object.entries(ROMAN).forEach(([r,n]) => { NUM2R[n] = r; });
+  const toN = t => t.replace(/\b(X{0,2}(?:IX|IV|V?I{0,3}))\b/g, m => ROMAN[m.toUpperCase()] != null ? String(ROMAN[m.toUpperCase()]) : m);
+  const toR = t => t.replace(/\b(\d{1,2})\b/g, m => NUM2R[+m] || m);
+  const wn = toN(raw); if (wn !== raw) s.add(wn);
+  const wr = toR(raw); if (wr !== raw) s.add(wr);
+  return [...s].filter(v => v && v.length > 1);
 }
 
 async function fetchCover(game, force) {
   const id = String(game.id);
   if (!force && covers[id] !== undefined) { if (covers[id] !== 'none') applyCover(id, covers[id]); return; }
-  const searchName = cleanName(game.nomeCapa || game.nome);
-  const variants = getNameVariations(game.nomeCapa || game.nome);
+  const variants = nameVariants(game);
+  const baseName = normName(game.nomeCapa || game.nome);
   const year = game.lancamento;
   for (const v of variants) {
     try {
-      const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_KEY}&search=${encodeURIComponent(v)}&page_size=10`);
-      if (res.status === 429) { await new Promise(r=>setTimeout(r,3000)); continue; }
+      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + encodeURIComponent(v) + '&page_size=8');
+      if (res.status === 429) { await new Promise(r => setTimeout(r, 3000)); continue; }
       if (!res.ok) continue;
       const data = await res.json();
-      const results = (data.results||[]).filter(r=>r.background_image);
+      const results = (data.results || []).filter(r => r.background_image);
       if (!results.length) continue;
-      const norm = s => s.toLowerCase().replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
-      const qn = norm(searchName);
       const scored = results.map(r => {
-        let sc = 0; const rn = norm(r.name);
-        if (rn === qn) sc += 100;
-        else if (rn.includes(qn) || qn.includes(rn)) sc += 50;
-        else sc += qn.split(' ').filter(w=>w.length>3&&rn.includes(w)).length * 15;
-        if (year && r.released) { const ry = +r.released.slice(0,4); if(ry===year) sc+=30; else if(Math.abs(ry-year)<=1) sc+=10; }
+        const rn = normName(r.name);
+        let sc = 0;
+        if (rn === baseName) sc = 100;
+        else if (rn.includes(baseName) || baseName.includes(rn)) sc = 60;
+        else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
+        if (year && r.released) { const ry = parseInt(r.released); if (ry === year) sc += 30; else if (Math.abs(ry - year) <= 1) sc += 10; }
         if (r.ratings_count > 500) sc += 10;
-        if (r.ratings_count > 2000) sc += 10;
-        return {r,sc};
-      }).sort((a,b)=>b.sc-a.sc);
-      if (scored[0]?.sc >= 15) {
-        covers[id] = scored[0].r.background_image;
-        saveCovers(); applyCover(id, covers[id]); return;
-      }
+        return { url: r.background_image, sc };
+      }).sort((a, b) => b.sc - a.sc);
+      if (scored[0] && scored[0].sc >= 15) { covers[id] = scored[0].url; saveCovers(); applyCover(id, covers[id]); return; }
     } catch(e) {}
   }
-  // Fallback Wikimedia map
-  const mk = searchName.toLowerCase();
-  if (COVER_MAP[mk]) { covers[id] = COVER_MAP[mk]; saveCovers(); applyCover(id, COVER_MAP[mk]); return; }
-  covers[id] = 'none'; saveCovers();
+  covers[id] = 'none';
+  saveCovers();
 }
 
 let _queue = [], _running = false;
 
-async function _processQueue() {
+async function _run() {
   if (_running) return;
   _running = true;
   while (_queue.length > 0) {
-    const game = _queue.shift();
-    await fetchCover(game);
+    const g = _queue.shift();
+    await fetchCover(g);
     applyAllVisible();
-    if (_queue.length % 10 === 0) updateSidebar();
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise(r => setTimeout(r, 300));
   }
   applyAllVisible();
   _running = false;
@@ -1397,31 +1346,28 @@ async function _processQueue() {
 
 function queueCoversForVisible() {
   applyAllVisible();
-  const ids = new Set([...document.querySelectorAll('[data-gameid]')].map(e=>e.dataset.gameid));
+  const ids = new Set([...document.querySelectorAll('[data-gameid]')].map(e => e.dataset.gameid));
   const toFetch = games.filter(g => ids.has(String(g.id)) && covers[String(g.id)] === undefined);
-  _queue.unshift(...toFetch.filter(g => !_queue.find(q=>q.id===g.id)));
-  _processQueue();
+  _queue.unshift(...toFetch.filter(g => !_queue.find(q => q.id === g.id)));
+  _run();
 }
 
 function startBackgroundCoverFetch() {
   _queue.push(...games.filter(g => covers[String(g.id)] === undefined));
-  _processQueue();
+  _run();
 }
 
 async function refreshCover() {
   const g = games.find(x => x.id === currentGameId);
   if (!g) return;
   const btn = document.querySelector('[onclick="refreshCover()"]');
-  if (btn) { btn.textContent='⏳ Buscando...'; btn.disabled=true; }
-  const nomeEditado = document.getElementById('edit-nome').value.trim();
-  if (nomeEditado) g.nomeCapa = nomeEditado;
+  if (btn) { btn.textContent = '⏳ Buscando...'; btn.disabled = true; }
+  const nome = document.getElementById('edit-nome').value.trim();
+  if (nome) g.nomeCapa = nome;
   save();
   delete covers[String(g.id)];
   await fetchCover(g, true);
-  if (btn) {
-    btn.textContent = covers[String(g.id)] !== 'none' ? '✅ Capa atualizada!' : '❌ Não encontrada';
-    setTimeout(() => { btn.textContent='🖼️ Atualizar Capa'; btn.disabled=false; }, 2500);
-  }
+  if (btn) { btn.textContent = covers[String(g.id)] !== 'none' ? '✅ Atualizada!' : '❌ Não encontrada'; setTimeout(() => { btn.textContent = '🖼️ Atualizar Capa'; btn.disabled = false; }, 2500); }
   filterGames();
 }
 
@@ -1429,25 +1375,523 @@ async function retryNotFound() {
   const btn = document.getElementById('btn-retry');
   const progress = document.getElementById('retry-progress');
   btn.disabled = true;
-  let totalFound = 0, round = 1;
+  let total = 0, round = 1;
   while (round <= 5) {
     const failed = games.filter(g => covers[String(g.id)] === 'none');
-    if (!failed.length) { progress.textContent=`✅ Todas encontradas! Total: ${totalFound}.`; break; }
-    progress.textContent=`⏳ Rodada ${round} — tentando ${failed.length} jogos...`;
-    let foundThisRound = 0;
-    for (let i=0; i<failed.length; i++) {
-      const g = failed[i];
-      delete covers[String(g.id)];
+    if (!failed.length) { progress.textContent = '✅ Todas encontradas! ' + total + ' novas.'; break; }
+    progress.textContent = '⏳ Rodada ' + round + ' — ' + failed.length + ' jogos...';
+    let found = 0;
+    for (let i = 0; i < failed.length; i++) {
+      const g = failed[i]; delete covers[String(g.id)];
       await fetchCover(g, true);
-      if (covers[String(g.id)] !== 'none') { foundThisRound++; totalFound++; }
+      if (covers[String(g.id)] !== 'none') { found++; total++; }
       applyAllVisible();
-      progress.textContent=`⏳ Rodada ${round} — ${i+1}/${failed.length} — novas: ${foundThisRound}`;
-      await new Promise(r=>setTimeout(r,350));
+      progress.textContent = '⏳ Rodada ' + round + ' — ' + (i+1) + '/' + failed.length + ' — novas: ' + found;
+      await new Promise(r => setTimeout(r, 300));
     }
-    if (foundThisRound===0) { const rem=games.filter(g=>covers[String(g.id)]==='none').length; progress.textContent=`✅ ${totalFound} novas capas. ${rem>0?rem+' sem capa disponível.':''}`; break; }
+    if (found === 0) { progress.textContent = '✅ ' + total + ' novas. ' + games.filter(g => covers[String(g.id)] === 'none').length + ' sem capa.'; break; }
     round++;
   }
-  btn.disabled=false; updateDiagCache(); filterGames();
+  btn.disabled = false; updateDiagCache(); filterGames();
+}
+
+
+const COVER_MAP = {
+  "a plague tale: requiem": "https://en.wikipedia.org/wiki/Special:Redirect/file/A_Plague_Tale_Requiem_cover.jpg",
+  "astro's playroom": "https://en.wikipedia.org/wiki/Special:Redirect/file/ASTRO's_Playroom_cover_art.jpg",
+  "alan wake ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Alan_Wake_2_cover.jpg",
+  "alan wake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Alan_Wake_cover.jpg",
+  "animal crossing: new horizons": "https://en.wikipedia.org/wiki/Special:Redirect/file/Animal_Crossing_New_Horizons.jpg",
+  "animal crossing: new horizons (switch 2 version)": "https://en.wikipedia.org/wiki/Special:Redirect/file/Animal_Crossing_New_Horizons.jpg",
+  "astro bot": "https://en.wikipedia.org/wiki/Special:Redirect/file/Astro_Bot_cover_art.jpg",
+  "balatro": "https://en.wikipedia.org/wiki/Special:Redirect/file/Balatro_cover_art.jpg",
+  "baldur's gate 3": "https://en.wikipedia.org/wiki/Special:Redirect/file/Baldur's_Gate_3_cover_art.jpg",
+  "banjo kazooie": "https://en.wikipedia.org/wiki/Special:Redirect/file/Banjo-Kazooie_Cover.png",
+  "banjo-tooie": "https://en.wikipedia.org/wiki/Special:Redirect/file/Banjo-Tooie_Cover.jpg",
+  "batman: arkham city": "https://en.wikipedia.org/wiki/Special:Redirect/file/Batman_Arkham_City_cover.jpg",
+  "batman: arkham knight": "https://en.wikipedia.org/wiki/Special:Redirect/file/Batman_Arkham_Knight_cover.jpg",
+  "batman: arkham origins": "https://en.wikipedia.org/wiki/Special:Redirect/file/Batman_Arkham_Origins_cover.jpg",
+  "blasphemous": "https://en.wikipedia.org/wiki/Special:Redirect/file/Blasphemous_cover_art.jpg",
+  "blasphemous ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Blasphemous_II_cover_art.jpg",
+  "bloodborne": "https://en.wikipedia.org/wiki/Special:Redirect/file/Bloodborne_Cover_Artwork.jpg",
+  "bravely default ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Bravely_Default_II.jpg",
+  "celeste": "https://en.wikipedia.org/wiki/Special:Redirect/file/Celeste_cover.jpg",
+  "chrono trigger": "https://en.wikipedia.org/wiki/Special:Redirect/file/Chrono_Trigger.jpg",
+  "clair obscur: expedition 33": "https://en.wikipedia.org/wiki/Special:Redirect/file/Clair_Obscur_Expedition_33_cover_art.jpg",
+  "control": "https://en.wikipedia.org/wiki/Special:Redirect/file/Control_cover_art.jpg",
+  "crash bandicoot n'sane trilogy": "https://en.wikipedia.org/wiki/Special:Redirect/file/Crash_Bandicoot_N'Sane_Trilogy.jpg",
+  "crash bandicoot 4: it's about time": "https://en.wikipedia.org/wiki/Special:Redirect/file/Crash_Bandicoot_4_It's_About_Time.jpg",
+  "cuphead": "https://en.wikipedia.org/wiki/Special:Redirect/file/Cuphead_cover_art.jpg",
+  "cyberpunk 2077": "https://en.wikipedia.org/wiki/Special:Redirect/file/Cyberpunk_2077_box_art.jpg",
+  "dark souls": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dark_Souls_cover_art.jpg",
+  "dark souls ii: scholar of the first sin": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dark_Souls_II.jpg",
+  "dark souls iii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dark_Souls_III.jpg",
+  "dark souls: remastered": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dark_Souls_Remastered_cover.jpg",
+  "dead space: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dead_Space_Remake_cover_art.jpg",
+  "death stranding": "https://en.wikipedia.org/wiki/Special:Redirect/file/Death_Stranding.jpg",
+  "death stranding 2: on the beach": "https://en.wikipedia.org/wiki/Special:Redirect/file/Death_Stranding_2_On_the_Beach_cover_art.jpg",
+  "demon's souls": "https://en.wikipedia.org/wiki/Special:Redirect/file/Demon's_Souls_Cover_Art.jpg",
+  "demon's souls: remastered": "https://en.wikipedia.org/wiki/Special:Redirect/file/Demon's_Souls_Cover_Art.jpg",
+  "diablo iv": "https://en.wikipedia.org/wiki/Special:Redirect/file/Diablo_IV_cover_art.jpg",
+  "disco elysium: the final cut": "https://en.wikipedia.org/wiki/Special:Redirect/file/Disco_Elysium_cover_art.jpg",
+  "divinity: original sin ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Divinity_Original_Sin_2_cover_art.jpg",
+  "donkey kong: bananza!": "https://en.wikipedia.org/wiki/Special:Redirect/file/Donkey_Kong_Bananza_cover_art.jpg",
+  "doom (2016)": "https://en.wikipedia.org/wiki/Special:Redirect/file/Doom_cover_art.jpg",
+  "doom eternal": "https://en.wikipedia.org/wiki/Special:Redirect/file/Doom_Eternal_cover_art.jpg",
+  "dragon quest xi: echoes of an elusive age": "https://en.wikipedia.org/wiki/Special:Redirect/file/Dragon_Quest_XI.jpg",
+  "earthbound": "https://en.wikipedia.org/wiki/Special:Redirect/file/EarthBound_Box.jpg",
+  "elden ring": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Box_art.jpg",
+  "elden ring: shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "elden ring shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "destiny": "https://en.wikipedia.org/wiki/Special:Redirect/file/Destiny_box_art.jpg",
+  "destiny 2": "https://en.wikipedia.org/wiki/Special:Redirect/file/Destiny_2_cover_art.jpg",
+  "overwatch": "https://en.wikipedia.org/wiki/Special:Redirect/file/Overwatch_cover_art.jpg",
+  "elden ring: nightreign": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Nightreign_cover_art.jpg",
+  "[dlc] elden ring: shadow of the erdtree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Elden_Ring_Shadow_of_the_Erdtree_cover_art.jpg",
+  "fallout 3": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fallout_3_cover_art.jpg",
+  "fallout 4": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fallout_4_cover_art.jpg",
+  "fallout new vegas: ultimate edition": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fallout_New_Vegas.jpg",
+  "final fantasy vii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_VII_Box_Art.jpg",
+  "final fantasy vii: rebirth": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_VII_Rebirth_cover_art.jpg",
+  "final fantasy vii: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_VII_Remake_Box_Art.jpg",
+  "final fantasy x/x-2 hd remaster": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_X_cover.jpg",
+  "final fantasy xii: the zodiac age": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_XII_The_Zodiac_Age.jpg",
+  "final fantasy xvi": "https://en.wikipedia.org/wiki/Special:Redirect/file/Final_Fantasy_XVI_cover_art.jpg",
+  "fire emblem: engage": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fire_Emblem_Engage_cover_art.jpg",
+  "fire emblem: path of radiance": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fire_Emblem_Path_of_Radiance.jpg",
+  "fire emblem: three houses": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fire_Emblem_Three_Houses.jpg",
+  "fire emblem warriors: three hopes": "https://en.wikipedia.org/wiki/Special:Redirect/file/Fire_Emblem_Warriors_Three_Hopes_cover_art.jpg",
+  "ghost of tsushima": "https://en.wikipedia.org/wiki/Special:Redirect/file/Ghost_of_Tsushima.jpg",
+  "god of war (2018)": "https://en.wikipedia.org/wiki/Special:Redirect/file/God_of_War_4_cover.jpg",
+  "god of war: ragnar\u00f6k": "https://en.wikipedia.org/wiki/Special:Redirect/file/God_of_War_Ragnar\u00f6k.jpg",
+  "[dlc] god of war: ragnar\u00f6k - valhalla": "https://en.wikipedia.org/wiki/Special:Redirect/file/God_of_War_Ragnar\u00f6k.jpg",
+  "grand theft auto v": "https://en.wikipedia.org/wiki/Special:Redirect/file/Grand_Theft_Auto_V.png",
+  "grand theft auto iv": "https://en.wikipedia.org/wiki/Special:Redirect/file/GTA-IV-cover.jpg",
+  "grand theft auto: san andreas": "https://en.wikipedia.org/wiki/Special:Redirect/file/GTA_San_Andreas.jpg",
+  "hades": "https://en.wikipedia.org/wiki/Special:Redirect/file/Hades_game_cover_art.jpg",
+  "hades ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Hades_II_cover_art.jpg",
+  "helldivers ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Helldivers_2_cover_art.jpg",
+  "hogwarts legacy": "https://en.wikipedia.org/wiki/Special:Redirect/file/Hogwarts_Legacy_cover.jpg",
+  "hollow knight": "https://en.wikipedia.org/wiki/Special:Redirect/file/Hollow_Knight_cover_art.jpg",
+  "horizon zero dawn": "https://en.wikipedia.org/wiki/Special:Redirect/file/Horizon_Zero_Dawn.jpg",
+  "kingdom hearts iii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Kingdom_Hearts_III.png",
+  "kingdom hearts hd 1.5 remix": "https://en.wikipedia.org/wiki/Special:Redirect/file/Kingdom_Hearts_HD_1.5_ReMIX_cover.jpg",
+  "kingdom hearts hd 2.5 remix": "https://en.wikipedia.org/wiki/Special:Redirect/file/Kingdom_Hearts_HD_2.5_ReMIX_cover.jpg",
+  "kirby and the forgotten land": "https://en.wikipedia.org/wiki/Special:Redirect/file/Kirby_and_the_Forgotten_Land.jpg",
+  "l.a. noire": "https://en.wikipedia.org/wiki/Special:Redirect/file/L.A._Noire_cover.jpg",
+  "lies of p": "https://en.wikipedia.org/wiki/Special:Redirect/file/Lies_of_P_cover_art.jpg",
+  "life is strange": "https://en.wikipedia.org/wiki/Special:Redirect/file/Life_Is_Strange_cover.png",
+  "like a dragon: ishin!": "https://en.wikipedia.org/wiki/Special:Redirect/file/Like_a_Dragon_Ishin_cover_art.jpg",
+  "live a live: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Live_A_Live_remake_cover_art.jpg",
+  "lords of the fallen (2023)": "https://en.wikipedia.org/wiki/Special:Redirect/file/Lords_of_the_Fallen_2023_cover_art.jpg",
+  "luigi's mansion 3": "https://en.wikipedia.org/wiki/Special:Redirect/file/Luigi's_Mansion_3_cover_art.jpg",
+  "mario kart 8: deluxe": "https://en.wikipedia.org/wiki/Special:Redirect/file/Mario_Kart_8_Deluxe.jpg",
+  "mario kart world": "https://en.wikipedia.org/wiki/Special:Redirect/file/Mario_Kart_World_cover_art.jpg",
+  "mario party superstars": "https://en.wikipedia.org/wiki/Special:Redirect/file/Mario_Party_Superstars_cover_art.jpg",
+  "marvel's guardians of the galaxy": "https://en.wikipedia.org/wiki/Special:Redirect/file/Guardians_of_the_Galaxy_(video_game)_cover_art.jpg",
+  "marvel's spider-man": "https://en.wikipedia.org/wiki/Special:Redirect/file/Marvel's_Spider-Man_cover.jpg",
+  "marvel's spider-man 2": "https://en.wikipedia.org/wiki/Special:Redirect/file/Marvel's_Spider-Man_2_cover_art.jpg",
+  "marvel's spider-man: miles morales": "https://en.wikipedia.org/wiki/Special:Redirect/file/Marvel's_Spider-Man_Miles_Morales.jpg",
+  "metal gear solid v: the phantom pain": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metal_Gear_Solid_V_The_Phantom_Pain.jpg",
+  "metal gear solid v: ground zeroes": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metal_Gear_Solid_V_Ground_Zeroes.jpg",
+  "metal gear rising: revengeance": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metal_Gear_Rising_Revengeance_cover_art.jpg",
+  "metaphor: refantazio": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metaphor_ReFantazio_cover_art.jpg",
+  "metroid dread": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metroid_Dread_cover_art.jpg",
+  "metroid prime 4: beyond": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metroid_Prime_4_Beyond_cover_art.jpg",
+  "metroid prime: remastered": "https://en.wikipedia.org/wiki/Special:Redirect/file/Metroid_Prime_Remastered_cover_art.jpg",
+  "minecraft": "https://en.wikipedia.org/wiki/Special:Redirect/file/Minecraft_cover.png",
+  "mortal kombat 1": "https://en.wikipedia.org/wiki/Special:Redirect/file/Mortal_Kombat_1_cover_art.jpg",
+  "nioh": "https://en.wikipedia.org/wiki/Special:Redirect/file/Nioh_cover_art.jpg",
+  "octopath traveler": "https://en.wikipedia.org/wiki/Special:Redirect/file/Octopath_Traveler_cover_art.jpg",
+  "outer wilds": "https://en.wikipedia.org/wiki/Special:Redirect/file/Outer_Wilds_cover.jpg",
+  "persona 3: reload": "https://en.wikipedia.org/wiki/Special:Redirect/file/Persona_3_Reload_cover_art.jpg",
+  "[dlc] persona 3: reload - episode aigis: the answer": "https://en.wikipedia.org/wiki/Special:Redirect/file/Persona_3_Reload_cover_art.jpg",
+  "persona 5": "https://en.wikipedia.org/wiki/Special:Redirect/file/Persona5coverart.jpg",
+  "persona 5 royal": "https://en.wikipedia.org/wiki/Special:Redirect/file/Persona5Royal.jpg",
+  "persona 5: strikers": "https://en.wikipedia.org/wiki/Special:Redirect/file/Persona_5_Strikers_cover_art.jpg",
+  "pok\u00e9mon legends: arceus": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pok\u00e9mon_Legends_Arceus_cover.jpg",
+  "pok\u00e9mon: scarlet": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pok\u00e9mon_Scarlet_box_art.png",
+  "pok\u00e9mon: sword": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pokemon_Sword_and_Shield_cover.jpg",
+  "pok\u00e9mon: let's go pikachu": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pok\u00e9mon_Let's_Go_Pikachu_cover_art.png",
+  "pok\u00e9mon: brilliant diamond": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pok\u00e9mon_Brilliant_Diamond.png",
+  "pok\u00e9mon legends: z-a": "https://en.wikipedia.org/wiki/Special:Redirect/file/Pokemon_Legends_ZA_cover.jpg",
+  "prince of persia: the lost crown": "https://en.wikipedia.org/wiki/Special:Redirect/file/Prince_of_Persia_The_Lost_Crown_cover_art.jpg",
+  "princess peach: showtime!": "https://en.wikipedia.org/wiki/Special:Redirect/file/Princess_Peach_Showtime.jpg",
+  "psychonauts 2": "https://en.wikipedia.org/wiki/Special:Redirect/file/Psychonauts_2_cover_art.jpg",
+  "ratchet & clank: rift apart": "https://en.wikipedia.org/wiki/Special:Redirect/file/Ratchet_&_Clank_Rift_Apart.jpg",
+  "red dead redemption": "https://en.wikipedia.org/wiki/Special:Redirect/file/Red_Dead_Redemption.jpg",
+  "red dead redemption ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Red_Dead_Redemption_2.jpg",
+  "resident evil 2: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Resident_Evil_2_remake.jpg",
+  "resident evil 3: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Resident_Evil_3_Remake_cover_art.jpg",
+  "resident evil 4: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Resident_Evil_4_remake_cover_art.jpg",
+  "sea of stars": "https://en.wikipedia.org/wiki/Special:Redirect/file/Sea_of_Stars_cover_art.jpg",
+  "sekiro: shadows die twice": "https://en.wikipedia.org/wiki/Special:Redirect/file/Sekiro_art.jpg",
+  "shadow of the colossus": "https://en.wikipedia.org/wiki/Special:Redirect/file/Shadow_of_the_Colossus_cover.jpg",
+  "silent hill 2: remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Silent_Hill_2_Remake_cover_art.jpg",
+  "star wars jedi: fallen order": "https://en.wikipedia.org/wiki/Special:Redirect/file/Jedi_Fallen_Order_cover_art.jpg",
+  "star wars jedi: survivor": "https://en.wikipedia.org/wiki/Special:Redirect/file/Star_Wars_Jedi_Survivor_cover_art.jpg",
+  "stray": "https://en.wikipedia.org/wiki/Special:Redirect/file/Stray_cover_art.jpg",
+  "super mario galaxy": "https://en.wikipedia.org/wiki/Special:Redirect/file/SuperMarioGalaxy.jpg",
+  "super mario galaxy 2": "https://en.wikipedia.org/wiki/Special:Redirect/file/SuperMarioGalaxy2.jpg",
+  "super mario odyssey": "https://en.wikipedia.org/wiki/Special:Redirect/file/Super_Mario_Odyssey.jpg",
+  "super mario rpg remake": "https://en.wikipedia.org/wiki/Special:Redirect/file/Super_Mario_RPG_remake_cover_art.jpg",
+  "super mario party: jamboree": "https://en.wikipedia.org/wiki/Special:Redirect/file/Super_Mario_Party_Jamboree_cover_art.jpg",
+  "super smash bros. ultimate": "https://en.wikipedia.org/wiki/Special:Redirect/file/Super_Smash_Bros_Ultimate_cover_art.jpg",
+  "the callisto protocol": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Callisto_Protocol_cover_art.jpg",
+  "the elder scrolls v: skyrim": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Elder_Scrolls_V_Skyrim_cover.png",
+  "the last of us": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Last_of_Us_cover.jpg",
+  "the last of us: part ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Last_of_Us_Part_II.jpg",
+  "the last of us ii: remastered": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Last_of_Us_Part_II_Remastered_cover_art.jpg",
+  "the last of us: remastered": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Last_of_Us_cover.jpg",
+  "the legend of zelda: breath of the wild": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Breath_of_the_Wild.jpg",
+  "the legend of zelda: echoes of wisdom": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Echoes_of_Wisdom_cover_art.jpg",
+  "the legend of zelda: link's awakening": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Link's_Awakening_(2019)_cover.jpg",
+  "the legend of zelda: majora's mask": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Majora's_Mask.jpg",
+  "the legend of zelda: ocarina of time": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Ocarina_of_Time_Game_Cover.jpg",
+  "the legend of zelda: skyward sword hd": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Skyward_Sword_HD_cover.jpg",
+  "the legend of zelda: tears of the kingdom": "https://en.wikipedia.org/wiki/Special:Redirect/file/The_Legend_of_Zelda_Tears_of_the_Kingdom_cover_art.jpg",
+  "the witcher 3: wild hunt": "https://en.wikipedia.org/wiki/Special:Redirect/file/Witcher_3_cover_art.jpg",
+  "triangle strategy": "https://en.wikipedia.org/wiki/Special:Redirect/file/Triangle_Strategy_cover_art.jpg",
+  "undertale": "https://en.wikipedia.org/wiki/Special:Redirect/file/Undertale_cover.png",
+  "uncharted 2: among thieves": "https://en.wikipedia.org/wiki/Special:Redirect/file/Uncharted_2_Among_Thieves.jpg",
+  "uncharted 4: a thief's end": "https://en.wikipedia.org/wiki/Special:Redirect/file/Uncharted_4_A_Thief's_End.jpg",
+  "unicorn overlord": "https://en.wikipedia.org/wiki/Special:Redirect/file/Unicorn_Overlord_cover_art.jpg",
+  "vampire survivors": "https://en.wikipedia.org/wiki/Special:Redirect/file/Vampire_Survivors_cover.jpg",
+  "warhammer 40,000: space marine ii": "https://en.wikipedia.org/wiki/Special:Redirect/file/Space_Marine_2_cover_art.jpg",
+  "xenoblade chronicles: definitive edition": "https://en.wikipedia.org/wiki/Special:Redirect/file/Xenoblade_Chronicles_Definitive_Edition.jpg",
+  "yakuza 0": "https://en.wikipedia.org/wiki/Special:Redirect/file/Yakuza_0_cover_art.jpg",
+  "yakuza: like a dragon": "https://en.wikipedia.org/wiki/Special:Redirect/file/Yakuza_Like_a_Dragon_cover_art.jpg",
+  "yakuza: like a dragon infinite wealth": "https://en.wikipedia.org/wiki/Special:Redirect/file/Like_a_Dragon_Infinite_Wealth_cover_art.jpg"
+};
+
+function getGameEmoji(game) {
+  const genreEmojis = {
+    'RPG': '⚔️', 'Ação': '🥊', 'Aventura': '🗺️', 'Tiro': '🔫',
+    'Terror': '👻', 'Soulslike': '💀', 'Metroidvania': '🗝️',
+    'Corrida': '🏎️', 'Luta': '🥋', 'Esporte': '⚽', 'Simulação': '🏡',
+    'Estratégia': '♟️', 'Party Game': '🎉', 'Roguelike': '🎲',
+    'Ritmo e Música': '🎵', 'Cartas e Tabuleiro': '🃏', 'Puzzle': '🧩', 'MMO': '🌐',
+  };
+  return genreEmojis[game.genero] || '🎮';
+}
+
+function gameCard(g) {
+  const si = STATUS_INFO[g.status] || STATUS_INFO['2 - Não jogado'];
+  const stars = g.nota ? NOTA_STARS[g.nota] : '';
+  const emoji = getGameEmoji(g);
+  const catTag = g.categoria === 'PRIORIDADE' ? '<span class="badge" style="background:rgba(245,156,66,0.15);color:var(--orange)">🔥</span>'
+    : g.categoria === 'MUST-DO 26' ? '<span class="badge" style="background:rgba(66,165,245,0.15);color:var(--blue)">📌</span>'
+    : g.categoria === 'GAME AWARDS' ? '<span class="badge" style="background:rgba(192,66,245,0.15);color:var(--purple)">🏅</span>'
+    : '';
+  const favIcon = g.favorito ? '<span style="color:var(--gold)">⭐</span>' : '';
+  const platinadoBadge = g.status === '4 - Platinado' ? '<span class="badge badge-platinado">🏆</span>' : '';
+
+  const cachedCover = covers[String(g.id)];
+  const hasCover = cachedCover && cachedCover !== 'none';
+  const coverBg = hasCover ? `style="background-image:url('${cachedCover}');background-size:cover;background-position:center top"` : '';
+  const nocoverDisplay = hasCover ? 'display:none' : '';
+
+  return `<div class="game-card" onclick="openModal(${g.id})">
+    <div class="game-cover" data-gameid="${g.id}" ${coverBg}>
+      <span class="no-cover" style="font-size:36px;${nocoverDisplay}">${emoji}</span>
+      <div class="status-dot ${si.cls}"></div>
+    </div>
+    <div class="game-info">
+      <div class="game-name">${g.nome}</div>
+      <div class="game-meta">
+        <span style="color:var(--muted)">${g.plataforma}</span>
+        <span style="display:flex;gap:3px;align-items:center">${platinadoBadge}${catTag}${favIcon}</span>
+      </div>
+      ${stars ? `<div class="nota-stars" style="margin-top:4px;font-size:11px">${stars}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ========== MODAL ==========
+function openModal(id) {
+  const g = games.find(x => x.id === id);
+  if (!g) return;
+  currentGameId = id;
+
+  document.getElementById('modal-title').textContent = g.nome;
+
+  // Cover
+  const coverEl = document.getElementById('modal-cover');
+  const cachedUrl = covers[String(id)];
+  if (cachedUrl && cachedUrl !== 'none') {
+    coverEl.style.backgroundImage = `url('${cachedUrl}')`;
+    coverEl.style.backgroundSize = 'cover';
+    coverEl.style.backgroundPosition = 'center top';
+    coverEl.innerHTML = '';
+  } else {
+    coverEl.style.backgroundImage = '';
+    coverEl.innerHTML = `<span style="font-size:40px">${getGameEmoji(g)}</span>`;
+    if (cachedUrl === undefined) {
+      fetchCover(g).then(() => {
+        const url = covers[String(id)];
+        if (url && url !== 'none' && currentGameId === id) {
+          coverEl.style.backgroundImage = `url('${url}')`;
+          coverEl.style.backgroundSize = 'cover';
+          coverEl.style.backgroundPosition = 'center top';
+          coverEl.innerHTML = '';
+        }
+      });
+    }
+  }
+
+  // Details
+  const si = STATUS_INFO[g.status] || {};
+  const details = document.getElementById('modal-details');
+  const rows = [
+    ['Plataforma', `${PLATFORM_ICONS[g.plataforma] || '🎮'} ${g.plataforma}`],
+    ['Lançamento', g.lancamento || '—'],
+    ['Gênero', g.genero ? `${g.genero}${g.subgenero ? ' / ' + g.subgenero : ''}` : '—'],
+    ['Status', `${si.emoji || ''} ${g.status}`],
+    ['Quando Joguei', g.quando || '—'],
+    ['Nota', g.nota ? `${NOTA_STARS[g.nota]} ${g.nota}` : '—'],
+    ['Mídia', g.midia || '—'],
+    ['Categoria', g.categoria || '—'],
+    ['Tempo Estimado', g.tempo ? g.tempo + 'h' : '—'],
+  ];
+  details.innerHTML = rows.map(([l, v]) => `
+    <div class="detail-row">
+      <span class="detail-label">${l}</span>
+      <span class="detail-value">${v}</span>
+    </div>`).join('');
+
+  // Edit fields
+  document.getElementById('edit-status').value = g.status;
+  document.getElementById('edit-nota').value = g.nota || '';
+  document.getElementById('edit-quando').value = g.quando || '';
+  document.getElementById('edit-categoria').value = g.categoria || '';
+  document.getElementById('edit-nome').value = g.nomeCapa || g.nome;
+  const setToggle = (id, val) => { const el = document.getElementById(id); el.classList.toggle('on', !!val); };
+  setToggle('edit-favorito', g.favorito);
+  setToggle('edit-trilha', g.trilha);
+  setToggle('edit-revisitar', g.revisitar);
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModalForce();
+}
+
+function closeModalForce() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentGameId = null;
+}
+
+function saveGame() {
+  const g = games.find(x => x.id === currentGameId);
+  if (!g) return;
+
+  g.status = document.getElementById('edit-status').value;
+  g.nota = document.getElementById('edit-nota').value || null;
+  const quando = document.getElementById('edit-quando').value;
+  g.quando = quando ? parseInt(quando) : null;
+  g.categoria = document.getElementById('edit-categoria').value || null;
+  g.favorito = document.getElementById('edit-favorito').classList.contains('on');
+  g.trilha = document.getElementById('edit-trilha').classList.contains('on');
+  g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
+  const nomeEditado = document.getElementById('edit-nome').value.trim();
+  if (nomeEditado && nomeEditado !== g.nome) g.nomeCapa = nomeEditado;
+
+  save();
+  closeModalForce();
+  buildDashboard();
+  filterGames();
+  buildFavoritos();
+  buildPrioridades();
+  updateSidebar();
+}
+
+// ========== FAVORITOS ==========
+function buildFavoritos() {
+  const favs = games.filter(g => g.favorito);
+  renderGameCards('favoritos-grid', favs);
+}
+
+// ========== PRIORIDADES ==========
+function buildPrioridades() {
+  const cats = ['PRIORIDADE', 'MUST-DO 26', 'GAME AWARDS'];
+  const icons = { 'PRIORIDADE': '🔥', 'MUST-DO 26': '📌', 'GAME AWARDS': '🏅' };
+  const colors = { 'PRIORIDADE': 'var(--orange)', 'MUST-DO 26': 'var(--blue)', 'GAME AWARDS': 'var(--purple)' };
+
+  const el = document.getElementById('prioridades-content');
+  let html = '';
+  cats.forEach(cat => {
+    const list = games.filter(g => g.categoria === cat && g.status === '2 - Não jogado');
+    if (!list.length) return;
+    html += `<div style="margin-bottom:28px">
+      <h3 style="font-size:15px;margin-bottom:14px;color:${colors[cat]}">${icons[cat]} ${cat} <span class="count-badge">${list.length}</span></h3>
+      <div class="games-grid">${list.map(g => gameCard(g)).join('')}</div>
+    </div>`;
+  });
+  if (!html) html = `<div class="empty-state"><div class="icon">🎉</div><p>Nenhuma prioridade pendente!</p></div>`;
+  el.innerHTML = html;
+}
+
+// ========== RANKINGS ==========
+function buildRankings() {
+  // Jogados
+  const yearsJogados = Object.keys(INITIAL_DATA.ranking_jogados).filter(y => INITIAL_DATA.ranking_jogados[y].length);
+  const tabsJogados = document.getElementById('tabs-jogados');
+  tabsJogados.innerHTML = yearsJogados.map(y =>
+    `<span class="year-tab ${y === rankingJogadosYear ? 'active' : ''}" onclick="setRankingYear('jogados','${y}')">${y}</span>`
+  ).join('');
+  renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[rankingJogadosYear] || []);
+
+  // Lançados
+  const yearsLancados = ['2026','2025','2024','2023','2022','2021','2020'];
+  const tabsLancados = document.getElementById('tabs-lancados');
+  tabsLancados.innerHTML = yearsLancados.map(y =>
+    `<span class="year-tab ${y === rankingLancadosYear ? 'active' : ''}" onclick="setRankingYear('lancados','${y}')">${y}</span>`
+  ).join('');
+  renderRankingTable('table-lancados', (INITIAL_DATA.ranking_lancados[rankingLancadosYear] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos)));
+}
+
+function setRankingYear(type, year) {
+  if (type === 'jogados') {
+    rankingJogadosYear = year;
+    document.querySelectorAll('#tabs-jogados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
+    renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[year] || []);
+  } else {
+    rankingLancadosYear = year;
+    document.querySelectorAll('#tabs-lancados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
+    const filtered = (INITIAL_DATA.ranking_lancados[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+    renderRankingTable('table-lancados', filtered);
+  }
+}
+
+function renderRankingTable(id, list) {
+  const el = document.getElementById(id);
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:40px"><p>Nenhum dado para este ano ainda</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(row => {
+    const rankCls = row.pos === '🥇' ? 'rank-1' : row.pos === '🥈' ? 'rank-2' : row.pos === '🥉' ? 'rank-3' : '';
+    // Find game in collection
+    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim()
+      || row.jogo.toLowerCase().includes(g.nome.toLowerCase().slice(0,15)));
+    const inCollection = found ? `<span class="rank-badge">Na coleção</span>` : '';
+    return `<div class="ranking-row">
+      <span class="rank-pos ${rankCls}">${row.pos}</span>
+      <span class="rank-name">${row.jogo}</span>
+      ${inCollection}
+    </div>`;
+  }).join('');
+}
+
+// ========== GAME AWARDS ==========
+function buildGameAwards() {
+  const awards = INITIAL_DATA.game_awards;
+  const years = Object.keys(awards).sort((a,b) => b-a);
+  const el = document.getElementById('awards-content');
+  el.innerHTML = years.map(year => {
+    const entries = awards[year];
+    const goty = entries.find(e => e.pos === 'GOTY');
+    const nominees = entries.filter(e => e.pos !== 'GOTY');
+    if (!goty) return '';
+    return `<div class="goty-card">
+      <div class="goty-year">🎖️ THE GAME AWARDS ${year}</div>
+      <div class="goty-name">🏆 ${goty.jogo}</div>
+      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => `<span class="nominee-chip">${n.jogo}</span>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ========== ADD GAME ==========
+function buildAddForm() {
+  const plataformas = [...new Set(games.map(g => g.plataforma).filter(Boolean))].sort();
+  const generos = [...new Set(games.map(g => g.genero).filter(Boolean))].sort();
+
+  const sp = document.getElementById('add-plataforma');
+  plataformas.forEach(p => sp.innerHTML += `<option value="${p}">${p}</option>`);
+
+  const sg = document.getElementById('add-genero');
+  generos.forEach(g => sg.innerHTML += `<option value="${g}">${g}</option>`);
+}
+
+function addGame() {
+  const nome = document.getElementById('add-nome').value.trim();
+  if (!nome) { alert('Nome do jogo é obrigatório!'); return; }
+
+  const newGame = {
+    id: Date.now(),
+    nome,
+    plataforma: document.getElementById('add-plataforma').value,
+    lancamento: parseInt(document.getElementById('add-lancamento').value) || null,
+    genero: document.getElementById('add-genero').value || null,
+    subgenero: null,
+    tempo: null,
+    status: document.getElementById('add-status').value,
+    quando: null,
+    nota: document.getElementById('add-nota').value || null,
+    midia: document.getElementById('add-midia').value || null,
+    categoria: document.getElementById('add-categoria').value || null,
+    favorito: false,
+    trilha: false,
+    revisitar: false,
+  };
+
+  games.push(newGame);
+  save();
+
+  // Reset form
+  document.getElementById('add-nome').value = '';
+  document.getElementById('add-lancamento').value = '';
+  document.getElementById('add-msg').textContent = `✅ "${nome}" adicionado com sucesso!`;
+  setTimeout(() => document.getElementById('add-msg').textContent = '', 3000);
+
+  buildDashboard();
+  filterGames();
+  buildFavoritos();
+  buildPrioridades();
+  updateSidebar();
+}
+
+// ========== SIDEBAR STATS ==========
+function updateSidebar() {
+  document.getElementById('total-count').textContent = `${games.length} jogos`;
+  const jogados = games.filter(g => ['3 - Concluído','4 - Platinado'].includes(g.status)).length;
+  const pct = Math.round((jogados / games.length) * 100);
+  const coversFound = Object.values(covers).filter(v => v && v !== 'none').length;
+  const coversTotal = Object.keys(covers).length;
+  document.getElementById('sidebar-stats').innerHTML = `
+    <div><strong>${jogados}</strong> jogos completados</div>
+    <div><strong>${pct}%</strong> da coleção</div>
+    <div style="margin-top:8px;height:4px;background:var(--border);border-radius:2px">
+      <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:2px;transition:width 0.5s"></div>
+    </div>
+    ${coversTotal > 0 ? `<div style="margin-top:10px;font-size:10px;color:var(--muted)">🖼️ ${coversFound}/${games.length} capas</div>` : ''}
+  `;
+}
+
+async function retryNotFound() {
+  const btn = document.getElementById('btn-retry');
+  const progress = document.getElementById('retry-progress');
+  btn.disabled = true;
+  let total = 0, round = 1;
+  while (round <= 5) {
+    const failed = games.filter(g => covers[String(g.id)] === 'none');
+    if (!failed.length) { progress.textContent = '✅ Todas encontradas! ' + total + ' novas.'; break; }
+    progress.textContent = '⏳ Rodada ' + round + ' — ' + failed.length + ' jogos...';
+    let found = 0;
+    for (let i = 0; i < failed.length; i++) {
+      const g = failed[i]; delete covers[String(g.id)];
+      await fetchCover(g, true);
+      if (covers[String(g.id)] !== 'none') { found++; total++; }
+      applyAllVisible();
+      progress.textContent = '⏳ Rodada ' + round + ' — ' + (i+1) + '/' + failed.length + ' — novas: ' + found;
+      await new Promise(r => setTimeout(r, 300));
+    }
+    if (found === 0) { progress.textContent = '✅ ' + total + ' novas. ' + games.filter(g => covers[String(g.id)] === 'none').length + ' sem capa.'; break; }
+    round++;
+  }
+  btn.disabled = false; updateDiagCache(); filterGames();
 }
 
 // ========== DIAGNÓSTICO ==========
@@ -1518,7 +1962,6 @@ function clearCoversAndReload() {
   // Limpa todas as versões do cache
   ['gamer_covers_v1','gamer_covers_v2','gamer_covers_v3','gamer_covers_v4','gamer_covers_v5'].forEach(k => localStorage.removeItem(k));
   covers = {};
-  
   _queue = [];
   _running = false;
   startBackgroundCoverFetch();
