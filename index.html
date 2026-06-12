@@ -1362,7 +1362,9 @@ function getNameVariations(name) {
 
 function applyCover(gameId, url) {
   if (!url || url === 'none') return;
-  document.querySelectorAll(`[data-gameid="${gameId}"]`).forEach(el => {
+  const els = document.querySelectorAll(`[data-gameid="${gameId}"]`);
+  console.log(`applyCover: id=${gameId}, url=${url.slice(0,50)}, elements found=${els.length}`);
+  els.forEach(el => {
     el.style.backgroundImage = `url('${url}')`;
     el.style.backgroundSize = 'cover';
     el.style.backgroundPosition = 'center top';
