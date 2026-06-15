@@ -1353,24 +1353,91 @@ function nameVariants(game) {
   return [...s].filter(v => v && v.length > 1);
 }
 
+// ========== IGDB (box art oficial) ==========
+const IGDB_CLIENT_ID = 'x3e2bv8ymw7qopsbozan6sxaa7kc8p';
+const IGDB_CLIENT_SECRET = '46y3kjsyzzd03qx94xxdtfb7024eib';
+let igdbToken = null;
+let igdbTokenExpiry = 0;
+
+async function getIgdbToken() {
+  if (igdbToken && Date.now() < igdbTokenExpiry) return igdbToken;
+  try {
+    const res = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${IGDB_CLIENT_ID}&client_secret=${IGDB_CLIENT_SECRET}&grant_type=client_credentials`, { method: 'POST' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    igdbToken = data.access_token;
+    igdbTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    return igdbToken;
+  } catch(e) { return null; }
+}
+
+async function fetchCoverIgdb(name, year) {
+  const token = await getIgdbToken();
+  if (!token) return null;
+  try {
+    const query = `search "${name}"; fields name, cover.image_id, first_release_date; limit 10;`;
+    const res = await fetch('https://api.igdb.com/v4/games', {
+      method: 'POST',
+      headers: {
+        'Client-ID': IGDB_CLIENT_ID,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'text/plain',
+      },
+      body: query
+    });
+    if (!res.ok) return null;
+    const results = await res.json();
+    const withCover = results.filter(r => r.cover?.image_id);
+    if (!withCover.length) return null;
+
+    const baseName = normName(name);
+    const scored = withCover.map(r => {
+      const rn = normName(r.name);
+      let sc = 0;
+      if (rn === baseName) sc = 100;
+      else if (rn.includes(baseName) || baseName.includes(rn)) sc = 60;
+      else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
+      if (year && r.first_release_date) {
+        const ry = new Date(r.first_release_date * 1000).getFullYear();
+        if (ry === year) sc += 30;
+        else if (Math.abs(ry - year) <= 1) sc += 10;
+      }
+      return { imageId: r.cover.image_id, sc };
+    }).sort((a, b) => b.sc - a.sc);
+
+    if (scored[0]?.sc >= 15) {
+      // t_cover_big = 264x374px, t_1080p = alta resolução
+      return `https://images.igdb.com/igdb/image/upload/t_cover_big/${scored[0].imageId}.jpg`;
+    }
+  } catch(e) {}
+  return null;
+}
+
 async function fetchCover(game, force) {
   const id = String(game.id);
   if (!force && covers[id] !== undefined) { if (covers[id] !== 'none') applyCover(id, covers[id]); return; }
-  const variants = nameVariants(game);
-  const baseName = normName(game.nomeCapa || game.nome);
-  const year = game.lancamento;
 
+  const searchName = game.nomeCapa || game.nome;
+  const year = game.lancamento;
+  const variants = nameVariants(game);
+
+  // 1. Tenta IGDB (box art oficial)
+  for (const v of variants) {
+    const url = await fetchCoverIgdb(v, year);
+    if (url) { covers[id] = url; saveCovers(); applyCover(id, url); return; }
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  // 2. Fallback: RAWG
+  const baseName = normName(searchName);
   for (const v of variants) {
     try {
-      // Adiciona "game cover" na busca para priorizar capas oficiais
-      const query = encodeURIComponent(v + ' game cover');
-      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + query + '&page_size=8&search_precise=false');
+      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + encodeURIComponent(v) + '&page_size=8');
       if (res.status === 429) { await new Promise(r => setTimeout(r, 3000)); continue; }
       if (!res.ok) continue;
       const data = await res.json();
       const results = (data.results || []).filter(r => r.background_image);
       if (!results.length) continue;
-
       const scored = results.map(r => {
         const rn = normName(r.name);
         let sc = 0;
@@ -1379,32 +1446,12 @@ async function fetchCover(game, force) {
         else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
         if (year && r.released) { const ry = parseInt(r.released); if (ry === year) sc += 30; else if (Math.abs(ry - year) <= 1) sc += 10; }
         if (r.ratings_count > 500) sc += 10;
-        return { r, sc };
+        return { url: r.background_image, sc };
       }).sort((a, b) => b.sc - a.sc);
-
-      if (scored[0] && scored[0].sc >= 15) {
-        const best = scored[0].r;
-        // Tenta pegar a capa da caixa via detalhes do jogo
-        // O campo background_image_additional costuma ser a box art
-        let imgUrl = best.background_image;
-        try {
-          const detailRes = await fetch('https://api.rawg.io/api/games/' + best.id + '?key=' + RAWG_KEY);
-          if (detailRes.ok) {
-            const detail = await detailRes.json();
-            // background_image_additional é geralmente a capa da caixa
-            if (detail.background_image_additional) {
-              imgUrl = detail.background_image_additional;
-            }
-          }
-        } catch(e) {}
-
-        covers[id] = imgUrl;
-        saveCovers();
-        applyCover(id, covers[id]);
-        return;
-      }
+      if (scored[0]?.sc >= 15) { covers[id] = scored[0].url; saveCovers(); applyCover(id, covers[id]); return; }
     } catch(e) {}
   }
+
   covers[id] = 'none';
   saveCovers();
 }
@@ -1418,7 +1465,7 @@ async function _run() {
     const g = _queue.shift();
     await fetchCover(g);
     applyAllVisible();
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 200));
   }
   applyAllVisible();
   _running = false;
