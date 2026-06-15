@@ -855,6 +855,10 @@
               </select>
             </div>
             <div class="field-group">
+              <label>Quando Joguei</label>
+              <input type="number" id="add-quando" placeholder="Ex: 2024">
+            </div>
+            <div class="field-group">
               <label>Categoria</label>
               <select id="add-categoria">
                 <option value="">Nenhuma</option>
@@ -974,7 +978,11 @@
             </select>
           </div>
           <div class="field-group" style="grid-column:1/-1">
-            <label>Nome do Jogo (para busca de capa)</label>
+            <label>Nome do Jogo</label>
+            <input type="text" id="edit-nome-real" placeholder="Nome do jogo">
+          </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label>Nome para busca de capa</label>
             <div style="display:flex;gap:8px">
               <input type="text" id="edit-nome" placeholder="Nome exato como aparece no RAWG">
               <button class="btn btn-ghost" onclick="refreshCover()" style="white-space:nowrap;flex-shrink:0">🖼️ Atualizar Capa</button>
@@ -1123,7 +1131,7 @@ function buildDashboard() {
     '3 - Bom': games.filter(g => g.nota === '3 - Bom').length,
     '2 - Fraco': games.filter(g => g.nota === '2 - Fraco').length,
     '1 - Ruim': games.filter(g => g.nota === '1 - Ruim').length,
-  }, 10, ['var(--accent2)','var(--green)','var(--blue)','var(--orange)','var(--red)'], 'nota');
+  }, 10, ['#2d7a2d','#4ef5a0','#f5e642','#f59c42','#f54e4e'], 'nota');
   buildBarChart('chart-midia', countField('midia'), 10, null, 'midia');
 }
 
@@ -1704,6 +1712,7 @@ function openModal(id) {
   document.getElementById('edit-nota').value = g.nota || '';
   document.getElementById('edit-quando').value = g.quando || '';
   document.getElementById('edit-categoria').value = g.categoria || '';
+  document.getElementById('edit-nome-real').value = g.nome;
   document.getElementById('edit-nome').value = g.nomeCapa || g.nome;
   const setToggle = (id, val) => { const el = document.getElementById(id); el.classList.toggle('on', !!val); };
   setToggle('edit-favorito', g.favorito);
@@ -1734,6 +1743,8 @@ function saveGame() {
   g.favorito = document.getElementById('edit-favorito').classList.contains('on');
   g.trilha = document.getElementById('edit-trilha').classList.contains('on');
   g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
+  const nomeReal = document.getElementById('edit-nome-real').value.trim();
+  if (nomeReal && nomeReal !== g.nome) g.nome = nomeReal;
   const nomeEditado = document.getElementById('edit-nome').value.trim();
   if (nomeEditado && nomeEditado !== g.nome) g.nomeCapa = nomeEditado;
 
@@ -2053,7 +2064,7 @@ function addGame() {
     subgenero: null,
     tempo: null,
     status: document.getElementById('add-status').value,
-    quando: null,
+    quando: parseInt(document.getElementById('add-quando').value) || null,
     nota: document.getElementById('add-nota').value || null,
     midia: document.getElementById('add-midia').value || null,
     categoria: document.getElementById('add-categoria').value || null,
@@ -2068,6 +2079,7 @@ function addGame() {
   // Reset form
   document.getElementById('add-nome').value = '';
   document.getElementById('add-lancamento').value = '';
+  document.getElementById('add-quando').value = '';
   document.getElementById('add-msg').textContent = `✅ "${nome}" adicionado com sucesso!`;
   setTimeout(() => document.getElementById('add-msg').textContent = '', 3000);
 
