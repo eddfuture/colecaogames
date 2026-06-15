@@ -982,7 +982,16 @@
             <input type="text" id="edit-nome-real" placeholder="Nome do jogo">
           </div>
           <div class="field-group" style="grid-column:1/-1">
-            <label>Nome para busca de capa</label>
+            <label>Capa Manual</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="file" id="edit-cover-upload" accept="image/*" style="display:none" onchange="uploadCoverManual(this)">
+              <button class="btn btn-ghost" onclick="document.getElementById('edit-cover-upload').click()" style="white-space:nowrap">📁 Fazer upload de imagem</button>
+              <button class="btn btn-ghost" onclick="removeCoverManual()" style="white-space:nowrap;color:var(--red)">🗑️ Remover capa</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-top:4px">Substitui a capa automática apenas para este jogo</p>
+          </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label>Nome para busca de capa automática</label>
             <div style="display:flex;gap:8px">
               <input type="text" id="edit-nome" placeholder="Nome exato como aparece no RAWG">
               <button class="btn btn-ghost" onclick="refreshCover()" style="white-space:nowrap;flex-shrink:0">🖼️ Atualizar Capa</button>
@@ -1350,14 +1359,18 @@ async function fetchCover(game, force) {
   const variants = nameVariants(game);
   const baseName = normName(game.nomeCapa || game.nome);
   const year = game.lancamento;
+
   for (const v of variants) {
     try {
-      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + encodeURIComponent(v) + '&page_size=8');
+      // Adiciona "game cover" na busca para priorizar capas oficiais
+      const query = encodeURIComponent(v + ' game cover');
+      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + query + '&page_size=8&search_precise=false');
       if (res.status === 429) { await new Promise(r => setTimeout(r, 3000)); continue; }
       if (!res.ok) continue;
       const data = await res.json();
       const results = (data.results || []).filter(r => r.background_image);
       if (!results.length) continue;
+
       const scored = results.map(r => {
         const rn = normName(r.name);
         let sc = 0;
@@ -1366,9 +1379,30 @@ async function fetchCover(game, force) {
         else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
         if (year && r.released) { const ry = parseInt(r.released); if (ry === year) sc += 30; else if (Math.abs(ry - year) <= 1) sc += 10; }
         if (r.ratings_count > 500) sc += 10;
-        return { url: r.background_image, sc };
+        return { r, sc };
       }).sort((a, b) => b.sc - a.sc);
-      if (scored[0] && scored[0].sc >= 15) { covers[id] = scored[0].url; saveCovers(); applyCover(id, covers[id]); return; }
+
+      if (scored[0] && scored[0].sc >= 15) {
+        const best = scored[0].r;
+        // Tenta pegar a capa da caixa via detalhes do jogo
+        // O campo background_image_additional costuma ser a box art
+        let imgUrl = best.background_image;
+        try {
+          const detailRes = await fetch('https://api.rawg.io/api/games/' + best.id + '?key=' + RAWG_KEY);
+          if (detailRes.ok) {
+            const detail = await detailRes.json();
+            // background_image_additional é geralmente a capa da caixa
+            if (detail.background_image_additional) {
+              imgUrl = detail.background_image_additional;
+            }
+          }
+        } catch(e) {}
+
+        covers[id] = imgUrl;
+        saveCovers();
+        applyCover(id, covers[id]);
+        return;
+      }
     } catch(e) {}
   }
   covers[id] = 'none';
@@ -1402,6 +1436,36 @@ function queueCoversForVisible() {
 function startBackgroundCoverFetch() {
   _queue.push(...games.filter(g => covers[String(g.id)] === undefined));
   _run();
+}
+
+function uploadCoverManual(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    const id = String(currentGameId);
+    covers[id] = dataUrl;
+    saveCovers();
+    applyCover(id, dataUrl);
+    // Update modal cover preview
+    const mc = document.getElementById('modal-cover');
+    if (mc) { mc.style.backgroundImage = `url('${dataUrl}')`; mc.style.backgroundSize = 'cover'; mc.style.backgroundPosition = 'center top'; mc.innerHTML = ''; }
+    filterGames();
+  };
+  reader.readAsDataURL(file);
+  input.value = ''; // reset so same file can be uploaded again
+}
+
+function removeCoverManual() {
+  const id = String(currentGameId);
+  delete covers[id];
+  saveCovers();
+  // Reset modal cover to emoji
+  const g = games.find(x => x.id === currentGameId);
+  const mc = document.getElementById('modal-cover');
+  if (mc && g) { mc.style.backgroundImage = ''; mc.innerHTML = `<span style="font-size:40px">${getGameEmoji(g)}</span>`; }
+  filterGames();
 }
 
 async function refreshCover() {
