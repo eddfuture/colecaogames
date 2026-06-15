@@ -1966,18 +1966,67 @@ function buildGameAwards() {
   const awards = INITIAL_DATA.game_awards;
   const years = Object.keys(awards).sort((a,b) => b-a);
   const el = document.getElementById('awards-content');
+
+  function getGameChip(nome) {
+    const found = games.find(g =>
+      g.nome.toLowerCase().trim() === nome.toLowerCase().trim() ||
+      nome.toLowerCase().includes(g.nome.toLowerCase().slice(0, 12)) ||
+      g.nome.toLowerCase().includes(nome.toLowerCase().slice(0, 12))
+    );
+    let border, title, cursor, onclick;
+    if (!found) {
+      border = '2px solid var(--muted)';
+      title = 'Não está na coleção';
+      cursor = 'default';
+      onclick = '';
+    } else if (found.status === '4 - Platinado') {
+      border = '2px solid var(--blue)';
+      title = 'Platinado';
+      cursor = 'pointer';
+      onclick = `onclick="openModal(${found.id})"`;
+    } else if (['3 - Concluído'].includes(found.status)) {
+      border = '2px solid var(--green)';
+      title = 'Concluído';
+      cursor = 'pointer';
+      onclick = `onclick="openModal(${found.id})"`;
+    } else {
+      border = '2px solid var(--gold)';
+      title = 'Não jogado';
+      cursor = 'pointer';
+      onclick = `onclick="openModal(${found.id})"`;
+    }
+    return `<span class="nominee-chip" ${onclick} title="${title}" style="border:${border};cursor:${cursor}">${nome}</span>`;
+  }
+
   el.innerHTML = years.map(year => {
     const entries = awards[year];
     const goty = entries.find(e => e.pos === 'GOTY');
     const nominees = entries.filter(e => e.pos !== 'GOTY');
     if (!goty) return '';
+
+    // GOTY chip com borda
+    const gotyChip = getGameChip(goty.jogo);
+
     return `<div class="goty-card">
       <div class="goty-year">🎖️ THE GAME AWARDS ${year}</div>
-      <div class="goty-name">🏆 ${goty.jogo}</div>
-      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => `<span class="nominee-chip">${n.jogo}</span>`).join('')}</div>` : ''}
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="color:var(--gold);font-size:13px;font-weight:700">🏆 GOTY</span>
+        ${gotyChip}
+      </div>
+      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => getGameChip(n.jogo)).join('')}</div>` : ''}
     </div>`;
   }).join('');
+
+  // Legenda
+  el.innerHTML += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px">
+    <span style="color:var(--muted)">Legenda:</span>
+    <span style="border:2px solid var(--blue);padding:2px 8px;border-radius:6px;color:var(--blue)">Platinado</span>
+    <span style="border:2px solid var(--green);padding:2px 8px;border-radius:6px;color:var(--green)">Concluído</span>
+    <span style="border:2px solid var(--gold);padding:2px 8px;border-radius:6px;color:var(--gold)">Não jogado</span>
+    <span style="border:2px solid var(--muted);padding:2px 8px;border-radius:6px;color:var(--muted)">Fora da coleção</span>
+  </div>`;
 }
+
 
 // ========== ADD GAME ==========
 function buildAddForm() {
