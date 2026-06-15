@@ -1972,41 +1972,109 @@ function renderRankingTable(id, list, type, year) {
   el.innerHTML = html;
 }
 
+function linkAwardGame(nomeAward) {
+  // Mostra modal de busca para vincular manualmente
+  const existing = document.getElementById('link-award-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'link-award-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
+      <h3 style="font-size:15px;margin-bottom:6px">Vincular jogo</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Vinculando: <strong style="color:var(--text)">${nomeAward}</strong></p>
+      <input type="text" id="link-search" placeholder="Buscar na coleção..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
+      <div id="link-game-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="document.getElementById('link-award-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  function renderList(filter) {
+    const filtered = games.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
+    const el = document.getElementById('link-game-list');
+    if (!el) return;
+    el.innerHTML = filtered.slice(0, 50).map(g => {
+      const si = STATUS_INFO[g.status] || {};
+      return `<div onclick="confirmLinkAward('${nomeAward.replace(/'/g,"\\'")}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.1s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
+        <span style="font-size:13px">${g.nome}</span>
+        <span style="font-size:11px;color:var(--muted)">${si.emoji || ''} ${g.plataforma}</span>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
+  }
+
+  renderList('');
+  document.getElementById('link-search').addEventListener('input', e => renderList(e.target.value));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function confirmLinkAward(nomeAward, gameId) {
+  const data = {};
+  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
+  data[nomeAward] = gameId;
+  localStorage.setItem('awards_links_v1', JSON.stringify(data));
+  document.getElementById('link-award-modal')?.remove();
+  buildGameAwards(); // rebuild para mostrar a nova borda
+}
+
+function unlinkAwardGame(nomeAward) {
+  const data = {};
+  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
+  delete data[nomeAward];
+  localStorage.setItem('awards_links_v1', JSON.stringify(data));
+  buildGameAwards();
+}
+
 // ========== GAME AWARDS ==========
 function buildGameAwards() {
   const awards = INITIAL_DATA.game_awards;
   const years = Object.keys(awards).sort((a,b) => b-a);
   const el = document.getElementById('awards-content');
 
+  // Mapeamento manual: nome no Game Awards -> id do jogo na coleção
+  let awardsLinks = {};
+  try { awardsLinks = JSON.parse(localStorage.getItem('awards_links_v1') || '{}'); } catch(e) {}
+
+  function saveAwardsLinks() {
+    localStorage.setItem('awards_links_v1', JSON.stringify(awardsLinks));
+  }
+
   function getGameChip(nome) {
-    const found = games.find(g =>
-      g.nome.toLowerCase().trim() === nome.toLowerCase().trim() ||
-      nome.toLowerCase().includes(g.nome.toLowerCase().slice(0, 12)) ||
-      g.nome.toLowerCase().includes(nome.toLowerCase().slice(0, 12))
-    );
+    // 1. Verificar mapeamento manual
+    let found = awardsLinks[nome] ? games.find(g => g.id === awardsLinks[nome]) : null;
+    // 2. Se não, apenas nome exato (case-insensitive)
+    if (!found) found = games.find(g => g.nome.toLowerCase().trim() === nome.toLowerCase().trim());
+
     let border, title, cursor, onclick;
     if (!found) {
       border = '2px solid var(--muted)';
-      title = 'Não está na coleção';
-      cursor = 'default';
-      onclick = '';
+      title = 'Não está na coleção — clique para vincular';
+      cursor = 'pointer';
+      onclick = `onclick="linkAwardGame('${nome.replace(/'/g,"\\'")}' )"`;
     } else if (found.status === '4 - Platinado') {
       border = '2px solid var(--blue)';
-      title = 'Platinado';
+      title = 'Platinado — clique para abrir';
       cursor = 'pointer';
       onclick = `onclick="openModal(${found.id})"`;
-    } else if (['3 - Concluído'].includes(found.status)) {
+    } else if (found.status === '3 - Concluído') {
       border = '2px solid var(--green)';
-      title = 'Concluído';
+      title = 'Concluído — clique para abrir';
       cursor = 'pointer';
       onclick = `onclick="openModal(${found.id})"`;
     } else {
       border = '2px solid var(--gold)';
-      title = 'Não jogado';
+      title = 'Na coleção mas não jogado — clique para abrir';
       cursor = 'pointer';
       onclick = `onclick="openModal(${found.id})"`;
     }
-    return `<span class="nominee-chip" ${onclick} title="${title}" style="border:${border};cursor:${cursor}">${nome}</span>`;
+
+    const unlinkBtn = found && awardsLinks[nome]
+      ? `<span onclick="event.stopPropagation();unlinkAwardGame('${nome.replace(/'/g,"\\'")}' )" title="Desvincular" style="margin-left:4px;opacity:0.5;font-size:10px">✕</span>`
+      : '';
+
+    return `<span class="nominee-chip" ${onclick} title="${title}" style="border:${border};cursor:${cursor}">${nome}${unlinkBtn}</span>`;
   }
 
   el.innerHTML = years.map(year => {
