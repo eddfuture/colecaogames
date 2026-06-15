@@ -166,11 +166,7 @@
     transition: border-color 0.2s;
   }
 
-  .bar-row-clickable { border-radius: 6px; padding: 2px 4px; margin: 0 -4px; transition: background 0.15s; }
-  .bar-row-clickable:hover { background: var(--surface3); }
-  .bar-row-clickable:hover .bar-label { color: var(--accent); }
-
-  .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); transition: all 0.15s; }
+  .stat-card:hover { border-color: var(--accent); }
   .stat-card .num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
   .stat-card .label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
   .stat-card.c-jogando .num { color: var(--accent2); }
@@ -680,6 +676,7 @@
     <div class="logo">
       <h1>🎮 GameLog</h1>
       <span id="total-count">Carregando...</span>
+      <span id="sync-status" style="font-size:10px;color:var(--muted);display:block;margin-top:2px"></span>
     </div>
     <nav class="nav">
       <div class="nav-section">Coleção</div>
@@ -715,6 +712,7 @@
       </div>
     </nav>
     <div class="sidebar-stats" id="sidebar-stats"></div>
+    <div style="padding:10px 20px;border-top:1px solid var(--border);font-size:11px" id="sync-status"></div>
   </aside>
 
   <main class="main">
@@ -855,10 +853,6 @@
               </select>
             </div>
             <div class="field-group">
-              <label>Quando Joguei</label>
-              <input type="number" id="add-quando" placeholder="Ex: 2024">
-            </div>
-            <div class="field-group">
               <label>Categoria</label>
               <select id="add-categoria">
                 <option value="">Nenhuma</option>
@@ -981,23 +975,6 @@
             <label>Nome do Jogo</label>
             <input type="text" id="edit-nome-real" placeholder="Nome do jogo">
           </div>
-          <div class="field-group" style="grid-column:1/-1">
-            <label>Capa Manual</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="file" id="edit-cover-upload" accept="image/*" style="display:none" onchange="uploadCoverManual(this)">
-              <button class="btn btn-ghost" onclick="document.getElementById('edit-cover-upload').click()" style="white-space:nowrap">📁 Fazer upload de imagem</button>
-              <button class="btn btn-ghost" onclick="removeCoverManual()" style="white-space:nowrap;color:var(--red)">🗑️ Remover capa</button>
-            </div>
-            <p style="font-size:11px;color:var(--muted);margin-top:4px">Substitui a capa automática apenas para este jogo</p>
-          </div>
-          <div class="field-group" style="grid-column:1/-1">
-            <label>Nome para busca de capa automática</label>
-            <div style="display:flex;gap:8px">
-              <input type="text" id="edit-nome" placeholder="Nome exato como aparece no RAWG">
-              <button class="btn btn-ghost" onclick="refreshCover()" style="white-space:nowrap;flex-shrink:0">🖼️ Atualizar Capa</button>
-            </div>
-            <p style="font-size:11px;color:var(--muted);margin-top:4px">Se a capa estiver errada, edite o nome e clique em Atualizar Capa</p>
-          </div>
         </div>
         <div style="margin-top:14px">
           <div class="toggle-row">
@@ -1030,6 +1007,15 @@ let games = [];
 let currentGameId = null;
 let rankingJogadosYear = '2025';
 let rankingLancadosYear = '2025';
+let rankingsJogados = null;
+let rankingsLancados = null;
+
+const GITHUB_TOKEN = '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';
+const GITHUB_REPO = 'eddfuture/colecaogames';
+const GITHUB_FILE = 'data.json';
+let githubFileSha = null;
+let saveTimeout = null;
+let isSyncing = false;
 
 const STATUS_INFO = {
   '1 - Jogando':          { label: 'Jogando',          cls: 's1', emoji: '🕹️' },
@@ -1052,23 +1038,78 @@ const PLATFORM_ICONS = {
   'GameCube [Emu]': '🕹️', 'Game Boy [Emu]': '📱',
 };
 
-// ========== INIT ==========
-function init() {
-  loadCoverCache();
-  loadRankings();
+// ========== GITHUB SYNC ==========
+function showSyncStatus(msg, color) {
+  const el = document.getElementById('sync-status');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--muted)'; }
+}
 
-  // Load from localStorage or use initial data
-  const saved = localStorage.getItem('gamer_collection_v2');
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      games = parsed.games || INITIAL_DATA.games;
-    } catch(e) {
-      games = INITIAL_DATA.games.map(g => ({...g}));
-    }
-  } else {
-    games = INITIAL_DATA.games.map(g => ({...g}));
+async function loadFromGithub() {
+  showSyncStatus('⏳ Carregando...', 'var(--muted)');
+  try {
+    const res = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
+      headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const file = await res.json();
+    githubFileSha = file.sha;
+    const content = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    games = content.games || INITIAL_DATA.games.map(g => ({...g}));
+    if (content.covers) { Object.assign(covers, content.covers); saveCovers(); }
+    if (content.rankings_jogados) rankingsJogados = content.rankings_jogados;
+    if (content.rankings_lancados) rankingsLancados = content.rankings_lancados;
+    if (content.awards_links) localStorage.setItem('awards_links_v1', JSON.stringify(content.awards_links));
+    showSyncStatus('✅ Sincronizado', 'var(--green)');
+    setTimeout(() => showSyncStatus(''), 3000);
+  } catch(e) {
+    showSyncStatus('⚠️ Offline — dados locais', 'var(--orange)');
+    const saved = localStorage.getItem('gamer_collection_v2');
+    if (saved) { try { games = JSON.parse(saved).games || INITIAL_DATA.games.map(g => ({...g})); } catch(e2) {} }
+    if (!games.length) games = INITIAL_DATA.games.map(g => ({...g}));
   }
+}
+
+async function saveToGithub() {
+  if (isSyncing || !githubFileSha) return;
+  isSyncing = true;
+  showSyncStatus('💾 Salvando...', 'var(--accent)');
+  try {
+    const awardsLinks = JSON.parse(localStorage.getItem('awards_links_v1') || '{}');
+    const smallCovers = {};
+    Object.entries(covers).forEach(([k, v]) => { if (v && v !== 'none' && !v.startsWith('data:')) smallCovers[k] = v; });
+    const data = { games, covers: smallCovers, rankings_jogados: rankingsJogados || {}, rankings_lancados: rankingsLancados || {}, awards_links: awardsLinks, last_updated: new Date().toISOString() };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const res = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Update — ' + new Date().toLocaleString('pt-BR'), content, sha: githubFileSha })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const result = await res.json();
+    githubFileSha = result.content.sha;
+    localStorage.setItem('gamer_collection_v2', JSON.stringify({ games }));
+    showSyncStatus('✅ Salvo', 'var(--green)');
+    setTimeout(() => showSyncStatus(''), 3000);
+  } catch(e) {
+    localStorage.setItem('gamer_collection_v2', JSON.stringify({ games }));
+    showSyncStatus('⚠️ Salvo local', 'var(--orange)');
+  }
+  isSyncing = false;
+}
+
+function save() {
+  localStorage.setItem('gamer_collection_v2', JSON.stringify({ games }));
+  if (saveTimeout) clearTimeout(saveTimeout);
+  showSyncStatus('...editando', 'var(--muted)');
+  saveTimeout = setTimeout(saveToGithub, 2000);
+}
+
+// ========== INIT ==========
+async function init() {
+  loadCoverCache();
+  await loadFromGithub();
+  if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
+  if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
 
   buildDashboard();
   buildFilters();
@@ -1080,13 +1121,23 @@ function init() {
   buildGameAwards();
   buildAddForm();
   updateSidebar();
-  // Start fetching covers in background
-  setTimeout(startBackgroundCoverFetch, 800);
+
+  // Carrega dados do GitHub e reconstrói
+  loadFromGitHub().then(ok => {
+    if (ok) {
+      buildDashboard();
+      filterGames();
+      buildFavoritos();
+      buildPrioridades();
+      buildRankings();
+      buildGameAwards();
+      updateSidebar();
+      applyAllVisible();
+    }
+  });
 }
 
-function save() {
-  localStorage.setItem('gamer_collection_v2', JSON.stringify({ games }));
-}
+// save() defined above in GITHUB SYNC section
 
 // ========== NAVIGATION ==========
 function showPage(id) {
@@ -1096,6 +1147,7 @@ function showPage(id) {
   document.getElementById('nav-' + id).classList.add('active');
   if (id === 'diagnostico') updateDiagCache();
   setTimeout(applyAllVisible, 50);
+  if (id === 'diagnostico') updateDiagCache();
 
   const topSearch = document.querySelector('.topbar .search-box');
   if (id === 'colecao') {
@@ -1121,14 +1173,14 @@ function buildDashboard() {
   const perfeitos = games.filter(g => g.nota === '5 - Perfeito').length;
 
   statsGrid.innerHTML = `
-    <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num">${total}</div><div class="label">Total</div></div>
-    <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
-    <div class="stat-card c-platinado" style="cursor:pointer" onclick="filterFromDashboard('status','4 - Platinado')"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
-    <div class="stat-card c-jogando" style="cursor:pointer" onclick="filterFromDashboard('status','1 - Jogando')"><div class="num">${jogando}</div><div class="label">Jogando</div></div>
-    <div class="stat-card c-nao" style="cursor:pointer" onclick="filterFromDashboard('status','2 - Não jogado')"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
-    <div class="stat-card c-drop" style="cursor:pointer" onclick="filterFromDashboard('status','5 - Dropado')"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('favorito','true')"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" style="color:var(--accent2)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
+    <div class="stat-card c-total"><div class="num">${total}</div><div class="label">Total</div></div>
+    <div class="stat-card c-concluido"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
+    <div class="stat-card c-platinado"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
+    <div class="stat-card c-jogando"><div class="num">${jogando}</div><div class="label">Jogando</div></div>
+    <div class="stat-card c-nao"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
+    <div class="stat-card c-drop"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--accent2)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
   `;
 
   // Charts
@@ -1152,7 +1204,7 @@ function countField(field) {
   return Object.fromEntries(Object.entries(counts).sort((a,b) => b[1]-a[1]));
 }
 
-function buildBarChart(id, data, limit = 8, colors = null, filterField = null) {
+function buildBarChart(id, data, limit = 8, colors = null) {
   const el = document.getElementById(id);
   if (!el) return;
   const entries = Object.entries(data).slice(0, limit);
@@ -1161,46 +1213,12 @@ function buildBarChart(id, data, limit = 8, colors = null, filterField = null) {
     const color = colors ? colors[i % colors.length] : 'var(--accent)';
     const pct = Math.round((val / max) * 100);
     const shortLabel = label.length > 16 ? label.slice(0, 16) + '…' : label;
-    const clickable = filterField ? `onclick="filterFromDashboard('${filterField}','${label.replace(/'/g, "\\'")}')" style="cursor:pointer"` : '';
-    const hoverStyle = filterField ? 'class="bar-row bar-row-clickable"' : 'class="bar-row"';
-    return `<div ${hoverStyle} ${clickable}>
+    return `<div class="bar-row">
       <span class="bar-label" title="${label}">${shortLabel}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
       <span class="bar-num">${val}</span>
     </div>`;
   }).join('');
-}
-
-function filterFromDashboard(field, value) {
-  // Navega para Coleção e aplica o filtro
-  showPage('colecao');
-  // Reset todos os filtros primeiro
-  document.getElementById('search-input').value = '';
-  document.getElementById('filter-genero').value = '';
-  document.getElementById('filter-plataforma').value = '';
-  document.getElementById('filter-midia').value = '';
-  document.getElementById('filter-nota').value = '';
-  activeStatusFilter = '';
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  document.getElementById('chip-all')?.classList.add('active');
-
-  // Aplica o filtro específico
-  if (field === 'status' && value) {
-    setStatusFilter(value);
-  } else if (field === 'genero') {
-    document.getElementById('filter-genero').value = value;
-  } else if (field === 'plataforma') {
-    document.getElementById('filter-plataforma').value = value;
-  } else if (field === 'nota') {
-    document.getElementById('filter-nota').value = value;
-  } else if (field === 'midia') {
-    document.getElementById('filter-midia').value = value;
-  } else if (field === 'favorito') {
-    // Filtra favoritos diretamente
-    showPage('favoritos');
-    return;
-  }
-  filterGames();
 }
 
 // ========== COLLECTION ==========
@@ -1287,12 +1305,10 @@ function renderGameCards(containerId, list) {
   }
   grid.innerHTML = list.map(g => gameCard(g)).join('');
   applyAllVisible();
-  queueCoversForVisible();
 }
 
-// ========== COVER SYSTEM ==========
+// ========== COVER SYSTEM (upload manual) ==========
 const COVER_CACHE_KEY = 'gamer_covers_v7';
-const RAWG_KEY = '0ecd9c14908a49e881508452138fb14b';
 let covers = {};
 
 function loadCoverCache() {
@@ -1304,7 +1320,7 @@ function loadCoverCache() {
 }
 
 function saveCovers() {
-  try { localStorage.setItem(COVER_CACHE_KEY, JSON.stringify(covers)); } catch(e) {}
+  scheduleSave();
 }
 
 function applyCover(id, url) {
@@ -1330,164 +1346,8 @@ function applyAllVisible() {
   });
 }
 
-function normName(s) {
-  return s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function nameVariants(game) {
-  const raw = (game.nomeCapa || game.nome).replace(/\[DLC\]\s*/gi, '').replace(/\(DLC\)/gi, '').trim();
-  const s = new Set();
-  s.add(raw);
-  s.add(raw.replace(/[:\-]/g, ' ').replace(/\s+/g, ' ').trim());
-  s.add(raw.split(':')[0].trim());
-  s.add(raw.split(' - ')[0].trim());
-  s.add(raw.replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim());
-  s.add(raw.replace(/(:\s*)?(remake|remastered|hd edition|definitive edition)/gi, '').replace(/\s+/g, ' ').trim());
-  const ROMAN = {I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7,VIII:8,IX:9,X:10,XI:11,XII:12,XIII:13,XIV:14,XV:15,XVI:16,XVII:17,XVIII:18,XIX:19,XX:20};
-  const NUM2R = {};
-  Object.entries(ROMAN).forEach(([r,n]) => { NUM2R[n] = r; });
-  const toN = t => t.replace(/\b(X{0,2}(?:IX|IV|V?I{0,3}))\b/g, m => ROMAN[m.toUpperCase()] != null ? String(ROMAN[m.toUpperCase()]) : m);
-  const toR = t => t.replace(/\b(\d{1,2})\b/g, m => NUM2R[+m] || m);
-  const wn = toN(raw); if (wn !== raw) s.add(wn);
-  const wr = toR(raw); if (wr !== raw) s.add(wr);
-  return [...s].filter(v => v && v.length > 1);
-}
-
-// ========== IGDB (box art oficial) ==========
-const IGDB_CLIENT_ID = 'x3e2bv8ymw7qopsbozan6sxaa7kc8p';
-const IGDB_CLIENT_SECRET = '46y3kjsyzzd03qx94xxdtfb7024eib';
-let igdbToken = null;
-let igdbTokenExpiry = 0;
-
-async function getIgdbToken() {
-  if (igdbToken && Date.now() < igdbTokenExpiry) return igdbToken;
-  try {
-    const res = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${IGDB_CLIENT_ID}&client_secret=${IGDB_CLIENT_SECRET}&grant_type=client_credentials`, { method: 'POST' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    igdbToken = data.access_token;
-    igdbTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-    return igdbToken;
-  } catch(e) { return null; }
-}
-
-async function fetchCoverIgdb(name, year) {
-  const token = await getIgdbToken();
-  if (!token) return null;
-  try {
-    const query = `search "${name}"; fields name, cover.image_id, first_release_date; limit 10;`;
-    const res = await fetch('https://api.igdb.com/v4/games', {
-      method: 'POST',
-      headers: {
-        'Client-ID': IGDB_CLIENT_ID,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'text/plain',
-      },
-      body: query
-    });
-    if (!res.ok) return null;
-    const results = await res.json();
-    const withCover = results.filter(r => r.cover?.image_id);
-    if (!withCover.length) return null;
-
-    const baseName = normName(name);
-    const scored = withCover.map(r => {
-      const rn = normName(r.name);
-      let sc = 0;
-      if (rn === baseName) sc = 100;
-      else if (rn.includes(baseName) || baseName.includes(rn)) sc = 60;
-      else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
-      if (year && r.first_release_date) {
-        const ry = new Date(r.first_release_date * 1000).getFullYear();
-        if (ry === year) sc += 30;
-        else if (Math.abs(ry - year) <= 1) sc += 10;
-      }
-      return { imageId: r.cover.image_id, sc };
-    }).sort((a, b) => b.sc - a.sc);
-
-    if (scored[0]?.sc >= 15) {
-      // t_cover_big = 264x374px, t_1080p = alta resolução
-      return `https://images.igdb.com/igdb/image/upload/t_cover_big/${scored[0].imageId}.jpg`;
-    }
-  } catch(e) {}
-  return null;
-}
-
-async function fetchCover(game, force) {
-  const id = String(game.id);
-  if (!force && covers[id] !== undefined) { if (covers[id] !== 'none') applyCover(id, covers[id]); return; }
-
-  const searchName = game.nomeCapa || game.nome;
-  const year = game.lancamento;
-  const variants = nameVariants(game);
-
-  // 1. Tenta IGDB (box art oficial)
-  for (const v of variants) {
-    const url = await fetchCoverIgdb(v, year);
-    if (url) { covers[id] = url; saveCovers(); applyCover(id, url); return; }
-    await new Promise(r => setTimeout(r, 100));
-  }
-
-  // 2. Fallback: RAWG
-  const baseName = normName(searchName);
-  for (const v of variants) {
-    try {
-      const res = await fetch('https://api.rawg.io/api/games?key=' + RAWG_KEY + '&search=' + encodeURIComponent(v) + '&page_size=8');
-      if (res.status === 429) { await new Promise(r => setTimeout(r, 3000)); continue; }
-      if (!res.ok) continue;
-      const data = await res.json();
-      const results = (data.results || []).filter(r => r.background_image);
-      if (!results.length) continue;
-      const scored = results.map(r => {
-        const rn = normName(r.name);
-        let sc = 0;
-        if (rn === baseName) sc = 100;
-        else if (rn.includes(baseName) || baseName.includes(rn)) sc = 60;
-        else sc = baseName.split(' ').filter(w => w.length > 3 && rn.includes(w)).length * 15;
-        if (year && r.released) { const ry = parseInt(r.released); if (ry === year) sc += 30; else if (Math.abs(ry - year) <= 1) sc += 10; }
-        if (r.ratings_count > 500) sc += 10;
-        return { url: r.background_image, sc };
-      }).sort((a, b) => b.sc - a.sc);
-      if (scored[0]?.sc >= 15) { covers[id] = scored[0].url; saveCovers(); applyCover(id, covers[id]); return; }
-    } catch(e) {}
-  }
-
-  covers[id] = 'none';
-  saveCovers();
-}
-
-let _queue = [], _running = false;
-
-async function _run() {
-  if (_running) return;
-  _running = true;
-  while (_queue.length > 0) {
-    const g = _queue.shift();
-    await fetchCover(g);
-    applyAllVisible();
-    await new Promise(r => setTimeout(r, 200));
-  }
-  applyAllVisible();
-  _running = false;
-  updateSidebar();
-}
-
-function queueCoversForVisible() {
-  applyAllVisible();
-  const ids = new Set([...document.querySelectorAll('[data-gameid]')].map(e => e.dataset.gameid));
-  const toFetch = games.filter(g => ids.has(String(g.id)) && covers[String(g.id)] === undefined);
-  _queue.unshift(...toFetch.filter(g => !_queue.find(q => q.id === g.id)));
-  _run();
-}
-
-function startBackgroundCoverFetch() {
-  _queue.push(...games.filter(g => covers[String(g.id)] === undefined));
-  _run();
-}
-
 function uploadCoverManual(input) {
   if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
   const reader = new FileReader();
   reader.onload = (e) => {
     const dataUrl = e.target.result;
@@ -1495,62 +1355,27 @@ function uploadCoverManual(input) {
     covers[id] = dataUrl;
     saveCovers();
     applyCover(id, dataUrl);
-    // Update modal cover preview
     const mc = document.getElementById('modal-cover');
-    if (mc) { mc.style.backgroundImage = `url('${dataUrl}')`; mc.style.backgroundSize = 'cover'; mc.style.backgroundPosition = 'center top'; mc.innerHTML = ''; }
+    if (mc) { mc.style.backgroundImage = "url('" + dataUrl + "')"; mc.style.backgroundSize = 'cover'; mc.style.backgroundPosition = 'center top'; mc.innerHTML = ''; }
     filterGames();
   };
-  reader.readAsDataURL(file);
-  input.value = ''; // reset so same file can be uploaded again
+  reader.readAsDataURL(input.files[0]);
+  input.value = '';
 }
 
 function removeCoverManual() {
   const id = String(currentGameId);
   delete covers[id];
   saveCovers();
-  // Reset modal cover to emoji
   const g = games.find(x => x.id === currentGameId);
   const mc = document.getElementById('modal-cover');
-  if (mc && g) { mc.style.backgroundImage = ''; mc.innerHTML = `<span style="font-size:40px">${getGameEmoji(g)}</span>`; }
+  if (mc && g) { mc.style.backgroundImage = ''; mc.innerHTML = '<span style="font-size:40px">' + getGameEmoji(g) + '</span>'; }
+  document.querySelectorAll('[data-gameid="' + id + '"]').forEach(el => {
+    el.style.backgroundImage = '';
+    const nc = el.querySelector('.no-cover');
+    if (nc) nc.style.display = '';
+  });
   filterGames();
-}
-
-async function refreshCover() {
-  const g = games.find(x => x.id === currentGameId);
-  if (!g) return;
-  const btn = document.querySelector('[onclick="refreshCover()"]');
-  if (btn) { btn.textContent = '⏳ Buscando...'; btn.disabled = true; }
-  const nome = document.getElementById('edit-nome').value.trim();
-  if (nome) g.nomeCapa = nome;
-  save();
-  delete covers[String(g.id)];
-  await fetchCover(g, true);
-  if (btn) { btn.textContent = covers[String(g.id)] !== 'none' ? '✅ Atualizada!' : '❌ Não encontrada'; setTimeout(() => { btn.textContent = '🖼️ Atualizar Capa'; btn.disabled = false; }, 2500); }
-  filterGames();
-}
-
-async function retryNotFound() {
-  const btn = document.getElementById('btn-retry');
-  const progress = document.getElementById('retry-progress');
-  btn.disabled = true;
-  let total = 0, round = 1;
-  while (round <= 5) {
-    const failed = games.filter(g => covers[String(g.id)] === 'none');
-    if (!failed.length) { progress.textContent = '✅ Todas encontradas! ' + total + ' novas.'; break; }
-    progress.textContent = '⏳ Rodada ' + round + ' — ' + failed.length + ' jogos...';
-    let found = 0;
-    for (let i = 0; i < failed.length; i++) {
-      const g = failed[i]; delete covers[String(g.id)];
-      await fetchCover(g, true);
-      if (covers[String(g.id)] !== 'none') { found++; total++; }
-      applyAllVisible();
-      progress.textContent = '⏳ Rodada ' + round + ' — ' + (i+1) + '/' + failed.length + ' — novas: ' + found;
-      await new Promise(r => setTimeout(r, 300));
-    }
-    if (found === 0) { progress.textContent = '✅ ' + total + ' novas. ' + games.filter(g => covers[String(g.id)] === 'none').length + ' sem capa.'; break; }
-    round++;
-  }
-  btn.disabled = false; updateDiagCache(); filterGames();
 }
 
 
@@ -1786,7 +1611,7 @@ function openModal(id) {
     coverEl.style.backgroundImage = '';
     coverEl.innerHTML = `<span style="font-size:40px">${getGameEmoji(g)}</span>`;
     if (cachedUrl === undefined) {
-      fetchCover(g).then(() => {
+      .then(() => {
         const url = covers[String(id)];
         if (url && url !== 'none' && currentGameId === id) {
           coverEl.style.backgroundImage = `url('${url}')`;
@@ -1823,8 +1648,7 @@ function openModal(id) {
   document.getElementById('edit-nota').value = g.nota || '';
   document.getElementById('edit-quando').value = g.quando || '';
   document.getElementById('edit-categoria').value = g.categoria || '';
-  document.getElementById('edit-nome-real').value = g.nome;
-  document.getElementById('edit-nome').value = g.nomeCapa || g.nome;
+  if (document.getElementById('edit-nome-real')) document.getElementById('edit-nome-real').value = g.nome;
   const setToggle = (id, val) => { const el = document.getElementById(id); el.classList.toggle('on', !!val); };
   setToggle('edit-favorito', g.favorito);
   setToggle('edit-trilha', g.trilha);
@@ -1854,10 +1678,8 @@ function saveGame() {
   g.favorito = document.getElementById('edit-favorito').classList.contains('on');
   g.trilha = document.getElementById('edit-trilha').classList.contains('on');
   g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
-  const nomeReal = document.getElementById('edit-nome-real').value.trim();
+  const nomeReal = document.getElementById('edit-nome-real')?.value.trim();
   if (nomeReal && nomeReal !== g.nome) g.nome = nomeReal;
-  const nomeEditado = document.getElementById('edit-nome').value.trim();
-  if (nomeEditado && nomeEditado !== g.nome) g.nomeCapa = nomeEditado;
 
   save();
   closeModalForce();
@@ -1895,247 +1717,55 @@ function buildPrioridades() {
 }
 
 // ========== RANKINGS ==========
-// Rankings editáveis salvos no localStorage
-let rankingsJogados = null;
-let rankingsLancados = null;
-
-function loadRankings() {
-  try {
-    const rj = localStorage.getItem('rankings_jogados_v1');
-    const rl = localStorage.getItem('rankings_lancados_v1');
-    rankingsJogados = rj ? JSON.parse(rj) : JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
-    rankingsLancados = rl ? JSON.parse(rl) : JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
-  } catch(e) {
-    rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
-    rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
-  }
-}
-
-function saveRankings() {
-  localStorage.setItem('rankings_jogados_v1', JSON.stringify(rankingsJogados));
-  localStorage.setItem('rankings_lancados_v1', JSON.stringify(rankingsLancados));
-}
-
-function getRankingList(type, year) {
-  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
-  if (!data[year]) data[year] = [];
-  return data[year].filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-}
-
-function rebuildPositions(list) {
-  const medals = ['🥇','🥈','🥉'];
-  return list.map((item, i) => ({
-    ...item,
-    pos: i < 3 ? medals[i] : `${i + 1}º`
-  }));
-}
-
-function moveRankingItem(type, year, idx, dir) {
-  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
-  const fullList = data[year] || [];
-  // Work only on non-GOTY entries
-  const goty = fullList.filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  let list = fullList.filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= list.length) return;
-  [list[idx], list[newIdx]] = [list[newIdx], list[idx]];
-  list = rebuildPositions(list);
-  data[year] = [...list, ...goty];
-  saveRankings();
-  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
-}
-
-function removeRankingItem(type, year, idx) {
-  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
-  const fullList = data[year] || [];
-  const goty = fullList.filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  let list = fullList.filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  list.splice(idx, 1);
-  list = rebuildPositions(list);
-  data[year] = [...list, ...goty];
-  saveRankings();
-  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
-}
-
-function showAddToRanking(type, year) {
-  // Get games NOT already in this ranking
-  const list = getRankingList(type, year);
-  const inRanking = new Set(list.map(r => r.jogo.toLowerCase()));
-  const available = games.filter(g => !inRanking.has(g.nome.toLowerCase()));
-
-  // Build modal-style dropdown
-  const existing = document.getElementById('add-ranking-modal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'add-ranking-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
-      <h3 style="font-size:16px;margin-bottom:16px">Adicionar ao ranking ${year}</h3>
-      <input type="text" id="ranking-search" placeholder="Buscar jogo..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
-      <div id="ranking-game-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
-      <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
-        <button onclick="document.getElementById('add-ranking-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
-      </div>
-    </div>`;
-
-  document.body.appendChild(modal);
-
-  function renderList(filter) {
-    const filtered = available.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
-    const el = document.getElementById('ranking-game-list');
-    if (!el) return;
-    el.innerHTML = filtered.slice(0, 50).map(g => `
-      <div onclick="addToRanking('${type}','${year}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.1s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
-        <span style="font-size:13px">${g.nome}</span>
-        <span style="font-size:11px;color:var(--muted)">${g.plataforma}</span>
-      </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
-  }
-
-  renderList('');
-  document.getElementById('ranking-search').addEventListener('input', e => renderList(e.target.value));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-}
-
-function addToRanking(type, year, gameId) {
-  const game = games.find(g => g.id === gameId);
-  if (!game) return;
-  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
-  if (!data[year]) data[year] = [];
-  const goty = data[year].filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  let list = data[year].filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-  list.push({ pos: `${list.length + 1}º`, jogo: game.nome });
-  list = rebuildPositions(list);
-  data[year] = [...list, ...goty];
-  saveRankings();
-  document.getElementById('add-ranking-modal')?.remove();
-  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
-}
-
 function buildRankings() {
-  if (!rankingsJogados) loadRankings();
-
-  const yearsJogados = Object.keys(rankingsJogados).filter(y => rankingsJogados[y].length || parseInt(y) >= 2020);
-  const validYears = yearsJogados.filter(y => !isNaN(parseInt(y)) && parseInt(y) >= 2020 && parseInt(y) <= 2031);
+  // Jogados
+  const yearsJogados = Object.keys(INITIAL_DATA.ranking_jogados).filter(y => INITIAL_DATA.ranking_jogados[y].length);
   const tabsJogados = document.getElementById('tabs-jogados');
-  tabsJogados.innerHTML = validYears.map(y =>
+  tabsJogados.innerHTML = yearsJogados.map(y =>
     `<span class="year-tab ${y === rankingJogadosYear ? 'active' : ''}" onclick="setRankingYear('jogados','${y}')">${y}</span>`
   ).join('');
-  renderRankingTable('table-jogados', getRankingList('jogados', rankingJogadosYear), 'jogados', rankingJogadosYear);
+  renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[rankingJogadosYear] || []);
 
+  // Lançados
   const yearsLancados = ['2026','2025','2024','2023','2022','2021','2020'];
   const tabsLancados = document.getElementById('tabs-lancados');
   tabsLancados.innerHTML = yearsLancados.map(y =>
     `<span class="year-tab ${y === rankingLancadosYear ? 'active' : ''}" onclick="setRankingYear('lancados','${y}')">${y}</span>`
   ).join('');
-  renderRankingTable('table-lancados', getRankingList('lancados', rankingLancadosYear), 'lancados', rankingLancadosYear);
+  renderRankingTable('table-lancados', (INITIAL_DATA.ranking_lancados[rankingLancadosYear] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos)));
 }
 
 function setRankingYear(type, year) {
   if (type === 'jogados') {
     rankingJogadosYear = year;
     document.querySelectorAll('#tabs-jogados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
-    renderRankingTable('table-jogados', getRankingList('jogados', year), 'jogados', year);
+    renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[year] || []);
   } else {
     rankingLancadosYear = year;
     document.querySelectorAll('#tabs-lancados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
-    renderRankingTable('table-lancados', getRankingList('lancados', year), 'lancados', year);
+    const filtered = (INITIAL_DATA.ranking_lancados[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+    renderRankingTable('table-lancados', filtered);
   }
 }
 
-function renderRankingTable(id, list, type, year) {
+function renderRankingTable(id, list) {
   const el = document.getElementById(id);
-
-  // Header com botão de adicionar
-  let html = `<div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-    <span style="font-size:12px;color:var(--muted)">${list.length} jogos</span>
-    <button onclick="showAddToRanking('${type}','${year}')" style="padding:6px 14px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Adicionar jogo</button>
-  </div>`;
-
   if (!list.length) {
-    html += `<div class="empty-state" style="padding:40px"><p>Nenhum jogo ainda — clique em Adicionar!</p></div>`;
-    el.innerHTML = html;
+    el.innerHTML = `<div class="empty-state" style="padding:40px"><p>Nenhum dado para este ano ainda</p></div>`;
     return;
   }
-
-  html += list.map((row, idx) => {
+  el.innerHTML = list.map(row => {
     const rankCls = row.pos === '🥇' ? 'rank-1' : row.pos === '🥈' ? 'rank-2' : row.pos === '🥉' ? 'rank-3' : '';
-    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim());
-    const inCollection = found ? `<span class="rank-badge" style="cursor:pointer" onclick="openModal(${found.id})">Na coleção</span>` : '';
-    const coverUrl = found ? covers[String(found.id)] : null;
-    const coverStyle = (coverUrl && coverUrl !== 'none') ? `style="background-image:url('${coverUrl}');background-size:cover;background-position:center top;width:36px;height:48px;border-radius:4px;flex-shrink:0"` : `style="width:36px;height:48px;border-radius:4px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px"`;
-    const coverContent = (coverUrl && coverUrl !== 'none') ? '' : (found ? getGameEmoji(found) : '🎮');
-
-    return `<div class="ranking-row" style="cursor:${found ? 'pointer' : 'default'}" ${found ? `onclick="openModal(${found.id})"` : ''}>
-      <span class="rank-pos ${rankCls}" style="min-width:36px">${row.pos}</span>
-      <div ${coverStyle}>${coverContent}</div>
-      <span class="rank-name" style="flex:1">${row.jogo}</span>
+    // Find game in collection
+    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim()
+      || row.jogo.toLowerCase().includes(g.nome.toLowerCase().slice(0,15)));
+    const inCollection = found ? `<span class="rank-badge">Na coleção</span>` : '';
+    return `<div class="ranking-row">
+      <span class="rank-pos ${rankCls}">${row.pos}</span>
+      <span class="rank-name">${row.jogo}</span>
       ${inCollection}
-      <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
-        <button onclick="moveRankingItem('${type}','${year}',${idx},-1)" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px" ${idx === 0 ? 'disabled style="opacity:0.3;padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:not-allowed;font-size:13px"' : ''}>↑</button>
-        <button onclick="moveRankingItem('${type}','${year}',${idx},1)" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px" ${idx === list.length-1 ? 'disabled style="opacity:0.3;padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:not-allowed;font-size:13px"' : ''}>↓</button>
-        <button onclick="removeRankingItem('${type}','${year}',${idx})" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--red);cursor:pointer;font-size:13px">✕</button>
-      </div>
     </div>`;
   }).join('');
-
-  el.innerHTML = html;
-}
-
-function linkAwardGame(nomeAward) {
-  // Mostra modal de busca para vincular manualmente
-  const existing = document.getElementById('link-award-modal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'link-award-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
-      <h3 style="font-size:15px;margin-bottom:6px">Vincular jogo</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Vinculando: <strong style="color:var(--text)">${nomeAward}</strong></p>
-      <input type="text" id="link-search" placeholder="Buscar na coleção..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
-      <div id="link-game-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
-      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
-        <button onclick="document.getElementById('link-award-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-
-  function renderList(filter) {
-    const filtered = games.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
-    const el = document.getElementById('link-game-list');
-    if (!el) return;
-    el.innerHTML = filtered.slice(0, 50).map(g => {
-      const si = STATUS_INFO[g.status] || {};
-      return `<div onclick="confirmLinkAward('${nomeAward.replace(/'/g,"\\'")}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.1s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
-        <span style="font-size:13px">${g.nome}</span>
-        <span style="font-size:11px;color:var(--muted)">${si.emoji || ''} ${g.plataforma}</span>
-      </div>`;
-    }).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
-  }
-
-  renderList('');
-  document.getElementById('link-search').addEventListener('input', e => renderList(e.target.value));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-}
-
-function confirmLinkAward(nomeAward, gameId) {
-  const data = {};
-  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
-  data[nomeAward] = gameId;
-  localStorage.setItem('awards_links_v1', JSON.stringify(data));
-  document.getElementById('link-award-modal')?.remove();
-  buildGameAwards(); // rebuild para mostrar a nova borda
-}
-
-function unlinkAwardGame(nomeAward) {
-  const data = {};
-  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
-  delete data[nomeAward];
-  localStorage.setItem('awards_links_v1', JSON.stringify(data));
-  buildGameAwards();
 }
 
 // ========== GAME AWARDS ==========
@@ -2143,80 +1773,18 @@ function buildGameAwards() {
   const awards = INITIAL_DATA.game_awards;
   const years = Object.keys(awards).sort((a,b) => b-a);
   const el = document.getElementById('awards-content');
-
-  // Mapeamento manual: nome no Game Awards -> id do jogo na coleção
-  let awardsLinks = {};
-  try { awardsLinks = JSON.parse(localStorage.getItem('awards_links_v1') || '{}'); } catch(e) {}
-
-  function saveAwardsLinks() {
-    localStorage.setItem('awards_links_v1', JSON.stringify(awardsLinks));
-  }
-
-  function getGameChip(nome) {
-    // 1. Verificar mapeamento manual
-    let found = awardsLinks[nome] ? games.find(g => g.id === awardsLinks[nome]) : null;
-    // 2. Se não, apenas nome exato (case-insensitive)
-    if (!found) found = games.find(g => g.nome.toLowerCase().trim() === nome.toLowerCase().trim());
-
-    let border, title, cursor, onclick;
-    if (!found) {
-      border = '2px solid var(--muted)';
-      title = 'Não está na coleção — clique para vincular';
-      cursor = 'pointer';
-      onclick = `onclick="linkAwardGame('${nome.replace(/'/g,"\\'")}' )"`;
-    } else if (found.status === '4 - Platinado') {
-      border = '2px solid var(--blue)';
-      title = 'Platinado — clique para abrir';
-      cursor = 'pointer';
-      onclick = `onclick="openModal(${found.id})"`;
-    } else if (found.status === '3 - Concluído') {
-      border = '2px solid var(--green)';
-      title = 'Concluído — clique para abrir';
-      cursor = 'pointer';
-      onclick = `onclick="openModal(${found.id})"`;
-    } else {
-      border = '2px solid var(--gold)';
-      title = 'Na coleção mas não jogado — clique para abrir';
-      cursor = 'pointer';
-      onclick = `onclick="openModal(${found.id})"`;
-    }
-
-    const unlinkBtn = found && awardsLinks[nome]
-      ? `<span onclick="event.stopPropagation();unlinkAwardGame('${nome.replace(/'/g,"\\'")}' )" title="Desvincular" style="margin-left:4px;opacity:0.5;font-size:10px">✕</span>`
-      : '';
-
-    return `<span class="nominee-chip" ${onclick} title="${title}" style="border:${border};cursor:${cursor}">${nome}${unlinkBtn}</span>`;
-  }
-
   el.innerHTML = years.map(year => {
     const entries = awards[year];
     const goty = entries.find(e => e.pos === 'GOTY');
     const nominees = entries.filter(e => e.pos !== 'GOTY');
     if (!goty) return '';
-
-    // GOTY chip com borda
-    const gotyChip = getGameChip(goty.jogo);
-
     return `<div class="goty-card">
       <div class="goty-year">🎖️ THE GAME AWARDS ${year}</div>
-      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="color:var(--gold);font-size:13px;font-weight:700">🏆 GOTY</span>
-        ${gotyChip}
-      </div>
-      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => getGameChip(n.jogo)).join('')}</div>` : ''}
+      <div class="goty-name">🏆 ${goty.jogo}</div>
+      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => `<span class="nominee-chip">${n.jogo}</span>`).join('')}</div>` : ''}
     </div>`;
   }).join('');
-
-  // Legenda
-  el.innerHTML += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px">
-    <span style="color:var(--muted)">Legenda:</span>
-    <span style="border:2px solid var(--blue);padding:2px 8px;border-radius:6px;color:var(--blue)">Platinado</span>
-    <span style="border:2px solid var(--green);padding:2px 8px;border-radius:6px;color:var(--green)">Concluído</span>
-    <span style="border:2px solid var(--gold);padding:2px 8px;border-radius:6px;color:var(--gold)">Não jogado</span>
-    <span style="border:2px solid var(--muted);padding:2px 8px;border-radius:6px;color:var(--muted)">Fora da coleção</span>
-  </div>`;
 }
-
 
 // ========== ADD GAME ==========
 function buildAddForm() {
@@ -2243,7 +1811,7 @@ function addGame() {
     subgenero: null,
     tempo: null,
     status: document.getElementById('add-status').value,
-    quando: parseInt(document.getElementById('add-quando').value) || null,
+    quando: null,
     nota: document.getElementById('add-nota').value || null,
     midia: document.getElementById('add-midia').value || null,
     categoria: document.getElementById('add-categoria').value || null,
@@ -2258,7 +1826,6 @@ function addGame() {
   // Reset form
   document.getElementById('add-nome').value = '';
   document.getElementById('add-lancamento').value = '';
-  document.getElementById('add-quando').value = '';
   document.getElementById('add-msg').textContent = `✅ "${nome}" adicionado com sucesso!`;
   setTimeout(() => document.getElementById('add-msg').textContent = '', 3000);
 
@@ -2272,10 +1839,13 @@ function addGame() {
 // ========== SIDEBAR STATS ==========
 function updateSidebar() {
   document.getElementById('total-count').textContent = `${games.length} jogos`;
+
   const jogados = games.filter(g => ['3 - Concluído','4 - Platinado'].includes(g.status)).length;
   const pct = Math.round((jogados / games.length) * 100);
+
   const coversFound = Object.values(covers).filter(v => v && v !== 'none').length;
   const coversTotal = Object.keys(covers).length;
+
   document.getElementById('sidebar-stats').innerHTML = `
     <div><strong>${jogados}</strong> jogos completados</div>
     <div><strong>${pct}%</strong> da coleção</div>
@@ -2290,24 +1860,50 @@ async function retryNotFound() {
   const btn = document.getElementById('btn-retry');
   const progress = document.getElementById('retry-progress');
   btn.disabled = true;
-  let total = 0, round = 1;
-  while (round <= 5) {
-    const failed = games.filter(g => covers[String(g.id)] === 'none');
-    if (!failed.length) { progress.textContent = '✅ Todas encontradas! ' + total + ' novas.'; break; }
-    progress.textContent = '⏳ Rodada ' + round + ' — ' + failed.length + ' jogos...';
-    let found = 0;
-    for (let i = 0; i < failed.length; i++) {
-      const g = failed[i]; delete covers[String(g.id)];
-      await fetchCover(g, true);
-      if (covers[String(g.id)] !== 'none') { found++; total++; }
-      applyAllVisible();
-      progress.textContent = '⏳ Rodada ' + round + ' — ' + (i+1) + '/' + failed.length + ' — novas: ' + found;
-      await new Promise(r => setTimeout(r, 300));
+
+  let totalFound = 0;
+  let round = 1;
+
+  while (true) {
+    const failed = games.filter(g => coverCache[String(g.id)] === 'none');
+    if (!failed.length) {
+      progress.textContent = `✅ Todas as capas encontradas! Total: ${totalFound} novas.`;
+      break;
     }
-    if (found === 0) { progress.textContent = '✅ ' + total + ' novas. ' + games.filter(g => covers[String(g.id)] === 'none').length + ' sem capa.'; break; }
+
+    progress.textContent = `⏳ Rodada ${round} — tentando ${failed.length} jogos sem capa...`;
+    let foundThisRound = 0;
+
+    for (let i = 0; i < failed.length; i++) {
+      const g = failed[i];
+      const key = String(g.id);
+      delete coverCache[key];
+      delete coverImgCache[key];
+      await fetchCoverForGame(g, true);
+      if (coverCache[key] === 'found') { foundThisRound++; totalFound++; }
+      progress.textContent = `⏳ Rodada ${round} — ${i+1}/${failed.length} — novas: ${foundThisRound}`;
+      await new Promise(r => setTimeout(r, 400));
+    }
+
+    // Se não achou nenhuma nova nessa rodada, para
+    if (foundThisRound === 0) {
+      const remaining = games.filter(g => coverCache[String(g.id)] === 'none').length;
+      progress.textContent = `✅ Concluído! ${totalFound} novas capas encontradas. ${remaining > 0 ? `${remaining} jogos sem capa disponível.` : ''}`;
+      break;
+    }
+
     round++;
+    // Máximo de 5 rodadas para não ficar em loop infinito
+    if (round > 5) {
+      const remaining = games.filter(g => coverCache[String(g.id)] === 'none').length;
+      progress.textContent = `✅ ${totalFound} novas capas encontradas. ${remaining} ainda sem capa — edite o nome manualmente.`;
+      break;
+    }
   }
-  btn.disabled = false; updateDiagCache(); filterGames();
+
+  btn.disabled = false;
+  updateDiagCache();
+  filterGames();
 }
 
 // ========== DIAGNÓSTICO ==========
@@ -2316,15 +1912,15 @@ function updateDiagCache() {
   if (!el) return;
   const total = games.length;
   const cached = Object.keys(covers).length;
-  const found = Object.values(covers).filter(v => v && v !== 'none').length;
-  const notFound = Object.values(covers).filter(v => v === 'none').length;
+  const found = Object.values(coverCache).filter(v => v === 'found').length;
+  const notFound = Object.values(coverCache).filter(v => v === 'none').length;
   const pending = total - cached;
   el.innerHTML = `
     <div>📦 Total de jogos: <strong>${total}</strong></div>
     <div>✅ Capas encontradas: <strong style="color:var(--green)">${found}</strong></div>
     <div>❌ Não encontradas: <strong style="color:var(--red)">${notFound}</strong></div>
     <div>⏳ Ainda não buscadas: <strong style="color:var(--muted)">${pending}</strong></div>
-    <div>🔄 Fila atual: <strong>${_queue.length}</strong> | Rodando: <strong>${_running}</strong></div>
+    <div>🔄 Fila atual: <strong>0</strong> | Rodando: <strong>false</strong></div>
   `;
 }
 
@@ -2378,8 +1974,6 @@ function clearCoversAndReload() {
   // Limpa todas as versões do cache
   ['gamer_covers_v1','gamer_covers_v2','gamer_covers_v3','gamer_covers_v4','gamer_covers_v5'].forEach(k => localStorage.removeItem(k));
   covers = {};
-  _queue = [];
-  _running = false;
   startBackgroundCoverFetch();
   filterGames();
   updateDiagCache();
