@@ -6275,6 +6275,7 @@
     }
   ],
   "covers": {
+    "1": "https://m.media-amazon.com/images/I/815Fly6jOCL._AC_UF1000,1000_QL80_.jpg",
     "295": "https://m.media-amazon.com/images/I/71ozw6l5f6L._AC_UF1000,1000_QL80_.jpg",
     "336": "https://m.media-amazon.com/images/M/MV5BNmM0Njk4NDItZDU4Zi00Y2I4LTllMDAtNTI4NWY2Y2FlMzAzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
     "343": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2wQKzvv_TAEhvK_Ma8A4PHVHZpjLDDOzzdS9cF37eCg&s=10",
@@ -7424,5 +7425,5 @@
     "2031": []
   },
   "awards_links": {},
-  "last_updated": "2026-06-16T13:13:41.680Z"
+  "last_updated": "2026-06-16T13:14:42.287Z"
 }
