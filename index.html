@@ -246,6 +246,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
   }
+  .stats-grid > div[style*="grid-column"] { grid-column: 1 / -1; }
 
   .stat-card {
     background: var(--surface);
@@ -258,12 +259,11 @@
   .stat-card:hover { border-color: var(--accent); }
   .stat-card .num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
   .stat-card .label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
-  .stat-card.c-jogando .num { color: var(--accent2); }
+  .stat-card.c-total .num { color: var(--text); }
   .stat-card.c-concluido .num { color: var(--green); }
-  .stat-card.c-platinado .num { color: var(--gold); }
+  .stat-card.c-platinado .num { color: var(--blue); }
   .stat-card.c-nao .num { color: var(--muted); }
   .stat-card.c-drop .num { color: var(--red); }
-  .stat-card.c-total .num { color: var(--accent); }
 
   /* GAME GRID */
   .filters-bar {
@@ -1269,28 +1269,38 @@ function showPage(id) {
 
 // ========== DASHBOARD ==========
 function buildDashboard() {
+  const anoAtivo = window._dashAno || null;
+  const gamesFiltered = anoAtivo ? games.filter(g => g.quando === anoAtivo) : games;
+
   const statuses = {};
-  games.forEach(g => { statuses[g.status] = (statuses[g.status] || 0) + 1; });
+  gamesFiltered.forEach(g => { statuses[g.status] = (statuses[g.status] || 0) + 1; });
 
   const statsGrid = document.getElementById('stats-grid');
-  const total = games.length;
+  const total = gamesFiltered.length;
   const concluido = (statuses['3 - Concluído'] || 0) + (statuses['4 - Platinado'] || 0);
-  const jogando = statuses['1 - Jogando'] || 0;
   const platinado = statuses['4 - Platinado'] || 0;
   const naoJogado = statuses['2 - Não jogado'] || 0;
   const dropado = statuses['5 - Dropado'] || 0;
-  const favoritos = games.filter(g => g.favorito).length;
-  const perfeitos = games.filter(g => g.nota === '5 - Perfeito').length;
+  const favoritos = gamesFiltered.filter(g => g.favorito).length;
+  const perfeitos = gamesFiltered.filter(g => g.nota === '5 - Perfeito').length;
+
+  // Anos jogados para filtro
+  const anosJogados = [...new Set(games.map(g => g.quando).filter(Boolean))].sort((a,b) => b-a);
+  const anoAtivo = window._dashAno || null;
 
   statsGrid.innerHTML = `
+    <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center">
+      <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-right:4px">Filtrar por ano:</span>
+      <span onclick="setDashAno(null)" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${!anoAtivo ? 'var(--accent)' : 'var(--surface2)'};color:${!anoAtivo ? 'white' : 'var(--muted)'};transition:all 0.15s">Todos</span>
+      ${anosJogados.map(a => `<span onclick="setDashAno(${a})" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${anoAtivo===a ? 'var(--accent)' : 'var(--surface2)'};color:${anoAtivo===a ? 'white' : 'var(--muted)'};transition:all 0.15s">${a}</span>`).join('')}
+    </div>
     <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num">${total}</div><div class="label">Total</div></div>
     <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
     <div class="stat-card c-platinado" style="cursor:pointer" onclick="filterFromDashboard('status','4 - Platinado')"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
-    <div class="stat-card c-jogando" style="cursor:pointer" onclick="filterFromDashboard('status','1 - Jogando')"><div class="num">${jogando}</div><div class="label">Jogando</div></div>
     <div class="stat-card c-nao" style="cursor:pointer" onclick="filterFromDashboard('status','2 - Não jogado')"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
     <div class="stat-card c-drop" style="cursor:pointer" onclick="filterFromDashboard('status','5 - Dropado')"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
     <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('favorito','true')"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" style="color:var(--accent2)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" style="color:var(--text)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
   `;
 
   // Jogando Agora
@@ -1321,16 +1331,26 @@ function buildDashboard() {
       </div>`;
     }
   }
-  buildBarChart('chart-genero', countField('genero'), 8, null, 'genero');
-  buildBarChart('chart-plataforma', countField('plataforma'), 8, null, 'plataforma');
+  function countFieldF(field) {
+    const counts = {};
+    gamesFiltered.forEach(g => { if (g[field]) counts[g[field]] = (counts[g[field]] || 0) + 1; });
+    return Object.fromEntries(Object.entries(counts).sort((a,b) => b[1]-a[1]));
+  }
+  buildBarChart('chart-genero', countFieldF('genero'), 8, null, 'genero');
+  buildBarChart('chart-plataforma', countFieldF('plataforma'), 8, null, 'plataforma');
   buildBarChart('chart-nota', {
-    '5 - Perfeito': games.filter(g => g.nota === '5 - Perfeito').length,
-    '4 - Ótimo': games.filter(g => g.nota === '4 - Ótimo').length,
-    '3 - Bom': games.filter(g => g.nota === '3 - Bom').length,
-    '2 - Fraco': games.filter(g => g.nota === '2 - Fraco').length,
-    '1 - Ruim': games.filter(g => g.nota === '1 - Ruim').length,
+    '5 - Perfeito': gamesFiltered.filter(g => g.nota === '5 - Perfeito').length,
+    '4 - Ótimo': gamesFiltered.filter(g => g.nota === '4 - Ótimo').length,
+    '3 - Bom': gamesFiltered.filter(g => g.nota === '3 - Bom').length,
+    '2 - Fraco': gamesFiltered.filter(g => g.nota === '2 - Fraco').length,
+    '1 - Ruim': gamesFiltered.filter(g => g.nota === '1 - Ruim').length,
   }, 10, ['#2d7a2d','#4ef5a0','#f5e642','#f59c42','#f54e4e'], 'nota');
-  buildBarChart('chart-midia', countField('midia'), 10, null, 'midia');
+  buildBarChart('chart-midia', countFieldF('midia'), 10, null, 'midia');
+}
+
+function setDashAno(ano) {
+  window._dashAno = ano;
+  buildDashboard();
 }
 
 function countField(field) {
