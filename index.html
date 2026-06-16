@@ -975,6 +975,19 @@
             <label>Nome do Jogo</label>
             <input type="text" id="edit-nome-real" placeholder="Nome do jogo">
           </div>
+          <div class="field-group" style="grid-column:1/-1">
+            <label>Capa</label>
+            <div style="display:flex;gap:8px;margin-bottom:6px">
+              <input type="text" id="edit-cover-url" placeholder="Cole uma URL de imagem...">
+              <button class="btn btn-ghost" onclick="applyCoverUrl()" style="white-space:nowrap">🔗 Usar URL</button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="file" id="edit-cover-upload" accept="image/*" style="display:none" onchange="uploadCoverManual(this)">
+              <button class="btn btn-ghost" onclick="document.getElementById('edit-cover-upload').click()" style="white-space:nowrap">📁 Upload</button>
+              <button class="btn btn-ghost" onclick="removeCoverManual()" style="white-space:nowrap;color:var(--red)">🗑️ Remover</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-top:6px">URL sincroniza em todos os dispositivos. Upload fica só neste navegador.</p>
+          </div>
         </div>
         <div style="margin-top:14px">
           <div class="toggle-row">
@@ -1335,6 +1348,19 @@ function applyAllVisible() {
   });
 }
 
+function applyCoverUrl() {
+  const url = document.getElementById('edit-cover-url').value.trim();
+  if (!url) return;
+  const id = String(currentGameId);
+  covers[id] = url;
+  saveCovers();
+  applyCover(id, url);
+  const mc = document.getElementById('modal-cover');
+  if (mc) { mc.style.backgroundImage = `url('${url}')`; mc.style.backgroundSize = 'cover'; mc.style.backgroundPosition = 'center top'; mc.innerHTML = ''; }
+  filterGames();
+  document.getElementById('edit-cover-url').value = '';
+}
+
 function uploadCoverManual(input) {
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
@@ -1627,6 +1653,10 @@ function openModal(id) {
   document.getElementById('edit-quando').value = g.quando || '';
   document.getElementById('edit-categoria').value = g.categoria || '';
   if (document.getElementById('edit-nome-real')) document.getElementById('edit-nome-real').value = g.nome;
+  // Show current cover URL if it's a URL (not base64)
+  const currentCover = covers[String(id)];
+  const urlField = document.getElementById('edit-cover-url');
+  if (urlField) urlField.value = (currentCover && !currentCover.startsWith('data:')) ? currentCover : '';
   const setToggle = (id, val) => { const el = document.getElementById(id); el.classList.toggle('on', !!val); };
   setToggle('edit-favorito', g.favorito);
   setToggle('edit-trilha', g.trilha);
