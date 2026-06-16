@@ -5119,7 +5119,7 @@
     },
     {
       "id": 302,
-      "nome": "Final Fantasy II (FF I-VI: Pixel Remaster Collection)",
+      "nome": "Final Fantasy II (Pixel Remaster Collection)",
       "plataforma": "Nintendo Switch",
       "lancamento": 2023,
       "genero": "RPG",
@@ -6376,6 +6376,7 @@
     "298": "https://m.media-amazon.com/images/I/71edx0R+svL._AC_UF1000,1000_QL80_.jpg",
     "300": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKEj7WkmYd1SeFyBH5lFaEO_FfSR1tJlTql4qyu-bUhUvlEj9bmouuiog4&s=10",
     "301": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8TkptpU3J3O-gtjuWNdSYuopF2P_atVsyIElTAvBdTp7hlmBNYMMRMrJB&s=10",
+    "302": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnMkjm-kenaM_xQffpqz5frNcIHMm9doY1A6xhebYQWg&s=10",
     "308": "https://m.media-amazon.com/images/I/51tOYuCeiEL._UXNaN_FMjpg_QL85_.jpg",
     "311": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyjJZjybnzaauWUh1pbVt2aJeZVc9xveGujyYcHbM19DzEs4DtO9qtxhIE&s=10",
     "315": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIL5iazAQ_GDx7gzZIKmMhOYXeHIMTzOE7U-H1t5jFORf6GcN73GhqTfOk&s=10",
@@ -7563,5 +7564,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-16T16:59:36.778Z"
+  "last_updated": "2026-06-16T17:00:04.907Z"
 }
