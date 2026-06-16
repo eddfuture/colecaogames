@@ -2349,14 +2349,15 @@ function buildRankings() {
   if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
   if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
 
-  const yearsJogados = Object.keys(rankingsJogados).filter(y => !isNaN(parseInt(y)) && parseInt(y) >= 2020 && parseInt(y) <= 2031);
+  const currentYear = new Date().getFullYear();
+  const yearsJogados = Object.keys(rankingsJogados).filter(y => !isNaN(parseInt(y)) && parseInt(y) >= 2020 && parseInt(y) <= currentYear);
   const tabsJogados = document.getElementById('tabs-jogados');
   tabsJogados.innerHTML = yearsJogados.map(y =>
     `<span class="year-tab ${y === rankingJogadosYear ? 'active' : ''}" onclick="setRankingYear('jogados','${y}')">${y}</span>`
   ).join('');
   renderRankingTable('table-jogados', getRankingList('jogados', rankingJogadosYear), 'jogados', rankingJogadosYear);
 
-  const yearsLancados = ['2026','2025','2024','2023','2022','2021','2020'];
+  const yearsLancados = ['2020','2021','2022','2023','2024','2025','2026'];
   const tabsLancados = document.getElementById('tabs-lancados');
   tabsLancados.innerHTML = yearsLancados.map(y =>
     `<span class="year-tab ${y === rankingLancadosYear ? 'active' : ''}" onclick="setRankingYear('lancados','${y}')">${y}</span>`
