@@ -1045,7 +1045,7 @@ function showSyncStatus(msg, color) {
   if (el) { el.textContent = msg; el.style.color = color || 'var(--muted)'; }
 }
 
-async function loadFromGithub() {
+async function loadFromGitHub() {
   showSyncStatus('⏳ Carregando...', 'var(--muted)');
   try {
     const res = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
@@ -1070,7 +1070,7 @@ async function loadFromGithub() {
   }
 }
 
-async function saveToGithub() {
+async function saveToGitHub() {
   if (isSyncing || !githubFileSha) return;
   isSyncing = true;
   showSyncStatus('💾 Salvando...', 'var(--accent)');
@@ -1102,13 +1102,13 @@ function save() {
   localStorage.setItem('gamer_collection_v2', JSON.stringify({ games }));
   if (saveTimeout) clearTimeout(saveTimeout);
   showSyncStatus('...editando', 'var(--muted)');
-  saveTimeout = setTimeout(saveToGithub, 2000);
+  saveTimeout = setTimeout(saveToGitHub, 2000);
 }
 
 // ========== INIT ==========
 async function init() {
   loadCoverCache();
-  await loadFromGithub();
+  await loadFromGitHub();
   if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
   if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
 
@@ -1123,19 +1123,6 @@ async function init() {
   buildAddForm();
   updateSidebar();
 
-  // Carrega dados do GitHub e reconstrói
-  loadFromGitHub().then(ok => {
-    if (ok) {
-      buildDashboard();
-      filterGames();
-      buildFavoritos();
-      buildPrioridades();
-      buildRankings();
-      buildGameAwards();
-      updateSidebar();
-      applyAllVisible();
-    }
-  });
 }
 
 // save() defined above in GITHUB SYNC section
@@ -1321,7 +1308,8 @@ function loadCoverCache() {
 }
 
 function saveCovers() {
-  scheduleSave();
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveToGitHub, 2000);
 }
 
 function applyCover(id, url) {
