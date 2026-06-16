@@ -257,7 +257,7 @@
     },
     {
       "id": 16,
-      "nome": "Resident Evil 4: Remake",
+      "nome": "Resident Evil 4 (2023)",
       "plataforma": "PlayStation 5",
       "lancamento": 2023,
       "genero": "Terror",
@@ -7747,5 +7747,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-16T18:25:54.918Z"
+  "last_updated": "2026-06-16T18:25:59.497Z"
 }
