@@ -620,7 +620,7 @@
       "genero": "RPG",
       "subgenero": "J-RPG",
       "tempo": "40",
-      "status": "2 - Não jogado",
+      "status": "7 - Outra Plataforma",
       "quando": null,
       "nota": null,
       "midia": "Digital",
@@ -7568,5 +7568,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-16T17:02:43.045Z"
+  "last_updated": "2026-06-16T17:02:48.212Z"
 }
