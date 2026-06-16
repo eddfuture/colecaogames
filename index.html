@@ -27,6 +27,78 @@
     --purple: #c042f5;
   }
 
+  body.light-mode {
+    --bg: #f0f2f7;
+    --surface: #ffffff;
+    --surface2: #e8eaf0;
+    --surface3: #dde0ea;
+    --border: #c8ccd8;
+    --text: #1a1e2a;
+    --muted: #6b7080;
+    --accent: #6554e0;
+    --accent2: #00a882;
+    --gold: #d4a017;
+    --red: #e03030;
+    --green: #1a9e5c;
+    --orange: #d4720a;
+    --blue: #1a7fd4;
+    --purple: #9b1fd4;
+  }
+
+  /* LIST VIEW */
+  .games-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .game-list-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .game-list-row:hover { border-color: var(--accent); background: var(--surface2); }
+
+  .game-list-cover {
+    width: 36px;
+    height: 48px;
+    border-radius: 4px;
+    background: var(--surface2);
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background-size: cover;
+    background-position: center top;
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+  }
+
+  .view-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+
+  .view-btn.active { background: var(--accent); color: white; }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -711,6 +783,9 @@
       <div class="nav-item" onclick="showPage('diagnostico')" id="nav-diagnostico">
         <span class="icon">🔧</span> Diagnóstico
       </div>
+      <div class="nav-item" onclick="toggleTheme()" id="nav-theme">
+        <span class="icon">☀️</span> Modo Claro
+      </div>
     </nav>
     <div class="sidebar-stats" id="sidebar-stats"></div>
     <div style="padding:10px 20px;border-top:1px solid var(--border);font-size:11px" id="sync-status"></div>
@@ -747,6 +822,10 @@
     <div class="page" id="page-colecao">
       <div class="topbar">
         <h2>Coleção</h2>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-grid" onclick="setViewMode('grid')" title="Grade">⊞</button>
+          <button class="view-btn" id="btn-list" onclick="setViewMode('list')" title="Lista">☰</button>
+        </div>
         <div class="search-box">
           <span>🔍</span>
           <input type="text" id="search-input" placeholder="Buscar jogo..." oninput="filterGames()">
@@ -1122,6 +1201,12 @@ function save() {
 // ========== INIT ==========
 async function init() {
   loadCoverCache();
+  initTheme();
+  // Restore view mode button state
+  if (viewMode === 'list') {
+    document.getElementById('btn-grid')?.classList.remove('active');
+    document.getElementById('btn-list')?.classList.add('active');
+  }
   await loadFromGitHub();
   if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
   if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
@@ -1223,6 +1308,37 @@ function buildBarChart(id, data, limit = 8, colors = null) {
   }).join('');
 }
 
+// ========== VIEW MODE ==========
+let viewMode = localStorage.getItem('view_mode') || 'grid';
+
+function setViewMode(mode) {
+  viewMode = mode;
+  localStorage.setItem('view_mode', mode);
+  document.getElementById('btn-grid').classList.toggle('active', mode === 'grid');
+  document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+  filterGames();
+}
+
+// ========== THEME ==========
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+    updateThemeBtn(true);
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  updateThemeBtn(isLight);
+}
+
+function updateThemeBtn(isLight) {
+  const btn = document.getElementById('nav-theme');
+  if (btn) btn.innerHTML = `<span class="icon">${isLight ? '🌙' : '☀️'}</span> ${isLight ? 'Modo Escuro' : 'Modo Claro'}`;
+}
+
 // ========== COLLECTION ==========
 let activeStatusFilter = '';
 
@@ -1303,10 +1419,35 @@ function renderGameCards(containerId, list) {
   const grid = document.getElementById(containerId);
   if (!list.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🕹️</div><p>Nenhum jogo encontrado</p></div>`;
+    grid.className = 'games-grid';
     return;
   }
-  grid.innerHTML = list.map(g => gameCard(g)).join('');
-  applyAllVisible();
+
+  if (viewMode === 'list') {
+    grid.className = 'games-list';
+    grid.innerHTML = list.map(g => {
+      const si = STATUS_INFO[g.status] || STATUS_INFO['2 - Não jogado'];
+      const stars = g.nota ? NOTA_STARS[g.nota] : '';
+      const cachedCover = covers[String(g.id)];
+      const hasCover = cachedCover && cachedCover !== 'none';
+      const coverStyle = hasCover
+        ? `style="background-image:url('${cachedCover}');background-size:cover;background-position:center top"`
+        : '';
+      const emoji = getGameEmoji(g);
+      return `<div class="game-list-row" onclick="openModal(${g.id})">
+        <div class="game-list-cover" ${coverStyle}>${hasCover ? '' : emoji}</div>
+        <div class="status-dot ${si.cls}" style="width:8px;height:8px;border-radius:50%;background:var(--${si.cls === 's1' ? 'gold' : si.cls === 's2' ? 'muted' : si.cls === 's3' ? 'green' : si.cls === 's4' ? 'blue' : si.cls === 's5' ? 'red' : si.cls === 's6' ? 'purple' : 'orange'});flex-shrink:0"></div>
+        <span style="flex:1;font-size:13px;font-weight:500">${g.nome}</span>
+        <span style="font-size:11px;color:var(--muted);min-width:120px">${g.plataforma}</span>
+        ${stars ? `<span style="font-size:11px;color:var(--gold)">${stars}</span>` : ''}
+        ${g.favorito ? '<span style="color:var(--gold)">⭐</span>' : ''}
+      </div>`;
+    }).join('');
+  } else {
+    grid.className = 'games-grid';
+    grid.innerHTML = list.map(g => gameCard(g)).join('');
+    applyAllVisible();
+  }
 }
 
 // ========== COVER SYSTEM (upload manual) ==========
