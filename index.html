@@ -1611,17 +1611,6 @@ function openModal(id) {
   } else {
     coverEl.style.backgroundImage = '';
     coverEl.innerHTML = `<span style="font-size:40px">${getGameEmoji(g)}</span>`;
-    if (cachedUrl === undefined) {
-      .then(() => {
-        const url = covers[String(id)];
-        if (url && url !== 'none' && currentGameId === id) {
-          coverEl.style.backgroundImage = `url('${url}')`;
-          coverEl.style.backgroundSize = 'cover';
-          coverEl.style.backgroundPosition = 'center top';
-          coverEl.innerHTML = '';
-        }
-      });
-    }
   }
 
   // Details
