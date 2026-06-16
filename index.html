@@ -1080,7 +1080,8 @@
           </div>
           <div class="field-group">
             <label>Plataforma</label>
-            <input type="text" id="edit-plataforma" placeholder="Ex: PlayStation 5">
+            <input type="text" id="edit-plataforma" placeholder="Plataforma" list="list-plataformas">
+            <datalist id="list-plataformas"></datalist>
           </div>
           <div class="field-group">
             <label>Ano de Lançamento</label>
@@ -1088,11 +1089,13 @@
           </div>
           <div class="field-group">
             <label>Gênero</label>
-            <input type="text" id="edit-genero" placeholder="Ex: RPG">
+            <input type="text" id="edit-genero" placeholder="Ex: RPG" list="list-generos">
+            <datalist id="list-generos"></datalist>
           </div>
           <div class="field-group">
             <label>Sub-Gênero</label>
-            <input type="text" id="edit-subgenero" placeholder="Ex: Soulslike">
+            <input type="text" id="edit-subgenero" placeholder="Ex: Soulslike" list="list-subgeneros">
+            <datalist id="list-subgeneros"></datalist>
           </div>
           <div class="field-group">
             <label>Tipo de Mídia</label>
@@ -1999,6 +2002,14 @@ function openModal(id) {
   document.getElementById('edit-subgenero').value = g.subgenero || '';
   document.getElementById('edit-midia').value = g.midia || '';
   document.getElementById('edit-tempo').value = g.tempo || '';
+
+  // Populate datalists with existing values
+  const plataformas = [...new Set(games.map(g => g.plataforma).filter(Boolean))].sort();
+  const generos = [...new Set(games.map(g => g.genero).filter(Boolean))].sort();
+  const subgeneros = [...new Set(games.map(g => g.subgenero).filter(Boolean))].sort();
+  document.getElementById('list-plataformas').innerHTML = plataformas.map(p => `<option value="${p}">`).join('');
+  document.getElementById('list-generos').innerHTML = generos.map(g => `<option value="${g}">`).join('');
+  document.getElementById('list-subgeneros').innerHTML = subgeneros.map(s => `<option value="${s}">`).join('');
   // Show current cover URL if it's a URL (not base64)
   const currentCover = covers[String(id)];
   const urlField = document.getElementById('edit-cover-url');
