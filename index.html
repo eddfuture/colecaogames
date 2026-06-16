@@ -45,37 +45,54 @@
     --purple: #9b1fd4;
   }
 
-  /* LIST VIEW */
-  .games-list { display: flex; flex-direction: column; gap: 6px; }
+  /* LIST VIEW TABLE */
+  .games-table { width: 100%; border-collapse: collapse; }
 
-  .game-list-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .games-table th {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    background: var(--surface);
   }
 
-  .game-list-row:hover { border-color: var(--accent); background: var(--surface2); }
+  .games-table th:hover { color: var(--text); }
+  .games-table th.sorted { color: var(--accent); }
 
-  .game-list-cover {
-    width: 36px;
-    height: 48px;
-    border-radius: 4px;
-    background: var(--surface2);
-    flex-shrink: 0;
-    overflow: hidden;
+  .games-table td {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .games-table tr { cursor: pointer; transition: background 0.1s; }
+  .games-table tr:hover td { background: var(--surface2); }
+  .games-table tr:last-child td { border-bottom: none; }
+
+  .table-cover {
+    width: 30px;
+    height: 40px;
+    border-radius: 3px;
+    background: var(--surface3);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 14px;
     background-size: cover;
     background-position: center top;
+    flex-shrink: 0;
   }
+
+  .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 10px; }
 
   .view-toggle {
     display: flex;
@@ -186,7 +203,7 @@
 
   .topbar {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(13,15,20,0.95);
+    background: var(--bg);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: 14px 28px;
@@ -1415,6 +1432,15 @@ function renderGames() {
   filterGames();
 }
 
+let listSortCol = 'nome';
+let listSortDir = 1;
+
+function sortList(col) {
+  if (listSortCol === col) listSortDir *= -1;
+  else { listSortCol = col; listSortDir = 1; }
+  filterGames();
+}
+
 function renderGameCards(containerId, list) {
   const grid = document.getElementById(containerId);
   if (!list.length) {
@@ -1424,27 +1450,69 @@ function renderGameCards(containerId, list) {
   }
 
   if (viewMode === 'list') {
-    grid.className = 'games-list';
-    grid.innerHTML = list.map(g => {
+    // Sort list
+    const sortedList = [...list].sort((a, b) => {
+      let va = a[listSortCol] ?? '';
+      let vb = b[listSortCol] ?? '';
+      if (listSortCol === 'nota') { va = NOTA_NUM[a.nota] || 0; vb = NOTA_NUM[b.nota] || 0; }
+      if (typeof va === 'string') return va.localeCompare(vb) * listSortDir;
+      return (va - vb) * listSortDir;
+    });
+
+    const cols = [
+      { key: 'cover', label: 'Capa', sortable: false },
+      { key: 'nome', label: 'Nome', sortable: true },
+      { key: 'plataforma', label: 'Plataforma', sortable: true },
+      { key: 'lancamento', label: 'Lançamento', sortable: true },
+      { key: 'genero', label: 'Gênero', sortable: true },
+      { key: 'tempo', label: 'Tempo', sortable: true },
+      { key: 'status', label: 'Status', sortable: true },
+      { key: 'midia', label: 'Mídia', sortable: true },
+      { key: 'categoria', label: 'Categoria', sortable: true },
+    ];
+
+    const thead = cols.map(c => {
+      if (!c.sortable) return `<th style="width:48px"></th>`;
+      const isSorted = listSortCol === c.key;
+      const arrow = isSorted ? (listSortDir === 1 ? ' ↑' : ' ↓') : ' ↕';
+      return `<th class="${isSorted ? 'sorted' : ''}" onclick="sortList('${c.key}')">${c.label}<span class="sort-icon">${arrow}</span></th>`;
+    }).join('');
+
+    const tbody = sortedList.map(g => {
       const si = STATUS_INFO[g.status] || STATUS_INFO['2 - Não jogado'];
-      const stars = g.nota ? NOTA_STARS[g.nota] : '';
       const cachedCover = covers[String(g.id)];
       const hasCover = cachedCover && cachedCover !== 'none';
-      const coverStyle = hasCover
-        ? `style="background-image:url('${cachedCover}');background-size:cover;background-position:center top"`
-        : '';
+      const coverStyle = hasCover ? `background-image:url('${cachedCover}');background-size:cover;background-position:center top` : '';
       const emoji = getGameEmoji(g);
-      return `<div class="game-list-row" onclick="openModal(${g.id})">
-        <div class="game-list-cover" ${coverStyle}>${hasCover ? '' : emoji}</div>
-        <div class="status-dot ${si.cls}" style="width:8px;height:8px;border-radius:50%;background:var(--${si.cls === 's1' ? 'gold' : si.cls === 's2' ? 'muted' : si.cls === 's3' ? 'green' : si.cls === 's4' ? 'blue' : si.cls === 's5' ? 'red' : si.cls === 's6' ? 'purple' : 'orange'});flex-shrink:0"></div>
-        <span style="flex:1;font-size:13px;font-weight:500">${g.nome}</span>
-        <span style="font-size:11px;color:var(--muted);min-width:120px">${g.plataforma}</span>
-        ${stars ? `<span style="font-size:11px;color:var(--gold)">${stars}</span>` : ''}
-        ${g.favorito ? '<span style="color:var(--gold)">⭐</span>' : ''}
-      </div>`;
+
+      const statusBadge = `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;background:var(--surface3)">${si.emoji} ${si.label}</span>`;
+      const catColor = g.categoria === 'PRIORIDADE' ? 'var(--orange)' : g.categoria === 'MUST-DO 26' ? 'var(--blue)' : g.categoria === 'GAME AWARDS' ? 'var(--purple)' : 'var(--muted)';
+
+      return `<tr onclick="openModal(${g.id})">
+        <td><div class="table-cover" style="${coverStyle}">${hasCover ? '' : emoji}</div></td>
+        <td style="font-weight:500;max-width:220px">${g.nome}${g.favorito ? ' <span style="color:var(--gold)">⭐</span>' : ''}</td>
+        <td style="color:var(--muted)">${g.plataforma || '—'}</td>
+        <td style="color:var(--muted)">${g.lancamento || '—'}</td>
+        <td style="color:var(--muted)">${g.genero || '—'}</td>
+        <td style="color:var(--muted)">${g.tempo ? g.tempo + 'h' : '—'}</td>
+        <td>${statusBadge}</td>
+        <td style="color:var(--muted)">${g.midia || '—'}</td>
+        <td style="color:${catColor};font-weight:${g.categoria ? '600' : '400'}">${g.categoria || '—'}</td>
+      </tr>`;
     }).join('');
+
+    grid.className = '';
+    grid.style.background = 'var(--surface)';
+    grid.style.border = '1px solid var(--border)';
+    grid.style.borderRadius = '12px';
+    grid.style.overflow = 'hidden';
+    grid.innerHTML = `<table class="games-table"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
   } else {
     grid.className = 'games-grid';
+    grid.style.background = '';
+    grid.style.border = '';
+    grid.style.borderRadius = '';
+    grid.style.overflow = '';
     grid.innerHTML = list.map(g => gameCard(g)).join('');
     applyAllVisible();
   }
