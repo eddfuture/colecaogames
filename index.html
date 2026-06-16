@@ -1442,6 +1442,7 @@ async function init() {
 
 // ========== NAVIGATION ==========
 function showPage(id) {
+  if (window.innerWidth <= 768) closeMobileMenu();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
@@ -1612,13 +1613,6 @@ function toggleMobileMenu() {
 function closeMobileMenu() {
   document.getElementById('sidebar').classList.remove('mobile-open');
   document.getElementById('mobile-overlay').classList.remove('active');
-}
-
-// Close menu when nav item clicked on mobile
-const origShowPage = showPage;
-function showPage(id) {
-  if (window.innerWidth <= 768) closeMobileMenu();
-  origShowPage(id);
 }
 
 // ========== VIEW MODE ==========
