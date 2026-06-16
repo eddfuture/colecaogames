@@ -5459,7 +5459,7 @@
     },
     {
       "id": 322,
-      "nome": "Shadow of the Colossus",
+      "nome": "Shadow of the Colossus (2018)",
       "plataforma": "PSN",
       "lancamento": 2005,
       "genero": "Aventura",
@@ -6522,6 +6522,7 @@
     "317": "https://www.genkithings.com/cdn/shop/articles/bananza.webp?v=1758907159&width=2048",
     "318": "https://upload.wikimedia.org/wikipedia/pt/9/95/Final_Fantasy_7_Rebirth_capa.png",
     "321": "https://upload.wikimedia.org/wikipedia/pt/8/80/Hades_capa.jpg",
+    "322": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCsibA1ROBWwgdI416hvgcozSNjVKzP1uNU_98pRK6CL9Ch7zbVJgyUY0&s=10",
     "325": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLfhtrXhGC_B8sOz9la97J-cE3kNLuo2bgCYotWcYKBJ2NTTFfOiTAh927&s=10",
     "326": "https://m.media-amazon.com/images/M/MV5BYmVkNDM3MzUtN2YyYS00MDg0LWIxN2EtMjQ2ZGQ1ZDhlZWY4XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
     "327": "https://upload.wikimedia.org/wikipedia/en/6/6a/Pok%C3%A9mon_Pokopia_box_art.png",
@@ -7706,5 +7707,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-16T18:10:44.633Z"
+  "last_updated": "2026-06-16T18:11:07.080Z"
 }
