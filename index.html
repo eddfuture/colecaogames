@@ -1726,62 +1726,224 @@ function buildPrioridades() {
 }
 
 // ========== RANKINGS ==========
+function getRankingList(type, year) {
+  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
+  if (!data || !data[year]) return [];
+  return data[year].filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+}
+
+function rebuildPositions(list) {
+  const medals = ['🥇','🥈','🥉'];
+  return list.map((item, i) => ({ ...item, pos: i < 3 ? medals[i] : `${i + 1}º` }));
+}
+
+function moveRankingItem(type, year, idx, dir) {
+  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
+  const goty = (data[year] || []).filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  let list = (data[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= list.length) return;
+  [list[idx], list[newIdx]] = [list[newIdx], list[idx]];
+  list = rebuildPositions(list);
+  data[year] = [...list, ...goty];
+  save();
+  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
+}
+
+function removeRankingItem(type, year, idx) {
+  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
+  const goty = (data[year] || []).filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  let list = (data[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  list.splice(idx, 1);
+  list = rebuildPositions(list);
+  data[year] = [...list, ...goty];
+  save();
+  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
+}
+
+function showAddToRanking(type, year) {
+  const list = getRankingList(type, year);
+  const inRanking = new Set(list.map(r => r.jogo.toLowerCase()));
+  const available = games.filter(g => !inRanking.has(g.nome.toLowerCase()));
+  const existing = document.getElementById('add-ranking-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'add-ranking-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
+    <h3 style="font-size:16px;margin-bottom:16px">Adicionar ao ranking ${year}</h3>
+    <input type="text" id="ranking-search" placeholder="Buscar jogo..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
+    <div id="ranking-game-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('add-ranking-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  function renderList(filter) {
+    const filtered = available.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
+    const el = document.getElementById('ranking-game-list');
+    if (!el) return;
+    el.innerHTML = filtered.slice(0, 50).map(g => `<div onclick="addToRanking('${type}','${year}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
+      <span style="font-size:13px">${g.nome}</span><span style="font-size:11px;color:var(--muted)">${g.plataforma}</span>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
+  }
+  renderList('');
+  document.getElementById('ranking-search').addEventListener('input', e => renderList(e.target.value));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function addToRanking(type, year, gameId) {
+  const game = games.find(g => g.id === gameId);
+  if (!game) return;
+  const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
+  if (!data[year]) data[year] = [];
+  const goty = data[year].filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  let list = data[year].filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+  list.push({ pos: `${list.length + 1}º`, jogo: game.nome });
+  list = rebuildPositions(list);
+  data[year] = [...list, ...goty];
+  save();
+  document.getElementById('add-ranking-modal')?.remove();
+  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
+}
+
 function buildRankings() {
-  // Jogados
-  const yearsJogados = Object.keys(INITIAL_DATA.ranking_jogados).filter(y => INITIAL_DATA.ranking_jogados[y].length);
+  if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
+  if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
+
+  const yearsJogados = Object.keys(rankingsJogados).filter(y => !isNaN(parseInt(y)) && parseInt(y) >= 2020 && parseInt(y) <= 2031);
   const tabsJogados = document.getElementById('tabs-jogados');
   tabsJogados.innerHTML = yearsJogados.map(y =>
     `<span class="year-tab ${y === rankingJogadosYear ? 'active' : ''}" onclick="setRankingYear('jogados','${y}')">${y}</span>`
   ).join('');
-  renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[rankingJogadosYear] || []);
+  renderRankingTable('table-jogados', getRankingList('jogados', rankingJogadosYear), 'jogados', rankingJogadosYear);
 
-  // Lançados
   const yearsLancados = ['2026','2025','2024','2023','2022','2021','2020'];
   const tabsLancados = document.getElementById('tabs-lancados');
   tabsLancados.innerHTML = yearsLancados.map(y =>
     `<span class="year-tab ${y === rankingLancadosYear ? 'active' : ''}" onclick="setRankingYear('lancados','${y}')">${y}</span>`
   ).join('');
-  renderRankingTable('table-lancados', (INITIAL_DATA.ranking_lancados[rankingLancadosYear] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos)));
+  renderRankingTable('table-lancados', getRankingList('lancados', rankingLancadosYear), 'lancados', rankingLancadosYear);
 }
 
 function setRankingYear(type, year) {
   if (type === 'jogados') {
     rankingJogadosYear = year;
     document.querySelectorAll('#tabs-jogados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
-    renderRankingTable('table-jogados', INITIAL_DATA.ranking_jogados[year] || []);
+    renderRankingTable('table-jogados', getRankingList('jogados', year), 'jogados', year);
   } else {
     rankingLancadosYear = year;
     document.querySelectorAll('#tabs-lancados .year-tab').forEach(t => t.classList.toggle('active', t.textContent === year));
-    const filtered = (INITIAL_DATA.ranking_lancados[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
-    renderRankingTable('table-lancados', filtered);
+    renderRankingTable('table-lancados', getRankingList('lancados', year), 'lancados', year);
   }
 }
 
-function renderRankingTable(id, list) {
+function renderRankingTable(id, list, type, year) {
   const el = document.getElementById(id);
+  let html = `<div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:12px;color:var(--muted)">${list.length} jogos</span>
+    <button onclick="showAddToRanking('${type}','${year}')" style="padding:6px 14px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Adicionar jogo</button>
+  </div>`;
   if (!list.length) {
-    el.innerHTML = `<div class="empty-state" style="padding:40px"><p>Nenhum dado para este ano ainda</p></div>`;
-    return;
+    html += `<div class="empty-state" style="padding:40px"><p>Nenhum jogo ainda — clique em Adicionar!</p></div>`;
+    el.innerHTML = html; return;
   }
-  el.innerHTML = list.map(row => {
+  html += list.map((row, idx) => {
     const rankCls = row.pos === '🥇' ? 'rank-1' : row.pos === '🥈' ? 'rank-2' : row.pos === '🥉' ? 'rank-3' : '';
-    // Find game in collection
-    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim()
-      || row.jogo.toLowerCase().includes(g.nome.toLowerCase().slice(0,15)));
-    const inCollection = found ? `<span class="rank-badge">Na coleção</span>` : '';
-    return `<div class="ranking-row">
-      <span class="rank-pos ${rankCls}">${row.pos}</span>
-      <span class="rank-name">${row.jogo}</span>
+    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim());
+    const inCollection = found ? `<span class="rank-badge" style="cursor:pointer" onclick="openModal(${found.id})">Na coleção</span>` : '';
+    const coverUrl = found ? covers[String(found.id)] : null;
+    const coverStyle = (coverUrl && coverUrl !== 'none') ? `style="background-image:url('${coverUrl}');background-size:cover;background-position:center top;width:36px;height:48px;border-radius:4px;flex-shrink:0"` : `style="width:36px;height:48px;border-radius:4px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px"`;
+    const coverContent = (coverUrl && coverUrl !== 'none') ? '' : (found ? getGameEmoji(found) : '🎮');
+    return `<div class="ranking-row" style="cursor:${found ? 'pointer' : 'default'}" ${found ? `onclick="openModal(${found.id})"` : ''}>
+      <span class="rank-pos ${rankCls}" style="min-width:36px">${row.pos}</span>
+      <div ${coverStyle}>${coverContent}</div>
+      <span class="rank-name" style="flex:1">${row.jogo}</span>
       ${inCollection}
+      <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button onclick="moveRankingItem('${type}','${year}',${idx},-1)" ${idx === 0 ? 'disabled' : ''} style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;${idx === 0 ? 'opacity:0.3;cursor:not-allowed' : ''}">↑</button>
+        <button onclick="moveRankingItem('${type}','${year}',${idx},1)" ${idx === list.length-1 ? 'disabled' : ''} style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;${idx === list.length-1 ? 'opacity:0.3;cursor:not-allowed' : ''}">↓</button>
+        <button onclick="removeRankingItem('${type}','${year}',${idx})" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--red);cursor:pointer;font-size:13px">✕</button>
+      </div>
     </div>`;
   }).join('');
+  el.innerHTML = html;
 }
 
 // ========== GAME AWARDS ==========
+function linkAwardGame(nomeAward) {
+  const existing = document.getElementById('link-award-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'link-award-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
+    <h3 style="font-size:15px;margin-bottom:6px">Vincular jogo</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Vinculando: <strong style="color:var(--text)">${nomeAward}</strong></p>
+    <input type="text" id="link-search" placeholder="Buscar na coleção..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
+    <div id="link-game-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('link-award-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  function renderList(filter) {
+    const filtered = games.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
+    const el = document.getElementById('link-game-list');
+    if (!el) return;
+    const si = STATUS_INFO;
+    el.innerHTML = filtered.slice(0, 50).map(g => `<div onclick="confirmLinkAward('${nomeAward.replace(/'/g,"\\'")}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
+      <span style="font-size:13px">${g.nome}</span><span style="font-size:11px;color:var(--muted)">${STATUS_INFO[g.status]?.emoji || ''} ${g.plataforma}</span>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
+  }
+  renderList('');
+  document.getElementById('link-search').addEventListener('input', e => renderList(e.target.value));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function confirmLinkAward(nomeAward, gameId) {
+  const data = {};
+  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
+  data[nomeAward] = gameId;
+  localStorage.setItem('awards_links_v1', JSON.stringify(data));
+  document.getElementById('link-award-modal')?.remove();
+  buildGameAwards();
+}
+
+function unlinkAwardGame(nomeAward) {
+  const data = {};
+  try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
+  delete data[nomeAward];
+  localStorage.setItem('awards_links_v1', JSON.stringify(data));
+  buildGameAwards();
+}
+
 function buildGameAwards() {
   const awards = INITIAL_DATA.game_awards;
   const years = Object.keys(awards).sort((a,b) => b-a);
   const el = document.getElementById('awards-content');
+
+  let awardsLinks = {};
+  try { awardsLinks = JSON.parse(localStorage.getItem('awards_links_v1') || '{}'); } catch(e) {}
+
+  function getGameChip(nome) {
+    let found = awardsLinks[nome] ? games.find(g => g.id === awardsLinks[nome]) : null;
+    if (!found) found = games.find(g => g.nome.toLowerCase().trim() === nome.toLowerCase().trim());
+    let border, title, cursor, onclick;
+    if (!found) {
+      border = '2px solid var(--muted)'; title = 'Não está na coleção — clique para vincular'; cursor = 'pointer';
+      onclick = `onclick="linkAwardGame('${nome.replace(/'/g,"\\'")}' )"`;
+    } else if (found.status === '4 - Platinado') {
+      border = '2px solid var(--blue)'; title = 'Platinado'; cursor = 'pointer'; onclick = `onclick="openModal(${found.id})"`;
+    } else if (found.status === '3 - Concluído') {
+      border = '2px solid var(--green)'; title = 'Concluído'; cursor = 'pointer'; onclick = `onclick="openModal(${found.id})"`;
+    } else {
+      border = '2px solid var(--gold)'; title = 'Na coleção'; cursor = 'pointer'; onclick = `onclick="openModal(${found.id})"`;
+    }
+    const unlinkBtn = (found && awardsLinks[nome]) ? `<span onclick="event.stopPropagation();unlinkAwardGame('${nome.replace(/'/g,"\\'")}' )" title="Desvincular" style="margin-left:4px;opacity:0.5;font-size:10px">✕</span>` : '';
+    return `<span class="nominee-chip" ${onclick} title="${title}" style="border:${border};cursor:${cursor}">${nome}${unlinkBtn}</span>`;
+  }
+
   el.innerHTML = years.map(year => {
     const entries = awards[year];
     const goty = entries.find(e => e.pos === 'GOTY');
@@ -1789,11 +1951,24 @@ function buildGameAwards() {
     if (!goty) return '';
     return `<div class="goty-card">
       <div class="goty-year">🎖️ THE GAME AWARDS ${year}</div>
-      <div class="goty-name">🏆 ${goty.jogo}</div>
-      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => `<span class="nominee-chip">${n.jogo}</span>`).join('')}</div>` : ''}
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span style="color:var(--gold);font-size:13px;font-weight:700">🏆 GOTY</span>
+        ${getGameChip(goty.jogo)}
+      </div>
+      ${nominees.length ? `<div class="goty-nominees">${nominees.map(n => getGameChip(n.jogo)).join('')}</div>` : ''}
     </div>`;
   }).join('');
+
+  el.innerHTML += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px">
+    <span style="color:var(--muted)">Legenda:</span>
+    <span style="border:2px solid var(--blue);padding:2px 8px;border-radius:6px;color:var(--blue)">Platinado</span>
+    <span style="border:2px solid var(--green);padding:2px 8px;border-radius:6px;color:var(--green)">Concluído</span>
+    <span style="border:2px solid var(--gold);padding:2px 8px;border-radius:6px;color:var(--gold)">Na coleção</span>
+    <span style="border:2px solid var(--muted);padding:2px 8px;border-radius:6px;color:var(--muted)">Fora da coleção</span>
+  </div>`;
 }
+
+
 
 // ========== ADD GAME ==========
 function buildAddForm() {
