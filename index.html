@@ -1078,6 +1078,35 @@
             <label>Nome do Jogo</label>
             <input type="text" id="edit-nome-real" placeholder="Nome do jogo">
           </div>
+          <div class="field-group">
+            <label>Plataforma</label>
+            <input type="text" id="edit-plataforma" placeholder="Ex: PlayStation 5">
+          </div>
+          <div class="field-group">
+            <label>Ano de Lançamento</label>
+            <input type="number" id="edit-lancamento" placeholder="Ex: 2024">
+          </div>
+          <div class="field-group">
+            <label>Gênero</label>
+            <input type="text" id="edit-genero" placeholder="Ex: RPG">
+          </div>
+          <div class="field-group">
+            <label>Sub-Gênero</label>
+            <input type="text" id="edit-subgenero" placeholder="Ex: Soulslike">
+          </div>
+          <div class="field-group">
+            <label>Tipo de Mídia</label>
+            <select id="edit-midia">
+              <option value="">—</option>
+              <option value="Física">Física</option>
+              <option value="Digital">Digital</option>
+              <option value="Emulador">Emulador</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Tempo de Jogo (h)</label>
+            <input type="number" id="edit-tempo" placeholder="Ex: 40">
+          </div>
           <div class="field-group" style="grid-column:1/-1">
             <label>Capa</label>
             <div style="display:flex;gap:8px;margin-bottom:6px">
@@ -1964,6 +1993,12 @@ function openModal(id) {
   document.getElementById('edit-quando').value = g.quando || '';
   document.getElementById('edit-categoria').value = g.categoria || '';
   if (document.getElementById('edit-nome-real')) document.getElementById('edit-nome-real').value = g.nome;
+  document.getElementById('edit-plataforma').value = g.plataforma || '';
+  document.getElementById('edit-lancamento').value = g.lancamento || '';
+  document.getElementById('edit-genero').value = g.genero || '';
+  document.getElementById('edit-subgenero').value = g.subgenero || '';
+  document.getElementById('edit-midia').value = g.midia || '';
+  document.getElementById('edit-tempo').value = g.tempo || '';
   // Show current cover URL if it's a URL (not base64)
   const currentCover = covers[String(id)];
   const urlField = document.getElementById('edit-cover-url');
@@ -1999,6 +2034,14 @@ function saveGame() {
   g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
   const nomeReal = document.getElementById('edit-nome-real')?.value.trim();
   if (nomeReal && nomeReal !== g.nome) g.nome = nomeReal;
+  g.plataforma = document.getElementById('edit-plataforma').value.trim() || g.plataforma;
+  const lancEdit = document.getElementById('edit-lancamento').value;
+  if (lancEdit) g.lancamento = parseInt(lancEdit);
+  g.genero = document.getElementById('edit-genero').value.trim() || null;
+  g.subgenero = document.getElementById('edit-subgenero').value.trim() || null;
+  g.midia = document.getElementById('edit-midia').value || null;
+  const tempoEdit = document.getElementById('edit-tempo').value;
+  if (tempoEdit) g.tempo = tempoEdit;
 
   save();
   closeModalForce();
