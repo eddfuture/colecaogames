@@ -3130,7 +3130,7 @@
     },
     {
       "id": 185,
-      "nome": "Tomb Raider",
+      "nome": "Shadow of the Tomb Raider",
       "plataforma": "PlayStation 4",
       "lancamento": 2018,
       "genero": "Aventura",
@@ -7759,5 +7759,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-16T18:31:19.994Z"
+  "last_updated": "2026-06-16T18:31:25.209Z"
 }
