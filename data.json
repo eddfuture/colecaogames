@@ -5008,7 +5008,7 @@
       "tempo": null,
       "status": "3 - Concluído",
       "quando": 2024,
-      "nota": "5 - Perfeito",
+      "nota": "4 - Ótimo",
       "midia": "Digital",
       "categoria": null,
       "favorito": false,
@@ -6274,39 +6274,7 @@
       "revisitar": false
     }
   ],
-  "covers": {
-    "4794862300716862000": "https://media.rawg.io/media/games/12c/12c2fd04262732cb5e2e6ff378e1cc2d.jpg",
-    "1557077308534262000": "https://media.rawg.io/media/games/42f/42fe1abd4d7c11ca92d93a0fb0f8662b.jpg",
-    "6666463418440324000": "https://media.rawg.io/media/games/275/2759da6fcaa8f81f21800926168c85f6.jpg",
-    "2850422614695533000": "https://media.rawg.io/media/games/849/849414b978db37d4563ff9e4b0d3a787.jpg",
-    "2849066558998962700": "https://media.rawg.io/media/games/310/3106b0e012271c5ffb16497b070be739.jpg",
-    "2831895869701172700": "https://media.rawg.io/media/games/387/38752d648614599896ea113ce4a95753.jpg",
-    "8683812466254460000": "https://media.rawg.io/media/games/f6c/f6cfffdb246351c35b6f07a8bcf6e748.jpg",
-    "2452536458127555000": "https://media.rawg.io/media/screenshots/d7f/d7f465ff46c8f950666811716e58c72d.jpg",
-    "3912669471552185000": "https://media.rawg.io/media/games/1ac/1ac050b86c87138ce6a3354aa90db894.jpg",
-    "3017208070486955000": "https://media.rawg.io/media/games/e2d/e2d3f396b16dded0f841c17c9799a882.jpg",
-    "4947659358317231000": "https://media.rawg.io/media/games/a14/a14acef284eaa4854f83c99e80fc15d8.jpg",
-    "1871132096479496200": "https://media.rawg.io/media/games/565/565f65a11d90cc883f7b815a29eb7f02.jpg",
-    "112188979169026340": "https://media.rawg.io/media/games/565/565f65a11d90cc883f7b815a29eb7f02.jpg",
-    "3378234390656219000": "https://media.rawg.io/media/games/e23/e2345c839b323a94b6811705fda5af73.jpg",
-    "4227953509366234000": "https://media.rawg.io/media/games/a9c/a9c789951de65da545d51f664b4f2ce0.jpg",
-    "1877752472524573700": "https://media.rawg.io/media/games/cca/ccaa933775fe1ffcebe40a01f52545db.jpg",
-    "8909435098832615000": "https://media.rawg.io/media/screenshots/55d/55dc67486fb6e1ea23dc14289474346a.jpg",
-    "7651466415524906000": "https://media.rawg.io/media/screenshots/7d6/7d67dc8d81e6402e0ce566f52231766c.jpg",
-    "7745257050233509000": "https://media.rawg.io/media/games/51a/51a404b9918a0b19fc704a3ca248c69f.jpg",
-    "1912060104796208600": "https://media.rawg.io/media/games/618/61863759abf17a7f94fa6ededb6f178b.jpg",
-    "3284792481289365000": "https://media.rawg.io/media/games/578/578ff52303d0e2563e28a4149f1485c2.jpeg",
-    "907050824778837800": "https://media.rawg.io/media/games/853/853aa2b76ae85fcf2782ace58cf7479f.jpg",
-    "6713390664602768000": "https://media.rawg.io/media/screenshots/f0d/f0da831778e57b58636ccaf20a7cc6e6.jpg",
-    "6039779728854202000": "https://media.rawg.io/media/games/d0a/d0aedc0ae1d28dd27a484b6c0491d897.jpg",
-    "8252864288824466000": "https://media.rawg.io/media/screenshots/8f8/8f84d86684aa6e4cfe2c647386159d00.jpg",
-    "3805770710883534300": "https://media.rawg.io/media/games/5a1/5a145fe3002fc988140f7f00edcb9715.jpg",
-    "3741102286126790000": "https://media.rawg.io/media/games/47c/47ce0053278107d77016db3e5e2e0a51.jpg",
-    "7789135277681372000": "https://media.rawg.io/media/screenshots/815/815c297ed2985f8818d07dc7924d8fc8.jpg",
-    "6676476062206981000": "https://media.rawg.io/media/games/ec4/ec4be61f0f41cf1d138501330a1b54ee.jpg",
-    "721114713253337700": "https://media.rawg.io/media/games/087/08727beb32c364d30e8b2a1aa8595f8e.jpg",
-    "4882033436667687000": "https://media.rawg.io/media/games/25d/25d9592abbd02dccd67d83108ae79582.jpg"
-  },
+  "covers": {},
   "rankings_jogados": {
     "2020": [
       {
@@ -7398,5 +7366,5 @@
     "2031": []
   },
   "awards_links": {},
-  "last_updated": "2026-06-16T12:34:16.468Z"
+  "last_updated": "2026-06-16T12:34:34.967Z"
 }
