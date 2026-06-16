@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- fundo -->
+  <rect width="100" height="100" rx="20" fill="#1a1e2a"/>
+  <!-- corpo do controle -->
+  <rect x="10" y="28" width="80" height="44" rx="15" fill="#7c6af5"/>
+  <!-- letra E -->
+  <text x="28" y="58" font-family="monospace" font-size="26" font-weight="700" text-anchor="middle" fill="#0d0f14">E</text>
+  <!-- botões coloridos -->
+  <circle cx="66" cy="38" r="5" fill="#f5c842"/>
+  <circle cx="76" cy="48" r="5" fill="#4ef5a0"/>
+  <circle cx="56" cy="48" r="5" fill="#f54e4e"/>
+  <circle cx="66" cy="58" r="5" fill="#42a5f5"/>
+  <!-- botão central -->
+  <circle cx="42" cy="48" r="6" fill="rgba(255,255,255,0.15)"/>
+  <text x="42" y="52" font-size="8" text-anchor="middle" fill="white">★</text>
+  <!-- cabos -->
+  <ellipse cx="22" cy="68" rx="12" ry="8" fill="#7c6af5"/>
+  <ellipse cx="78" cy="68" rx="12" ry="8" fill="#7c6af5"/>
+</svg>
