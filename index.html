@@ -1286,7 +1286,6 @@ function buildDashboard() {
 
   // Anos jogados para filtro
   const anosJogados = [...new Set(games.map(g => g.quando).filter(Boolean))].sort((a,b) => b-a);
-  const anoAtivo = window._dashAno || null;
 
   statsGrid.innerHTML = `
     <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center">
