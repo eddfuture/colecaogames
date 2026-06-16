@@ -723,8 +723,107 @@
   .tag-mustdo { background: rgba(66,165,245,0.15); color: var(--blue); }
   .tag-awards { background: rgba(192,66,245,0.15); color: var(--purple); }
 
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 6px; }
+  /* ===== MOBILE ===== */
+  @media (max-width: 768px) {
+    /* Sidebar vira menu hamburguer */
+    .sidebar {
+      transform: translateX(-220px);
+      transition: transform 0.25s ease;
+      z-index: 200;
+    }
+    .sidebar.mobile-open { transform: translateX(0); }
+
+    /* Overlay quando menu aberto */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 199;
+    }
+    .mobile-overlay.active { display: block; }
+
+    /* Main ocupa tela toda */
+    .main { margin-left: 0; }
+
+    /* Topbar com botão hamburguer */
+    .topbar { padding: 12px 16px; gap: 10px; }
+    .topbar h2 { font-size: 15px; }
+
+    /* Botão hamburguer */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    /* Search menor */
+    .search-box { min-width: 0; flex: 1; }
+
+    /* Padding menor */
+    .page > div[style*="padding:28px"] { padding: 12px !important; }
+
+    /* Stats grid 2 colunas */
+    .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+    /* Charts grid 1 coluna */
+    .charts-grid { grid-template-columns: 1fr !important; }
+
+    /* Games grid 2 colunas */
+    .games-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+
+    /* Game card nome menor */
+    .game-name { font-size: 11px; }
+
+    /* Modal fullscreen */
+    .modal-overlay { padding: 0; align-items: flex-end; }
+    .modal {
+      max-width: 100%;
+      max-height: 92vh;
+      border-radius: 20px 20px 0 0;
+    }
+    .modal-layout { flex-direction: column; }
+    .modal-cover { width: 100%; height: 180px; aspect-ratio: unset; }
+    .edit-grid { grid-template-columns: 1fr !important; }
+
+    /* Ranking rows menores */
+    .ranking-row { padding: 10px 12px; gap: 8px; font-size: 13px; }
+
+    /* Gráficos full width */
+    .chart-card[style*="grid-column"] { grid-column: 1 !important; }
+
+    /* View toggle visível */
+    .view-toggle { display: flex; }
+
+    /* Filtros wrap */
+    .filters-bar { gap: 6px; }
+    .filter-select { font-size: 11px; padding: 5px 8px; }
+    .filter-chip { font-size: 11px; padding: 4px 10px; }
+
+    /* Jogando agora no dashboard - empilha */
+    .stats-jogando-layout { flex-direction: column !important; }
+    .jogando-card-mobile { width: 100% !important; }
+
+    /* Tabs de ano menores */
+    .year-tab { font-size: 11px; padding: 5px 10px; }
+  }
+
+  @media (min-width: 769px) {
+    .hamburger { display: none !important; }
+    .mobile-overlay { display: none !important; }
+  }
+
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
@@ -762,6 +861,7 @@
 <body>
 
 <div class="app">
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <h1>🎮 GameLog</h1>
@@ -814,15 +914,15 @@
   <main class="main">
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div class="topbar"><h2>Dashboard</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>Dashboard</h2></div>
       <div style="padding:28px">
-        <div style="display:flex;gap:24px;margin-bottom:28px;align-items:flex-start">
+        <div class="stats-jogando-layout" style="display:flex;gap:24px;margin-bottom:28px;align-items:flex-start">
           <!-- Stats esquerda -->
           <div style="flex:1">
             <div class="stats-grid" id="stats-grid"></div>
           </div>
           <!-- Jogando Agora direita -->
-          <div id="jogando-agora-section" style="width:260px;flex-shrink:0"></div>
+          <div id="jogando-agora-section" class="jogando-card-mobile" style="width:260px;flex-shrink:0"></div>
         </div>
         <div class="charts-grid">
           <div class="chart-card">
@@ -848,6 +948,7 @@
     <!-- COLEÇÃO -->
     <div class="page" id="page-colecao">
       <div class="topbar">
+        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
         <h2>Coleção</h2>
         <div class="view-toggle">
           <button class="view-btn active" id="btn-grid" onclick="setViewMode('grid')" title="Grade">⊞</button>
@@ -887,7 +988,7 @@
 
     <!-- GRÁFICOS -->
     <div class="page" id="page-graficos">
-      <div class="topbar"><h2>📈 Gráficos</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>📈 Gráficos</h2></div>
       <div style="padding:28px">
         <div class="charts-grid" style="gap:24px">
           <!-- Status -->
@@ -941,7 +1042,7 @@
 
     <!-- FAVORITOS -->
     <div class="page" id="page-favoritos">
-      <div class="topbar"><h2>⭐ Favoritos</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>⭐ Favoritos</h2></div>
       <div style="padding:28px">
         <div class="games-grid" id="favoritos-grid"></div>
       </div>
@@ -949,7 +1050,7 @@
 
     <!-- PRIORIDADES -->
     <div class="page" id="page-prioridades">
-      <div class="topbar"><h2>🔥 Prioridades</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>🔥 Prioridades</h2></div>
       <div style="padding:28px">
         <div id="prioridades-content"></div>
       </div>
@@ -957,7 +1058,7 @@
 
     <!-- ADICIONAR JOGO -->
     <div class="page" id="page-adicionar">
-      <div class="topbar"><h2>Adicionar Jogo</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>Adicionar Jogo</h2></div>
       <div style="padding:28px">
         <div class="add-form">
           <div class="form-grid">
@@ -1031,7 +1132,7 @@
 
     <!-- RANKING JOGADOS -->
     <div class="page" id="page-ranking-jogados">
-      <div class="topbar"><h2>🏆 Ranking — Jogados por Ano</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>🏆 Ranking — Jogados por Ano</h2></div>
       <div style="padding:28px">
         <div class="ranking-year-tabs" id="tabs-jogados"></div>
         <div class="ranking-table" id="table-jogados"></div>
@@ -1040,7 +1141,7 @@
 
     <!-- RANKING LANÇADOS -->
     <div class="page" id="page-ranking-lancados">
-      <div class="topbar"><h2>📅 Ranking — Lançados por Ano</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>📅 Ranking — Lançados por Ano</h2></div>
       <div style="padding:28px">
         <div class="ranking-year-tabs" id="tabs-lancados"></div>
         <div class="ranking-table" id="table-lancados"></div>
@@ -1049,12 +1150,12 @@
 
     <!-- GAME AWARDS -->
     <div class="page" id="page-game-awards">
-      <div class="topbar"><h2>🎖️ Game Awards</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>🎖️ Game Awards</h2></div>
       <div style="padding:28px" id="awards-content"></div>
     </div>
     <!-- DIAGNÓSTICO -->
     <div class="page" id="page-diagnostico">
-      <div class="topbar"><h2>🔧 Diagnóstico de Capas</h2></div>
+      <div class="topbar"><div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div><h2>🔧 Diagnóstico de Capas</h2></div>
       <div style="padding:28px;max-width:600px">
         <div class="chart-card" style="margin-bottom:16px">
           <h3>Status do Cache</h3>
@@ -1498,6 +1599,26 @@ function filterFromDashboard(field, value) {
     return;
   }
   filterGames();
+}
+
+// ========== MOBILE MENU ==========
+function toggleMobileMenu() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('active');
+}
+
+// Close menu when nav item clicked on mobile
+const origShowPage = showPage;
+function showPage(id) {
+  if (window.innerWidth <= 768) closeMobileMenu();
+  origShowPage(id);
 }
 
 // ========== VIEW MODE ==========
@@ -2263,27 +2384,53 @@ function setRankingYear(type, year) {
 
 function renderRankingTable(id, list, type, year) {
   const el = document.getElementById(id);
+
+  // Carrega links manuais
+  let rankLinks = {};
+  try { rankLinks = JSON.parse(localStorage.getItem('ranking_links_v1') || '{}'); } catch(e) {}
+
   let html = `<div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
     <span style="font-size:12px;color:var(--muted)">${list.length} jogos</span>
     <button onclick="showAddToRanking('${type}','${year}')" style="padding:6px 14px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Adicionar jogo</button>
   </div>`;
+
   if (!list.length) {
     html += `<div class="empty-state" style="padding:40px"><p>Nenhum jogo ainda — clique em Adicionar!</p></div>`;
     el.innerHTML = html; return;
   }
+
   html += list.map((row, idx) => {
     const rankCls = row.pos === '🥇' ? 'rank-1' : row.pos === '🥈' ? 'rank-2' : row.pos === '🥉' ? 'rank-3' : '';
-    const found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim());
-    const inCollection = found ? `<span class="rank-badge" style="cursor:pointer" onclick="openModal(${found.id})">Na coleção</span>` : '';
+    const linkKey = `${type}|${year}|${row.jogo}`;
+
+    // Tenta vínculo manual primeiro, depois nome exato
+    let found = rankLinks[linkKey] ? games.find(g => g.id === rankLinks[linkKey]) : null;
+    if (!found) found = games.find(g => g.nome.toLowerCase().trim() === row.jogo.toLowerCase().trim());
+
     const coverUrl = found ? covers[String(found.id)] : null;
-    const coverStyle = (coverUrl && coverUrl !== 'none') ? `style="background-image:url('${coverUrl}');background-size:cover;background-position:center top;width:36px;height:48px;border-radius:4px;flex-shrink:0"` : `style="width:36px;height:48px;border-radius:4px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px"`;
-    const coverContent = (coverUrl && coverUrl !== 'none') ? '' : (found ? getGameEmoji(found) : '🎮');
+    const hasCover = coverUrl && coverUrl !== 'none';
+    const coverStyle = hasCover
+      ? `style="background-image:url('${coverUrl}');background-size:cover;background-position:center top;width:36px;height:48px;border-radius:4px;flex-shrink:0"`
+      : `style="width:36px;height:48px;border-radius:4px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px"`;
+    const coverContent = hasCover ? '' : (found ? getGameEmoji(found) : '🎮');
+
+    // Badge: se vinculado manualmente mostra ✓ de link, senão mostra botão de vincular
+    const isManualLink = !!rankLinks[linkKey];
+    const badge = found
+      ? `<span class="rank-badge" style="cursor:pointer" onclick="event.stopPropagation();openModal(${found.id})">${isManualLink ? '🔗 ' : ''}Na coleção</span>`
+      : `<span class="rank-badge" style="cursor:pointer;background:rgba(245,156,66,0.15);color:var(--orange)" onclick="event.stopPropagation();linkRankingGame('${linkKey.replace(/'/g,"\\'")}','${type}','${year}')">🔗 Vincular</span>`;
+
+    const unlinkBtn = isManualLink
+      ? `<button onclick="event.stopPropagation();unlinkRankingGame('${linkKey.replace(/'/g,"\\'")}','${type}','${year}')" title="Desvincular" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:11px">🔗✕</button>`
+      : '';
+
     return `<div class="ranking-row" style="cursor:${found ? 'pointer' : 'default'}" ${found ? `onclick="openModal(${found.id})"` : ''}>
       <span class="rank-pos ${rankCls}" style="min-width:36px">${row.pos}</span>
       <div ${coverStyle}>${coverContent}</div>
       <span class="rank-name" style="flex:1">${row.jogo}</span>
-      ${inCollection}
+      ${badge}
       <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+        ${unlinkBtn}
         <button onclick="moveRankingItem('${type}','${year}',${idx},-1)" ${idx === 0 ? 'disabled' : ''} style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;${idx === 0 ? 'opacity:0.3;cursor:not-allowed' : ''}">↑</button>
         <button onclick="moveRankingItem('${type}','${year}',${idx},1)" ${idx === list.length-1 ? 'disabled' : ''} style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;${idx === list.length-1 ? 'opacity:0.3;cursor:not-allowed' : ''}">↓</button>
         <button onclick="removeRankingItem('${type}','${year}',${idx})" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--red);cursor:pointer;font-size:13px">✕</button>
@@ -2291,6 +2438,56 @@ function renderRankingTable(id, list, type, year) {
     </div>`;
   }).join('');
   el.innerHTML = html;
+}
+
+function linkRankingGame(linkKey, type, year) {
+  const existing = document.getElementById('link-ranking-modal');
+  if (existing) existing.remove();
+  const nome = linkKey.split('|')[2];
+  const modal = document.createElement('div');
+  modal.id = 'link-ranking-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px">
+    <h3 style="font-size:15px;margin-bottom:6px">Vincular ao ranking</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Vinculando: <strong style="color:var(--text)">${nome}</strong></p>
+    <input type="text" id="link-ranking-search" placeholder="Buscar na coleção..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px">
+    <div id="link-ranking-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('link-ranking-modal').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+
+  function renderList(filter) {
+    const filtered = games.filter(g => !filter || g.nome.toLowerCase().includes(filter.toLowerCase()));
+    const el2 = document.getElementById('link-ranking-list');
+    if (!el2) return;
+    el2.innerHTML = filtered.slice(0, 50).map(g => `
+      <div onclick="confirmLinkRanking('${linkKey.replace(/'/g,"\\'")}','${type}','${year}',${g.id})" style="padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
+        <span style="font-size:13px">${g.nome}</span>
+        <span style="font-size:11px;color:var(--muted)">${STATUS_INFO[g.status]?.emoji || ''} ${g.plataforma}</span>
+      </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:8px">Nenhum jogo encontrado</p>';
+  }
+  renderList('');
+  document.getElementById('link-ranking-search').addEventListener('input', e => renderList(e.target.value));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function confirmLinkRanking(linkKey, type, year, gameId) {
+  let rankLinks = {};
+  try { rankLinks = JSON.parse(localStorage.getItem('ranking_links_v1') || '{}'); } catch(e) {}
+  rankLinks[linkKey] = gameId;
+  localStorage.setItem('ranking_links_v1', JSON.stringify(rankLinks));
+  document.getElementById('link-ranking-modal')?.remove();
+  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', getRankingList(type, year), type, year);
+}
+
+function unlinkRankingGame(linkKey, type, year) {
+  let rankLinks = {};
+  try { rankLinks = JSON.parse(localStorage.getItem('ranking_links_v1') || '{}'); } catch(e) {}
+  delete rankLinks[linkKey];
+  localStorage.setItem('ranking_links_v1', JSON.stringify(rankLinks));
+  renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', getRankingList(type, year), type, year);
 }
 
 // ========== GAME AWARDS ==========
