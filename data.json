@@ -6281,6 +6281,7 @@
     "73": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0-xZSTkdD-hVyTK0Z8wWwyFscfh3-supNWGacMf78UjW-uoVsA0wlw6s&s=10",
     "121": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQGCjjPAQHI-XfyKlmJ9J9-RMEbveQbgogjtZeSgC14A&s",
     "122": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d1/Alan-Wake-American-Nightmare-Box-Art.jpg/250px-Alan-Wake-American-Nightmare-Box-Art.jpg",
+    "123": "https://upload.wikimedia.org/wikipedia/en/0/01/Another_Crab%27s_Treasure_poster.webp",
     "295": "https://m.media-amazon.com/images/I/71ozw6l5f6L._AC_UF1000,1000_QL80_.jpg",
     "298": "https://m.media-amazon.com/images/I/71edx0R+svL._AC_UF1000,1000_QL80_.jpg",
     "329": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSarfxZUSQHOqKhUQSJ9eLvhMw22TmhRkSw4uv2QlLPggzgAP3uJIOwRz4&s=10",
@@ -7446,6 +7447,23 @@
     "2030": [],
     "2031": []
   },
-  "awards_links": {},
-  "last_updated": "2026-06-16T13:27:19.372Z"
+  "awards_links": {
+    "Donkey Kong Bananza": 317,
+    "Hades 2": 77,
+    "Elden Ring: Shadow of the Erdtree": 295,
+    "Final Fantasy VII Rebirth": 318,
+    "Baldur's Gate 3": 65,
+    "Alan Wake 2": 73,
+    "God of War Ragnarök": 338,
+    "The Last of Us Part II": 253,
+    "Final Fantasy VII Remake": 250,
+    "Resident Evil 2": 294,
+    "God of War": 332,
+    "Assassin's Creed Odyssey": 70,
+    "Red Dead Redemption 2": 235,
+    "Doom": 76,
+    "Uncharted 4: A Thief's End": 328,
+    "Dark Souls II": 191
+  },
+  "last_updated": "2026-06-16T13:30:17.816Z"
 }
