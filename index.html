@@ -1090,6 +1090,7 @@
             <option value="lancamento-desc">Lançamento recente</option>
           </select>
           <button onclick="saveCurrentFilter()" style="padding:5px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap" title="Salvar filtro atual">💾 Salvar filtro</button>
+          <button onclick="clearAllFilters()" id="btn-clear-filters" style="display:none;padding:5px 10px;border-radius:8px;background:rgba(245,78,78,0.1);border:1px solid var(--red);color:var(--red);font-size:11px;cursor:pointer;white-space:nowrap">✕ Limpar filtros</button>
         </div>
         <div class="saved-filters-row" id="saved-filters-row"></div>
         <div class="filters-bar" id="status-filters"></div>
@@ -1857,6 +1858,34 @@ function setStatusFilter(status) {
   filterGames();
 }
 
+function clearAllFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-genero').value = '';
+  document.getElementById('filter-plataforma').value = '';
+  document.getElementById('filter-midia').value = '';
+  document.getElementById('filter-nota').value = '';
+  document.getElementById('filter-quando').value = '';
+  document.getElementById('filter-order').value = 'nome';
+  activeStatusFilters.clear();
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-all')?.classList.add('active');
+  filterGames();
+}
+
+function updateClearBtn() {
+  const btn = document.getElementById('btn-clear-filters');
+  if (!btn) return;
+  const hasFilter =
+    document.getElementById('search-input')?.value ||
+    document.getElementById('filter-genero')?.value ||
+    document.getElementById('filter-plataforma')?.value ||
+    document.getElementById('filter-midia')?.value ||
+    document.getElementById('filter-nota')?.value ||
+    document.getElementById('filter-quando')?.value ||
+    activeStatusFilters.size > 0;
+  btn.style.display = hasFilter ? 'inline-block' : 'none';
+}
+
 function filterGames() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const genero = document.getElementById('filter-genero').value;
@@ -1887,6 +1916,7 @@ function filterGames() {
 
   document.getElementById('results-count').textContent = `${filtered.length} jogos encontrados`;
   renderGameCards('games-grid', filtered);
+  updateClearBtn();
 }
 
 function renderGames() {
