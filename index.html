@@ -313,7 +313,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     cursor: pointer;
     transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
     position: relative;
@@ -334,6 +334,7 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
+    border-radius: 12px 12px 0 0;
   }
 
   .game-cover img {
@@ -1322,8 +1323,6 @@
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" id="modal" style="position:relative">
-    <button class="modal-nav-btn prev" onclick="navigateModal(-1)" id="modal-prev" title="Jogo anterior">‹</button>
-    <button class="modal-nav-btn next" onclick="navigateModal(1)" id="modal-next" title="Próximo jogo">›</button>
     <div class="modal-header">
       <h3 id="modal-title"></h3>
       <span class="modal-close" onclick="closeModalForce()">✕</span>
@@ -1705,10 +1704,14 @@ function buildBarChart(id, data, limit = 8, colors = null, filterField = null) {
     const cls = filterField ? 'bar-row bar-row-clickable' : 'bar-row';
     return `<div class="${cls}" ${clickable}>
       <span class="bar-label" title="${label}">${shortLabel}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-track"><div class="bar-fill" data-pct="${pct}" style="width:0%;background:${color};transition:width 0.6s ease ${i*0.05}s"></div></div>
       <span class="bar-num">${val}</span>
     </div>`;
   }).join('');
+  // Animate bars after render
+  setTimeout(() => {
+    el.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+  }, 50);
 }
 
 function filterFromDashboard(field, value) {
@@ -2840,21 +2843,16 @@ function addGame() {
 // ========== SIDEBAR STATS ==========
 function updateSidebar() {
   document.getElementById('total-count').textContent = `${games.length} jogos`;
-
-  const jogados = games.filter(g => ['3 - Concluído','4 - Platinado'].includes(g.status)).length;
-  const pct = Math.round((jogados / games.length) * 100);
+  updateProgressBar();
 
   const coversFound = Object.values(covers).filter(v => v && v !== 'none').length;
   const coversTotal = Object.keys(covers).length;
 
-  document.getElementById('sidebar-stats').innerHTML = `
-    <div><strong>${jogados}</strong> jogos completados</div>
-    <div><strong>${pct}%</strong> da coleção</div>
-    <div style="margin-top:8px;height:4px;background:var(--border);border-radius:2px">
-      <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:2px;transition:width 0.5s"></div>
-    </div>
-    ${coversTotal > 0 ? `<div style="margin-top:10px;font-size:10px;color:var(--muted)">🖼️ ${coversFound}/${games.length} capas</div>` : ''}
-  `;
+  if (document.getElementById('sidebar-stats')) {
+    document.getElementById('sidebar-stats').innerHTML = coversTotal > 0
+      ? `<div style="font-size:10px;color:var(--muted);padding:4px 0">🖼️ ${coversFound}/${games.length} capas</div>`
+      : '';
+  }
 }
 
 async function retryNotFound() {
