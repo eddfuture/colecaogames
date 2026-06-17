@@ -824,7 +824,66 @@
     .mobile-overlay { display: none !important; }
   }
 
-  /* ANIMATIONS */
+  /* TOOLTIP */
+  .game-card { position: relative; }
+  .game-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--text);
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    pointer-events: none;
+    min-width: 160px;
+    text-align: left;
+  }
+  .game-card:hover .game-tooltip { display: block; animation: fadeIn 0.15s ease; }
+
+  /* SIDEBAR PROGRESS */
+  .sidebar-progress {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+  .progress-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress-bar { height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 0.6s ease; }
+
+  /* SAVED FILTERS */
+  .saved-filters-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .saved-filter-chip {
+    padding: 3px 10px; border-radius: 14px; font-size: 11px; font-weight: 600;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.15s;
+  }
+  .saved-filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .saved-filter-chip.active { background: rgba(124,106,245,0.15); border-color: var(--accent); color: var(--accent); }
+
+  /* MODAL NAV ARROWS */
+  .modal-nav-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 50%; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; z-index: 10;
+    transition: background 0.15s;
+  }
+  .modal-nav-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .modal-nav-btn.prev { left: -18px; }
+  .modal-nav-btn.next { right: -18px; }
+
+  /* DRAG HANDLE */
+  .drag-handle { cursor: grab; padding: 4px 6px; color: var(--muted); font-size: 14px; flex-shrink: 0; }
+  .drag-handle:active { cursor: grabbing; }
+  .ranking-row.drag-over { border-top: 2px solid var(--accent); }
   @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   .game-card { animation: fadeInUp 0.22s ease both; }
@@ -934,9 +993,6 @@
       <div class="nav-item" onclick="showPage('ranking-plataformas')" id="nav-ranking-plataformas">
         <span class="icon">🎮</span> Ranking Plataformas
       </div>
-      <div class="nav-item" onclick="showPage('vergonha')" id="nav-vergonha">
-        <span class="icon">😅</span> Vergonha da Prateleira
-      </div>
       <div class="nav-section">Ferramentas</div>
       <div class="nav-item" onclick="showPage('diagnostico')" id="nav-diagnostico">
         <span class="icon">🔧</span> Diagnóstico
@@ -948,8 +1004,16 @@
         <span class="icon">☀️</span> Modo Claro
       </div>
     </nav>
-    <div class="sidebar-stats" id="sidebar-stats"></div>
-    <div style="padding:10px 20px;border-top:1px solid var(--border);font-size:11px" id="sync-status"></div>
+    <div class="sidebar-progress" id="sidebar-progress">
+      <div class="progress-label">
+        <span>Progresso</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div style="padding:8px 16px 12px;border-top:1px solid var(--border)">
+      <button onclick="goBack()" id="back-btn" style="display:none;width:100%;padding:6px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:11px;cursor:pointer">← Voltar</button>
+    </div>
   </aside>
 
   <main class="main">
@@ -1015,13 +1079,18 @@
           <select class="filter-select" id="filter-nota" onchange="filterGames()">
             <option value="">Qualquer nota</option>
           </select>
+          <select class="filter-select" id="filter-quando" onchange="filterGames()">
+            <option value="">Qualquer ano</option>
+          </select>
           <select class="filter-select" id="filter-order" onchange="filterGames()">
             <option value="nome">Nome (A-Z)</option>
             <option value="nota-desc">Melhor nota</option>
             <option value="quando-desc">Mais recente</option>
             <option value="lancamento-desc">Lançamento recente</option>
           </select>
+          <button onclick="saveCurrentFilter()" style="padding:5px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap" title="Salvar filtro atual">💾 Salvar filtro</button>
         </div>
+        <div class="saved-filters-row" id="saved-filters-row"></div>
         <div class="filters-bar" id="status-filters"></div>
         <p class="results-count" id="results-count"></p>
         <div class="games-grid" id="games-grid"></div>
@@ -1106,18 +1175,6 @@
         <h2>🎮 Ranking de Plataformas</h2>
       </div>
       <div style="padding:28px" id="ranking-plataformas-content"></div>
-    </div>
-
-    <!-- VERGONHA DA PRATELEIRA -->
-    <div class="page" id="page-vergonha">
-      <div class="topbar">
-        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
-        <h2>😅 Vergonha da Prateleira</h2>
-      </div>
-      <div style="padding:28px">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Jogos físicos que você tem mas nunca tocou</p>
-        <div class="games-grid" id="vergonha-grid"></div>
-      </div>
     </div>
 
     <!-- FAVORITOS -->
@@ -1264,7 +1321,9 @@
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" style="position:relative">
+    <button class="modal-nav-btn prev" onclick="navigateModal(-1)" id="modal-prev" title="Jogo anterior">‹</button>
+    <button class="modal-nav-btn next" onclick="navigateModal(1)" id="modal-next" title="Próximo jogo">›</button>
     <div class="modal-header">
       <h3 id="modal-title"></h3>
       <span class="modal-close" onclick="closeModalForce()">✕</span>
@@ -1500,6 +1559,8 @@ function save() {
 async function init() {
   loadCoverCache();
   initTheme();
+  updateProgressBar();
+  renderSavedFilters();
   // Restore view mode button state
   if (viewMode === 'list') {
     document.getElementById('btn-grid')?.classList.remove('active');
@@ -1525,28 +1586,6 @@ async function init() {
 // save() defined above in GITHUB SYNC section
 
 // ========== NAVIGATION ==========
-function showPage(id) {
-  if (window.innerWidth <= 768) closeMobileMenu();
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
-  if (id === 'diagnostico') updateDiagCache();
-  if (id === 'graficos') buildGraficos();
-  if (id === 'hall-of-fame') buildHallOfFame();
-  if (id === 'ranking-plataformas') buildRankingPlataformas();
-  if (id === 'vergonha') buildVergonha();
-  setTimeout(applyAllVisible, 50);
-  if (id === 'diagnostico') updateDiagCache();
-
-  const topSearch = document.querySelector('.topbar .search-box');
-  if (id === 'colecao') {
-    if (!topSearch) {
-      const tb = document.querySelector('#page-colecao .topbar');
-    }
-  }
-}
-
 // ========== DASHBOARD ==========
 function buildDashboard() {
   const anoAtivo = window._dashAno || null;
@@ -1573,14 +1612,27 @@ function buildDashboard() {
       <span onclick="setDashAno(null)" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${!anoAtivo ? 'var(--accent)' : 'var(--surface2)'};color:${!anoAtivo ? 'white' : 'var(--muted)'};transition:all 0.15s">Todos</span>
       ${anosJogados.map(a => `<span onclick="setDashAno(${a})" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${anoAtivo===a ? 'var(--accent)' : 'var(--surface2)'};color:${anoAtivo===a ? 'white' : 'var(--muted)'};transition:all 0.15s">${a}</span>`).join('')}
     </div>
-    <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num">${total}</div><div class="label">Total</div></div>
-    <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num">${concluido}</div><div class="label">Concluídos</div></div>
-    <div class="stat-card c-platinado" style="cursor:pointer" onclick="filterFromDashboard('status','4 - Platinado')"><div class="num">${platinado}</div><div class="label">Platinados</div></div>
-    <div class="stat-card c-nao" style="cursor:pointer" onclick="filterFromDashboard('status','2 - Não jogado')"><div class="num">${naoJogado}</div><div class="label">Não jogados</div></div>
-    <div class="stat-card c-drop" style="cursor:pointer" onclick="filterFromDashboard('status','5 - Dropado')"><div class="num">${dropado}</div><div class="label">Dropados</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('favorito','true')"><div class="num" style="color:var(--gold)">⭐${favoritos}</div><div class="label">Favoritos</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" style="color:var(--text)">★${perfeitos}</div><div class="label">5 Estrelas</div></div>
+    <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num" id="dash-total">0</div><div class="label">Total</div></div>
+    <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num" id="dash-concluido">0</div><div class="label">Concluídos</div></div>
+    <div class="stat-card c-platinado" style="cursor:pointer" onclick="filterFromDashboard('status','4 - Platinado')"><div class="num" id="dash-platinado">0</div><div class="label">Platinados</div></div>
+    <div class="stat-card c-nao" style="cursor:pointer" onclick="filterFromDashboard('status','2 - Não jogado')"><div class="num" id="dash-nao">0</div><div class="label">Não jogados</div></div>
+    <div class="stat-card c-drop" style="cursor:pointer" onclick="filterFromDashboard('status','5 - Dropado')"><div class="num" id="dash-drop">0</div><div class="label">Dropados</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('favorito','true')"><div class="num" id="dash-fav" style="color:var(--gold)">⭐<span>0</span></div><div class="label">Favoritos</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="filterFromDashboard('nota','5 - Perfeito')"><div class="num" id="dash-perf" style="color:var(--text)">★<span>0</span></div><div class="label">5 Estrelas</div></div>
   `;
+
+  // Animate counters
+  setTimeout(() => {
+    animateCount(document.getElementById('dash-total'), total);
+    animateCount(document.getElementById('dash-concluido'), concluido);
+    animateCount(document.getElementById('dash-platinado'), platinado);
+    animateCount(document.getElementById('dash-nao'), naoJogado);
+    animateCount(document.getElementById('dash-drop'), dropado);
+    const favSpan = document.querySelector('#dash-fav span');
+    const perfSpan = document.querySelector('#dash-perf span');
+    if (favSpan) animateCount(favSpan, favoritos);
+    if (perfSpan) animateCount(perfSpan, perfeitos);
+  }, 50);
 
   // Jogando Agora
   const jogandoAgora = games.filter(g => g.status === '1 - Jogando');
@@ -1670,6 +1722,11 @@ function filterFromDashboard(field, value) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   document.getElementById('chip-all')?.classList.add('active');
 
+  // Apply year filter from dashboard if active
+  const anoAtivo = window._dashAno || null;
+  if (anoAtivo) document.getElementById('filter-quando').value = anoAtivo;
+  else document.getElementById('filter-quando').value = '';
+
   if (field === 'status' && value) {
     activeStatusFilters.add(value);
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -1742,6 +1799,10 @@ function buildFilters() {
   const plataformas = [...new Set(games.map(g => g.plataforma).filter(Boolean))].sort();
   const midias = [...new Set(games.map(g => g.midia).filter(Boolean))].sort();
 
+  const anos = [...new Set(games.map(g => g.quando).filter(Boolean))].sort((a,b)=>b-a).filter(a=>a>2000);
+  const sq = document.getElementById('filter-quando');
+  anos.forEach(a => sq.innerHTML += `<option value="${a}">${a}</option>`);
+
   const sg = document.getElementById('filter-genero');
   generos.forEach(g => sg.innerHTML += `<option value="${g}">${g}</option>`);
 
@@ -1800,6 +1861,7 @@ function filterGames() {
   const midia = document.getElementById('filter-midia').value;
   const nota = document.getElementById('filter-nota').value;
   const order = document.getElementById('filter-order').value;
+  const quando = document.getElementById('filter-quando')?.value;
 
   let filtered = games.filter(g => {
     if (activeStatusFilters.size > 0 && !activeStatusFilters.has(g.status)) return false;
@@ -1808,6 +1870,7 @@ function filterGames() {
     if (plataforma && g.plataforma !== plataforma) return false;
     if (midia && g.midia !== midia) return false;
     if (nota && g.nota !== nota) return false;
+    if (quando && String(g.quando) !== String(quando)) return false;
     return true;
   });
 
@@ -2205,6 +2268,13 @@ function gameCard(g) {
   const nocoverDisplay = hasCover ? 'display:none' : '';
 
   return `<div class="game-card" onclick="openModal(${g.id})">
+    <div class="game-tooltip">
+      <div style="font-weight:600;margin-bottom:4px">${g.nome}</div>
+      <div style="color:var(--muted)">${g.plataforma}</div>
+      ${g.nota ? `<div style="color:var(--gold);margin-top:2px">${NOTA_STARS[g.nota]}</div>` : ''}
+      <div style="margin-top:4px">${si.emoji} ${si.label}</div>
+      ${g.favorito ? '<div style="color:var(--gold)">⭐ Favorito</div>' : ''}
+    </div>
     <div class="game-cover" data-gameid="${g.id}" ${coverBg}>
       <span class="no-cover" style="font-size:36px;${nocoverDisplay}">${emoji}</span>
       <div class="status-dot ${si.cls}"></div>
@@ -2221,7 +2291,7 @@ function gameCard(g) {
 }
 
 // ========== MODAL ==========
-function openModal(id) {
+function _openModal(id) {
   const g = games.find(x => x.id === id);
   if (!g) return;
   currentGameId = id;
@@ -2255,11 +2325,26 @@ function openModal(id) {
     ['Categoria', g.categoria || '—'],
     ['Tempo Estimado', g.tempo ? g.tempo + 'h' : '—'],
   ];
+
+  // History
+  const history = getGameHistory(id);
+  const historyHtml = history.length ? `
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Histórico</div>
+      ${history.slice(0, 5).map(h => `<div style="font-size:11px;color:var(--muted);margin-bottom:3px">📝 ${h}</div>`).join('')}
+    </div>` : '';
+
   details.innerHTML = rows.map(([l, v]) => `
     <div class="detail-row">
       <span class="detail-label">${l}</span>
       <span class="detail-value">${v}</span>
-    </div>`).join('');
+    </div>`).join('') + historyHtml;
+
+  // Update modal nav
+  const modalPrev = document.getElementById('modal-prev');
+  const modalNext = document.getElementById('modal-next');
+  if (modalPrev) modalPrev.style.opacity = currentModalIndex <= 0 ? '0.3' : '1';
+  if (modalNext) modalNext.style.opacity = currentModalIndex >= currentModalList.length - 1 ? '0.3' : '1';
 
   // Edit fields
   document.getElementById('edit-status').value = g.status;
@@ -2307,6 +2392,8 @@ function saveGame() {
   if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const g = games.find(x => x.id === currentGameId);
   if (!g) return;
+  const prevStatus = g.status;
+  const prevNota = g.nota;
 
   g.status = document.getElementById('edit-status').value;
   g.nota = document.getElementById('edit-nota').value || null;
@@ -2328,6 +2415,10 @@ function saveGame() {
   const tempoEdit = document.getElementById('edit-tempo').value;
   if (tempoEdit) g.tempo = tempoEdit;
 
+  // Track changes in history
+  if (g.status !== prevStatus) addGameHistory(currentGameId, `Status: ${prevStatus.replace(/^\d+ - /, '')} → ${g.status.replace(/^\d+ - /, '')}`);
+  if (g.nota !== prevNota && g.nota) addGameHistory(currentGameId, `Nota: ${g.nota.replace(/^\d+ - /, '')}`);
+
   save();
   closeModalForce();
   buildDashboard();
@@ -2335,11 +2426,12 @@ function saveGame() {
   buildFavoritos();
   buildPrioridades();
   updateSidebar();
+  updateProgressBar();
 }
 
 // ========== FAVORITOS ==========
 function buildFavoritos() {
-  const favs = games.filter(g => g.favorito);
+  const favs = games.filter(g => g.favorito).sort((a,b) => a.nome.localeCompare(b.nome));
   renderGameCards('favoritos-grid', favs);
 }
 
@@ -2352,7 +2444,7 @@ function buildPrioridades() {
   const el = document.getElementById('prioridades-content');
   let html = '';
   cats.forEach(cat => {
-    const list = games.filter(g => g.categoria === cat && g.status === '2 - Não jogado');
+    const list = games.filter(g => g.categoria === cat && g.status === '2 - Não jogado').sort((a,b) => a.nome.localeCompare(b.nome));
     if (!list.length) return;
     html += `<div style="margin-bottom:28px">
       <h3 style="font-size:15px;margin-bottom:14px;color:${colors[cat]}">${icons[cat]} ${cat} <span class="count-badge">${list.length}</span></h3>
@@ -2522,7 +2614,8 @@ function renderRankingTable(id, list, type, year) {
       ? `<button onclick="event.stopPropagation();unlinkRankingGame('${linkKey.replace(/'/g,"\\'")}','${type}','${year}')" title="Desvincular" style="padding:4px 8px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:11px">🔗✕</button>`
       : '';
 
-    return `<div class="ranking-row" style="cursor:${found ? 'pointer' : 'default'}" ${found ? `onclick="openModal(${found.id})"` : ''}>
+    return `<div class="ranking-row" draggable="true" data-drag="${idx}" data-type="${type}" data-year="${year}" style="cursor:${found ? 'pointer' : 'default'}" ${found ? `onclick="openModal(${found.id})"` : ''}>
+      <span class="drag-handle" onclick="event.stopPropagation()" title="Arrastar">⠿</span>
       <span class="rank-pos ${rankCls}" style="min-width:36px">${row.pos}</span>
       <div ${coverStyle}>${coverContent}</div>
       <span class="rank-name" style="flex:1">${row.jogo}</span>
@@ -2536,6 +2629,7 @@ function renderRankingTable(id, list, type, year) {
     </div>`;
   }).join('');
   el.innerHTML = html;
+  setTimeout(addDragToRankingRows, 50);
 }
 
 function linkRankingGame(linkKey, type, year) {
@@ -2871,6 +2965,9 @@ function buildHallOfFame() {
 }
 
 // ========== RANKING PLATAFORMAS ==========
+let platSortCol = 'jogados';
+let platSortDir = -1; // -1 = desc, 1 = asc
+
 function buildRankingPlataformas() {
   const el = document.getElementById('ranking-plataformas-content');
   const stats = {};
@@ -2883,19 +2980,33 @@ function buildRankingPlataformas() {
     if (g.status === '4 - Platinado') stats[p].platinados++;
     if (g.favorito) stats[p].favoritos++;
   });
-  const sorted = Object.entries(stats).sort((a,b) => b[1].jogados - a[1].jogados);
+
+  const sorted = Object.entries(stats).sort((a,b) => {
+    let va, vb;
+    if (platSortCol === 'plataforma') { va = a[0]; vb = b[0]; return va.localeCompare(vb) * platSortDir; }
+    if (platSortCol === 'pct') { va = a[1].total ? a[1].jogados/a[1].total : 0; vb = b[1].total ? b[1].jogados/b[1].total : 0; }
+    else { va = a[1][platSortCol] || 0; vb = b[1][platSortCol] || 0; }
+    return (va - vb) * platSortDir;
+  });
+
+  function thBtn(col, label, align = 'center') {
+    const active = platSortCol === col;
+    const arrow = active ? (platSortDir === -1 ? ' ↓' : ' ↑') : ' ↕';
+    return `<th onclick="sortPlataformas('${col}')" style="cursor:pointer;user-select:none;text-align:${align};${active ? 'color:var(--accent)' : ''}">${label}<span style="opacity:0.5;font-size:10px">${arrow}</span></th>`;
+  }
+
   el.innerHTML = `
     <table class="games-table" style="width:100%;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border)">
       <thead><tr>
-        <th style="text-align:left">Plataforma</th>
-        <th>Total</th>
-        <th>Concluídos</th>
-        <th>Platinados</th>
-        <th>Favoritos</th>
-        <th>% Conclusão</th>
+        ${thBtn('plataforma','Plataforma','left')}
+        ${thBtn('total','Total')}
+        ${thBtn('jogados','Concluídos')}
+        ${thBtn('platinados','Platinados')}
+        ${thBtn('favoritos','Favoritos')}
+        ${thBtn('pct','% Conclusão')}
       </tr></thead>
       <tbody>
-        ${sorted.map(([plat, s], i) => {
+        ${sorted.map(([plat, s]) => {
           const pct = Math.round((s.jogados / s.total) * 100);
           return `<tr>
             <td><strong>${PLATFORM_ICONS[plat] || '🎮'} ${plat}</strong></td>
@@ -2915,6 +3026,12 @@ function buildRankingPlataformas() {
         }).join('')}
       </tbody>
     </table>`;
+}
+
+function sortPlataformas(col) {
+  if (platSortCol === col) platSortDir *= -1;
+  else { platSortCol = col; platSortDir = -1; }
+  buildRankingPlataformas();
 }
 
 // ========== VERGONHA DA PRATELEIRA ==========
@@ -3289,6 +3406,216 @@ async function exportToExcel() {
   // Baixa o arquivo
   const date = new Date().toISOString().slice(0,10);
   XLSX.writeFile(wb, `GameLog_${date}.xlsx`);
+}
+
+// ========== NAVIGATION HISTORY ==========
+let pageHistory = [];
+
+function showPage(id) {
+  if (window.innerWidth <= 768) closeMobileMenu();
+  const prev = document.querySelector('.page.active')?.id?.replace('page-', '');
+  if (prev && prev !== id) {
+    pageHistory.push(prev);
+    if (pageHistory.length > 20) pageHistory.shift();
+  }
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) backBtn.style.display = pageHistory.length > 0 ? 'block' : 'none';
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(`page-${id}`);
+  if (page) page.classList.add('active');
+  const nav = document.getElementById(`nav-${id}`);
+  if (nav) nav.classList.add('active');
+  if (id === 'colecao') { filterGames(); renderSavedFilters(); }
+  if (id === 'dashboard') buildDashboard();
+  if (id === 'favoritos') buildFavoritos();
+  if (id === 'prioridades') buildPrioridades();
+  if (id === 'ranking-jogados') buildRankings();
+  if (id === 'ranking-lancados') buildRankings();
+  if (id === 'game-awards') buildGameAwards();
+  if (id === 'diagnostico') updateDiagCache();
+  if (id === 'graficos') buildGraficos();
+  if (id === 'hall-of-fame') buildHallOfFame();
+  if (id === 'ranking-plataformas') buildRankingPlataformas();
+  setTimeout(applyAllVisible, 50);
+}
+
+function goBack() {
+  if (!pageHistory.length) return;
+  const prev = pageHistory.pop();
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) backBtn.style.display = pageHistory.length > 0 ? 'block' : 'none';
+  // Navigate without pushing to history
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(`page-${prev}`);
+  if (page) page.classList.add('active');
+  const nav = document.getElementById(`nav-${prev}`);
+  if (nav) nav.classList.add('active');
+  if (prev === 'colecao') filterGames();
+  if (prev === 'dashboard') buildDashboard();
+}
+
+// ========== SAVED FILTERS ==========
+function getSavedFilters() {
+  try { return JSON.parse(localStorage.getItem('saved_filters_v1') || '[]'); } catch(e) { return []; }
+}
+
+function saveCurrentFilter() {
+  const genero = document.getElementById('filter-genero').value;
+  const plataforma = document.getElementById('filter-plataforma').value;
+  const midia = document.getElementById('filter-midia').value;
+  const nota = document.getElementById('filter-nota').value;
+  const statuses = [...activeStatusFilters];
+  if (!genero && !plataforma && !midia && !nota && !statuses.length) {
+    alert('Aplique ao menos um filtro antes de salvar!'); return;
+  }
+  const name = prompt('Nome para este filtro:');
+  if (!name) return;
+  const filters = getSavedFilters();
+  filters.push({ name, genero, plataforma, midia, nota, statuses });
+  localStorage.setItem('saved_filters_v1', JSON.stringify(filters));
+  renderSavedFilters();
+}
+
+function renderSavedFilters() {
+  const row = document.getElementById('saved-filters-row');
+  if (!row) return;
+  const filters = getSavedFilters();
+  if (!filters.length) { row.innerHTML = ''; return; }
+  row.innerHTML = `<span style="font-size:11px;color:var(--muted)">Salvos:</span>` +
+    filters.map((f, i) => `
+      <span class="saved-filter-chip" onclick="applysavedFilter(${i})">
+        ${f.name}
+        <span onclick="event.stopPropagation();deleteSavedFilter(${i})" style="opacity:0.5;font-size:10px">✕</span>
+      </span>`).join('');
+}
+
+function applysavedFilter(i) {
+  const f = getSavedFilters()[i];
+  if (!f) return;
+  document.getElementById('filter-genero').value = f.genero || '';
+  document.getElementById('filter-plataforma').value = f.plataforma || '';
+  document.getElementById('filter-midia').value = f.midia || '';
+  document.getElementById('filter-nota').value = f.nota || '';
+  activeStatusFilters = new Set(f.statuses || []);
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  if (activeStatusFilters.size === 0) document.getElementById('chip-all')?.classList.add('active');
+  else activeStatusFilters.forEach(s => document.getElementById('chip-' + s.replace(/[^a-z]/gi,''))?.classList.add('active'));
+  filterGames();
+}
+
+function deleteSavedFilter(i) {
+  const filters = getSavedFilters();
+  filters.splice(i, 1);
+  localStorage.setItem('saved_filters_v1', JSON.stringify(filters));
+  renderSavedFilters();
+}
+
+// ========== MODAL NAVIGATION ==========
+let currentModalList = [];
+let currentModalIndex = -1;
+
+function openModal(id) {
+  // Build current list for navigation
+  const grid = document.getElementById('games-grid');
+  if (grid) {
+    const cards = [...grid.querySelectorAll('.game-card')];
+    currentModalList = cards.map(c => parseInt(c.getAttribute('onclick').match(/\d+/)[0])).filter(Boolean);
+    currentModalIndex = currentModalList.indexOf(id);
+  }
+  _openModal(id);
+}
+
+function navigateModal(dir) {
+  const newIdx = currentModalIndex + dir;
+  if (newIdx < 0 || newIdx >= currentModalList.length) return;
+  currentModalIndex = newIdx;
+  _openModal(currentModalList[newIdx]);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay?.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') navigateModal(-1);
+  if (e.key === 'ArrowRight') navigateModal(1);
+  if (e.key === 'Escape') closeModalForce();
+});
+
+// ========== GAME HISTORY ==========
+function getGameHistory(id) {
+  try { return JSON.parse(localStorage.getItem(`game_history_${id}`) || '[]'); } catch(e) { return []; }
+}
+
+function addGameHistory(id, msg) {
+  const history = getGameHistory(id);
+  const date = new Date().toLocaleDateString('pt-BR');
+  history.unshift(`${date}: ${msg}`);
+  if (history.length > 20) history.pop();
+  localStorage.setItem(`game_history_${id}`, JSON.stringify(history));
+}
+
+// ========== PROGRESS BAR ==========
+function updateProgressBar() {
+  const total = games.length;
+  const done = games.filter(g => ['3 - Concluído','4 - Platinado'].includes(g.status)).length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const fill = document.getElementById('progress-fill');
+  const pctEl = document.getElementById('progress-pct');
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = `${pct}%`;
+}
+
+// ========== ANIMATED COUNTER ==========
+function animateCount(el, target, duration = 800) {
+  const start = 0;
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (target - start) * ease);
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ========== DRAG & DROP RANKINGS ==========
+let dragSrc = null;
+let dragType = null;
+let dragYear = null;
+
+function addDragToRankingRows() {
+  document.querySelectorAll('.ranking-row[data-drag]').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragSrc = row;
+      e.dataTransfer.effectAllowed = 'move';
+      row.style.opacity = '0.5';
+    });
+    row.addEventListener('dragend', () => { row.style.opacity = ''; document.querySelectorAll('.ranking-row').forEach(r => r.classList.remove('drag-over')); });
+    row.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (!dragSrc || dragSrc === row) return;
+      const srcIdx = parseInt(dragSrc.dataset.drag);
+      const dstIdx = parseInt(row.dataset.drag);
+      const type = dragSrc.dataset.type;
+      const year = dragSrc.dataset.year;
+      const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
+      const goty = (data[year]||[]).filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+      let list = (data[year]||[]).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+      const [moved] = list.splice(srcIdx, 1);
+      list.splice(dstIdx, 0, moved);
+      list = rebuildPositions(list);
+      data[year] = [...list, ...goty];
+      save();
+      renderRankingTable(type === 'jogados' ? 'table-jogados' : 'table-lancados', list, type, year);
+    });
+  });
 }
 
 // ========== START ==========
