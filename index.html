@@ -867,6 +867,7 @@
       <h1>🎮 GameLog</h1>
       <span id="total-count">Carregando...</span>
       <span id="sync-status" style="font-size:10px;color:var(--muted);display:block;margin-top:2px"></span>
+      <span id="edit-indicator" style="font-size:10px;display:block;margin-top:2px;color:var(--muted)">👁️ Modo Leitura</span>
     </div>
     <nav class="nav">
       <div class="nav-section">Coleção</div>
@@ -902,6 +903,9 @@
       <div class="nav-section">Ferramentas</div>
       <div class="nav-item" onclick="showPage('diagnostico')" id="nav-diagnostico">
         <span class="icon">🔧</span> Diagnóstico
+      </div>
+      <div class="nav-item" onclick="exportToExcel()" id="nav-export">
+        <span class="icon">📥</span> Exportar Excel
       </div>
       <div class="nav-item" onclick="toggleTheme()" id="nav-theme">
         <span class="icon">☀️</span> Modo Claro
@@ -1866,6 +1870,7 @@ function applyAllVisible() {
 }
 
 function applyCoverUrl() {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const url = document.getElementById('edit-cover-url').value.trim();
   if (!url) return;
   const id = String(currentGameId);
@@ -1879,6 +1884,7 @@ function applyCoverUrl() {
 }
 
 function uploadCoverManual(input) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -1896,6 +1902,7 @@ function uploadCoverManual(input) {
 }
 
 function removeCoverManual() {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const id = String(currentGameId);
   delete covers[id];
   saveCovers();
@@ -2206,6 +2213,7 @@ function closeModalForce() {
 }
 
 function saveGame() {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const g = games.find(x => x.id === currentGameId);
   if (!g) return;
 
@@ -2276,6 +2284,7 @@ function rebuildPositions(list) {
 }
 
 function moveRankingItem(type, year, idx, dir) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
   const goty = (data[year] || []).filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
   let list = (data[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
@@ -2289,6 +2298,7 @@ function moveRankingItem(type, year, idx, dir) {
 }
 
 function removeRankingItem(type, year, idx) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
   const goty = (data[year] || []).filter(r => ['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
   let list = (data[year] || []).filter(r => !['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
@@ -2331,6 +2341,7 @@ function showAddToRanking(type, year) {
 }
 
 function addToRanking(type, year, gameId) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const game = games.find(g => g.id === gameId);
   if (!game) return;
   const data = type === 'jogados' ? rankingsJogados : rankingsLancados;
@@ -2469,6 +2480,7 @@ function linkRankingGame(linkKey, type, year) {
 }
 
 function confirmLinkRanking(linkKey, type, year, gameId) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   let rankLinks = {};
   try { rankLinks = JSON.parse(localStorage.getItem('ranking_links_v1') || '{}'); } catch(e) {}
   rankLinks[linkKey] = gameId;
@@ -2478,6 +2490,7 @@ function confirmLinkRanking(linkKey, type, year, gameId) {
 }
 
 function unlinkRankingGame(linkKey, type, year) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   let rankLinks = {};
   try { rankLinks = JSON.parse(localStorage.getItem('ranking_links_v1') || '{}'); } catch(e) {}
   delete rankLinks[linkKey];
@@ -2517,6 +2530,7 @@ function linkAwardGame(nomeAward) {
 }
 
 function confirmLinkAward(nomeAward, gameId) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const data = {};
   try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
   data[nomeAward] = gameId;
@@ -2526,6 +2540,7 @@ function confirmLinkAward(nomeAward, gameId) {
 }
 
 function unlinkAwardGame(nomeAward) {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const data = {};
   try { Object.assign(data, JSON.parse(localStorage.getItem('awards_links_v1') || '{}')); } catch(e) {}
   delete data[nomeAward];
@@ -2598,6 +2613,7 @@ function buildAddForm() {
 }
 
 function addGame() {
+  if (!isEditMode) { alert("⚠️ Entre com a senha de edição para fazer alterações."); return; }
   const nome = document.getElementById('add-nome').value.trim();
   if (!nome) { alert('Nome do jogo é obrigatório!'); return; }
 
@@ -2893,8 +2909,150 @@ function clearCoversAndReload() {
   updateDiagCache();
 }
 
+// ========== SENHA & MODO LEITURA ==========
+const SITE_PASSWORD = '120696'; // mude aqui para sua senha
+let isEditMode = false;
+
+function tryPassword() {
+  const pwd = document.getElementById('access-password').value;
+  if (pwd === SITE_PASSWORD) {
+    isEditMode = true;
+    document.getElementById('access-modal').remove();
+    sessionStorage.setItem('gamelog_auth', '1');
+    applyEditMode();
+  } else {
+    const err = document.getElementById('access-error');
+    err.style.display = 'block';
+    document.getElementById('access-password').value = '';
+    document.getElementById('access-password').focus();
+  }
+}
+
+function enterReadOnly() {
+  isEditMode = false;
+  document.getElementById('access-modal').remove();
+  applyEditMode();
+}
+
+function applyEditMode() {
+  // Mostra/esconde elementos de edição
+  const editEls = document.querySelectorAll('.edit-only');
+  editEls.forEach(el => {
+    el.style.display = isEditMode ? '' : 'none';
+  });
+  // Atualiza indicador no sidebar
+  const indicator = document.getElementById('edit-indicator');
+  if (indicator) {
+    indicator.textContent = isEditMode ? '✏️ Modo Edição' : '👁️ Modo Leitura';
+    indicator.style.color = isEditMode ? 'var(--accent2)' : 'var(--muted)';
+  }
+}
+
+// Bloqueia funções de escrita no modo leitura
+function requireEdit(fn) {
+  return function(...args) {
+    if (!isEditMode) {
+      alert('⚠️ Entre com a senha de edição para fazer alterações.');
+      return;
+    }
+    return fn.apply(this, args);
+  };
+}
+
+// Intercepta Enter no campo de senha
+document.addEventListener('DOMContentLoaded', () => {
+  const pwdInput = document.getElementById('access-password');
+  if (pwdInput) {
+    pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryPassword(); });
+    // Auto-foca
+    setTimeout(() => pwdInput.focus(), 100);
+  }
+  // Verifica se já autenticou nessa sessão
+  if (sessionStorage.getItem('gamelog_auth') === '1') {
+    isEditMode = true;
+    const modal = document.getElementById('access-modal');
+    if (modal) modal.remove();
+  }
+});
+
+// ========== EXPORTAR XLSX ==========
+async function exportToExcel() {
+  // Carrega SheetJS dinamicamente
+  if (!window.XLSX) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // Aba COLEÇÃO
+  const colHeaders = ['Jogo','Plataforma','Lançamento','Gênero','Sub-Gênero','Tempo de Jogo','Status','Quando Joguei?','Nota','Tipo de Mídia','Categoria','Jogo Favorito?','Gostei da Trilha Sonora?','Pretendo Revisitar?'];
+  const colRows = games.map(g => [
+    g.nome, g.plataforma, g.lancamento, g.genero, g.subgenero, g.tempo,
+    g.status, g.quando, g.nota, g.midia, g.categoria,
+    g.favorito ? 'Sim' : 'Não',
+    g.trilha ? 'Sim' : 'Não',
+    g.revisitar ? 'Sim' : 'Não',
+  ]);
+  const wsColecao = XLSX.utils.aoa_to_sheet([colHeaders, ...colRows]);
+  XLSX.utils.book_append_sheet(wb, wsColecao, 'COLEÇÃO');
+
+  // Aba RANKING JOGADOS
+  const years = Object.keys(rankingsJogados || {}).filter(y => !isNaN(+y)).sort();
+  if (years.length) {
+    const maxRows = Math.max(...years.map(y => (rankingsJogados[y]||[]).filter(r=>!['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos)).length));
+    const rjRows = [['Posição', ...years]];
+    for (let i = 0; i < maxRows; i++) {
+      const row = [i < 3 ? ['🥇','🥈','🥉'][i] : `${i+1}º`];
+      years.forEach(y => {
+        const list = (rankingsJogados[y]||[]).filter(r=>!['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+        row.push(list[i]?.jogo || '');
+      });
+      rjRows.push(row);
+    }
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rjRows), 'RANKING_JOGADOS');
+  }
+
+  // Aba RANKING LANÇADOS
+  const yearsL = Object.keys(rankingsLancados || {}).filter(y => !isNaN(+y)).sort();
+  if (yearsL.length) {
+    const maxRowsL = Math.max(...yearsL.map(y => (rankingsLancados[y]||[]).filter(r=>!['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos)).length));
+    const rlRows = [['Posição', ...yearsL]];
+    for (let i = 0; i < maxRowsL; i++) {
+      const row = [i < 3 ? ['🥇','🥈','🥉'][i] : `${i+1}º`];
+      yearsL.forEach(y => {
+        const list = (rankingsLancados[y]||[]).filter(r=>!['GOTY','Indicado 2','Indicado 3','Indicado 4','Indicado 5','Indicado 6'].includes(r.pos));
+        row.push(list[i]?.jogo || '');
+      });
+      rlRows.push(row);
+    }
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rlRows), 'RANKING_LANÇADOS');
+  }
+
+  // Baixa o arquivo
+  const date = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `GameLog_${date}.xlsx`);
+}
+
 // ========== START ==========
 document.addEventListener('DOMContentLoaded', init);
 </script>
+<!-- MODAL DE ACESSO -->
+<div id="access-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:400px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">🎮</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">GameLog</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:28px">Digite a senha para editar ou continue em modo leitura</p>
+    <input type="password" id="access-password" placeholder="Senha de edição..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;padding:12px 16px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:0.1em">
+    <p id="access-error" style="font-size:12px;color:var(--red);margin-bottom:12px;display:none">Senha incorreta</p>
+    <button onclick="tryPassword()" style="width:100%;padding:12px;border-radius:10px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px">🔓 Entrar como Editor</button>
+    <button onclick="enterReadOnly()" style="width:100%;padding:12px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer">👁️ Continuar em Leitura</button>
+  </div>
+</div>
+
 </body>
 </html>
