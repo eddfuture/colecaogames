@@ -824,6 +824,34 @@
     .mobile-overlay { display: none !important; }
   }
 
+  /* ANIMATIONS */
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .game-card { animation: fadeInUp 0.22s ease both; }
+  .game-card:nth-child(2) { animation-delay:0.03s; }
+  .game-card:nth-child(3) { animation-delay:0.06s; }
+  .game-card:nth-child(4) { animation-delay:0.09s; }
+  .game-card:nth-child(n+5) { animation-delay:0.12s; }
+  .modal { animation: fadeInUp 0.2s ease both; }
+
+  /* FULLSCREEN COVER */
+  .cover-fullscreen { position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;cursor:zoom-out; }
+  .cover-fullscreen img { max-width:90vw;max-height:90vh;border-radius:8px;object-fit:contain;box-shadow:0 20px 60px rgba(0,0,0,0.8); }
+
+  /* PLATFORM SECTION */
+  .platform-section { margin-bottom:32px; }
+  .platform-section h3 { font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px; }
+  .platform-count { background:var(--surface2);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:0; }
+
+  /* HALL OF FAME */
+  .hof-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px; }
+  .hof-card { background:var(--surface);border:2px solid var(--gold);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform 0.15s,border-color 0.15s;animation:fadeInUp 0.22s ease both; }
+  .hof-card:hover { transform:translateY(-4px);border-color:var(--accent); }
+  .hof-cover { width:100%;aspect-ratio:3/4;background:var(--surface2);background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;font-size:40px; }
+  .hof-info { padding:10px 12px; }
+  .hof-name { font-size:12px;font-weight:600;margin-bottom:4px;line-height:1.3; }
+  .hof-meta { font-size:11px;color:var(--muted); }
+
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
@@ -897,8 +925,17 @@
       <div class="nav-item" onclick="showPage('favoritos')" id="nav-favoritos">
         <span class="icon">⭐</span> Favoritos
       </div>
+      <div class="nav-item" onclick="showPage('hall-of-fame')" id="nav-hall-of-fame">
+        <span class="icon">🏆</span> Hall of Fame
+      </div>
       <div class="nav-item" onclick="showPage('prioridades')" id="nav-prioridades">
         <span class="icon">🔥</span> Prioridades
+      </div>
+      <div class="nav-item" onclick="showPage('ranking-plataformas')" id="nav-ranking-plataformas">
+        <span class="icon">🎮</span> Ranking Plataformas
+      </div>
+      <div class="nav-item" onclick="showPage('vergonha')" id="nav-vergonha">
+        <span class="icon">😅</span> Vergonha da Prateleira
       </div>
       <div class="nav-section">Ferramentas</div>
       <div class="nav-item" onclick="showPage('diagnostico')" id="nav-diagnostico">
@@ -957,6 +994,7 @@
         <div class="view-toggle">
           <button class="view-btn active" id="btn-grid" onclick="setViewMode('grid')" title="Grade">⊞</button>
           <button class="view-btn" id="btn-list" onclick="setViewMode('list')" title="Lista">☰</button>
+          <button class="view-btn" id="btn-platform" onclick="setViewMode('platform')" title="Por Plataforma">🎮</button>
         </div>
         <div class="search-box">
           <span>🔍</span>
@@ -1035,12 +1073,50 @@
             <h3>Por Sub-Gênero</h3>
             <canvas id="chart-g-subgenero" style="max-height:400px"></canvas>
           </div>
-          <!-- Ano de Lançamento -->
+          <!-- Jogos por Ano Jogado -->
           <div class="chart-card" style="grid-column:1/-1">
-            <h3>Por Ano de Lançamento</h3>
-            <canvas id="chart-g-ano" style="max-height:280px"></canvas>
+            <h3>Jogos Zerados por Ano</h3>
+            <canvas id="chart-g-anojogado" style="max-height:280px"></canvas>
+          </div>
+          <!-- Comparativo ano a ano -->
+          <div class="chart-card" style="grid-column:1/-1">
+            <h3>Comparativo Ano a Ano</h3>
+            <canvas id="chart-g-comparativo" style="max-height:280px"></canvas>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- HALL OF FAME -->
+    <div class="page" id="page-hall-of-fame">
+      <div class="topbar">
+        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+        <h2>🏆 Hall of Fame</h2>
+      </div>
+      <div style="padding:28px">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Todos os jogos com nota <strong style="color:var(--gold)">★★★★★ 5 - Perfeito</strong></p>
+        <div class="hof-grid" id="hof-grid"></div>
+      </div>
+    </div>
+
+    <!-- RANKING PLATAFORMAS -->
+    <div class="page" id="page-ranking-plataformas">
+      <div class="topbar">
+        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+        <h2>🎮 Ranking de Plataformas</h2>
+      </div>
+      <div style="padding:28px" id="ranking-plataformas-content"></div>
+    </div>
+
+    <!-- VERGONHA DA PRATELEIRA -->
+    <div class="page" id="page-vergonha">
+      <div class="topbar">
+        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+        <h2>😅 Vergonha da Prateleira</h2>
+      </div>
+      <div style="padding:28px">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Jogos físicos que você tem mas nunca tocou</p>
+        <div class="games-grid" id="vergonha-grid"></div>
       </div>
     </div>
 
@@ -1195,7 +1271,7 @@
     </div>
     <div class="modal-body">
       <div class="modal-layout">
-        <div class="modal-cover" id="modal-cover">🎮</div>
+        <div class="modal-cover" id="modal-cover" onclick="openFullscreenCover()" style="cursor:zoom-in" title="Clique para ver em tela cheia">🎮</div>
         <div class="modal-details" id="modal-details"></div>
       </div>
       <div class="edit-section">
@@ -1291,6 +1367,10 @@
           <div class="toggle-row">
             <span class="toggle-label">⭐ Jogo Favorito</span>
             <div class="toggle" id="edit-favorito" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">🔁 Replay (joguei mais de uma vez)</span>
+            <div class="toggle" id="edit-replay" onclick="if(isEditMode)this.classList.toggle('on')"></div>
           </div>
           <div class="toggle-row">
             <span class="toggle-label">🎵 Gostei da Trilha Sonora</span>
@@ -1453,6 +1533,9 @@ function showPage(id) {
   document.getElementById('nav-' + id).classList.add('active');
   if (id === 'diagnostico') updateDiagCache();
   if (id === 'graficos') buildGraficos();
+  if (id === 'hall-of-fame') buildHallOfFame();
+  if (id === 'ranking-plataformas') buildRankingPlataformas();
+  if (id === 'vergonha') buildVergonha();
   setTimeout(applyAllVisible, 50);
   if (id === 'diagnostico') updateDiagCache();
 
@@ -1627,6 +1710,7 @@ function setViewMode(mode) {
   localStorage.setItem('view_mode', mode);
   document.getElementById('btn-grid').classList.toggle('active', mode === 'grid');
   document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+  document.getElementById('btn-platform')?.classList.toggle('active', mode === 'platform');
   filterGames();
 }
 
@@ -1757,6 +1841,12 @@ function renderGameCards(containerId, list) {
   if (!list.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🕹️</div><p>Nenhum jogo encontrado</p></div>`;
     grid.className = 'games-grid';
+    return;
+  }
+
+  // Render based on view mode
+  if (viewMode === 'platform') {
+    renderPlatformView(containerId, list);
     return;
   }
 
@@ -2199,6 +2289,7 @@ function openModal(id) {
   setToggle('edit-favorito', g.favorito);
   setToggle('edit-trilha', g.trilha);
   setToggle('edit-revisitar', g.revisitar);
+  setToggle('edit-replay', g.replay);
 
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -2225,6 +2316,7 @@ function saveGame() {
   g.favorito = document.getElementById('edit-favorito').classList.contains('on');
   g.trilha = document.getElementById('edit-trilha').classList.contains('on');
   g.revisitar = document.getElementById('edit-revisitar').classList.contains('on');
+  g.replay = document.getElementById('edit-replay').classList.contains('on');
   const nomeReal = document.getElementById('edit-nome-real')?.value.trim();
   if (nomeReal && nomeReal !== g.nome) g.nome = nomeReal;
   g.plataforma = document.getElementById('edit-plataforma').value.trim() || g.plataforma;
@@ -2721,7 +2813,131 @@ async function retryNotFound() {
   filterGames();
 }
 
-// ========== GRÁFICOS ==========
+// ========== FULLSCREEN COVER ==========
+function openFullscreenCover() {
+  const mc = document.getElementById('modal-cover');
+  const url = mc?.style.backgroundImage?.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+  if (!url) return;
+  const fs = document.createElement('div');
+  fs.className = 'cover-fullscreen';
+  fs.innerHTML = `<img src="${url}" alt="Capa">`;
+  fs.onclick = () => fs.remove();
+  document.body.appendChild(fs);
+}
+
+// ========== PLATFORM VIEW ==========
+function renderPlatformView(containerId, list) {
+  const el = document.getElementById(containerId);
+  const grouped = {};
+  list.forEach(g => {
+    const p = g.plataforma || 'Outros';
+    if (!grouped[p]) grouped[p] = [];
+    grouped[p].push(g);
+  });
+  const sorted = Object.entries(grouped).sort((a,b) => b[1].length - a[1].length);
+  el.className = '';
+  el.style.cssText = '';
+  el.innerHTML = sorted.map(([plat, games]) => `
+    <div class="platform-section">
+      <h3>${PLATFORM_ICONS[plat] || '🎮'} ${plat} <span class="platform-count">${games.length}</span></h3>
+      <div class="games-grid">${games.map(g => gameCard(g)).join('')}</div>
+    </div>`).join('');
+  // Apply covers
+  el.querySelectorAll('[data-gameid]').forEach(e => {
+    const url = covers[e.dataset.gameid];
+    if (url && url !== 'none') applyCover(e.dataset.gameid, url);
+  });
+}
+
+// ========== HALL OF FAME ==========
+function buildHallOfFame() {
+  const stars = games.filter(g => g.nota === '5 - Perfeito')
+    .sort((a,b) => a.nome.localeCompare(b.nome));
+  const el = document.getElementById('hof-grid');
+  if (!stars.length) { el.innerHTML = '<p style="color:var(--muted)">Nenhum jogo com nota 5 ainda.</p>'; return; }
+  el.innerHTML = stars.map((g, i) => {
+    const url = covers[String(g.id)];
+    const hasCover = url && url !== 'none';
+    return `<div class="hof-card" onclick="openModal(${g.id})" style="animation-delay:${i*0.04}s">
+      <div class="hof-cover" style="${hasCover ? `background-image:url('${url}')` : ''}">${hasCover ? '' : getGameEmoji(g)}</div>
+      <div class="hof-info">
+        <div class="hof-name">${g.nome}</div>
+        <div class="hof-meta">${g.plataforma}</div>
+        <div class="hof-meta" style="color:var(--gold)">★★★★★</div>
+        ${g.favorito ? '<div style="color:var(--gold);font-size:11px">⭐ Favorito</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== RANKING PLATAFORMAS ==========
+function buildRankingPlataformas() {
+  const el = document.getElementById('ranking-plataformas-content');
+  const stats = {};
+  games.forEach(g => {
+    const p = g.plataforma;
+    if (!p) return;
+    if (!stats[p]) stats[p] = { total:0, jogados:0, platinados:0, favoritos:0 };
+    stats[p].total++;
+    if (['3 - Concluído','4 - Platinado'].includes(g.status)) stats[p].jogados++;
+    if (g.status === '4 - Platinado') stats[p].platinados++;
+    if (g.favorito) stats[p].favoritos++;
+  });
+  const sorted = Object.entries(stats).sort((a,b) => b[1].jogados - a[1].jogados);
+  el.innerHTML = `
+    <table class="games-table" style="width:100%;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+      <thead><tr>
+        <th style="text-align:left">Plataforma</th>
+        <th>Total</th>
+        <th>Concluídos</th>
+        <th>Platinados</th>
+        <th>Favoritos</th>
+        <th>% Conclusão</th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map(([plat, s], i) => {
+          const pct = Math.round((s.jogados / s.total) * 100);
+          return `<tr>
+            <td><strong>${PLATFORM_ICONS[plat] || '🎮'} ${plat}</strong></td>
+            <td style="text-align:center">${s.total}</td>
+            <td style="text-align:center;color:var(--green)">${s.jogados}</td>
+            <td style="text-align:center;color:var(--blue)">${s.platinados}</td>
+            <td style="text-align:center;color:var(--gold)">${s.favoritos}</td>
+            <td style="text-align:center">
+              <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+                <div style="width:80px;height:6px;background:var(--border);border-radius:3px">
+                  <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:3px"></div>
+                </div>
+                <span style="font-size:11px;color:var(--muted)">${pct}%</span>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ========== VERGONHA DA PRATELEIRA ==========
+function buildVergonha() {
+  const vergonha = games.filter(g =>
+    g.midia === 'Física' &&
+    ['2 - Não jogado'].includes(g.status)
+  ).sort((a,b) => a.nome.localeCompare(b.nome));
+
+  const el = document.getElementById('vergonha-grid');
+  if (!vergonha.length) {
+    el.innerHTML = '<p style="color:var(--muted)">Parabéns! Nenhum jogo físico não jogado.</p>';
+    return;
+  }
+  el.className = 'games-grid';
+  el.innerHTML = vergonha.map(g => gameCard(g)).join('');
+  el.querySelectorAll('[data-gameid]').forEach(e => {
+    const url = covers[e.dataset.gameid];
+    if (url && url !== 'none') applyCover(e.dataset.gameid, url);
+  });
+}
+
+// ========== YEAR CHART IN GRAFICOS ==========
 let _charts = {};
 
 function destroyChart(id) {
@@ -2826,7 +3042,7 @@ function buildGraficos() {
     subE.map(e=>e[0]), subE.map(e=>e[1]), '#f5c842'
   ));
 
-  // Ano de Lançamento - barras verticais
+  // Ano de Lançamento
   destroyChart('g-ano');
   const anoCounts = {};
   games.forEach(g => { if (g.lancamento) anoCounts[g.lancamento] = (anoCounts[g.lancamento]||0)+1; });
@@ -2834,6 +3050,43 @@ function buildGraficos() {
   _charts['g-ano'] = new Chart(document.getElementById('chart-g-ano'), vbarOpts(
     anoEntries.map(e=>e[0]), anoEntries.map(e=>e[1]), '#42a5f5'
   ));
+
+  // Jogos zerados por ano jogado
+  destroyChart('g-anojogado');
+  const jogosCounts = {};
+  games.forEach(g => {
+    if (g.quando && ['3 - Concluído','4 - Platinado'].includes(g.status))
+      jogosCounts[g.quando] = (jogosCounts[g.quando]||0)+1;
+  });
+  const jogosEntries = Object.entries(jogosCounts).filter(([y]) => y !== '2000').sort((a,b)=>a[0]-b[0]);
+  _charts['g-anojogado'] = new Chart(document.getElementById('chart-g-anojogado'), vbarOpts(
+    jogosEntries.map(e=>e[0]), jogosEntries.map(e=>e[1]), '#4ef5a0'
+  ));
+
+  // Comparativo ano a ano (últimos 4 anos válidos)
+  destroyChart('g-comparativo');
+  const validYears = Object.keys(jogosCounts).filter(y => y !== '2000').sort((a,b)=>a-b).slice(-4);
+  const categories = ['Concluídos','Platinados','5 Estrelas','Favoritos'];
+  const compData = validYears.map(y => ({
+    y,
+    concluidos: games.filter(g => g.quando == y && ['3 - Concluído','4 - Platinado'].includes(g.status)).length,
+    platinados: games.filter(g => g.quando == y && g.status === '4 - Platinado').length,
+    estrelas: games.filter(g => g.quando == y && g.nota === '5 - Perfeito').length,
+    favoritos: games.filter(g => g.quando == y && g.favorito).length,
+  }));
+  _charts['g-comparativo'] = new Chart(document.getElementById('chart-g-comparativo'), {
+    type: 'bar',
+    data: {
+      labels: validYears,
+      datasets: [
+        { label: 'Concluídos', data: compData.map(d=>d.concluidos), backgroundColor: '#4ef5a0', borderRadius: 4 },
+        { label: 'Platinados', data: compData.map(d=>d.platinados), backgroundColor: '#42a5f5', borderRadius: 4 },
+        { label: '5 Estrelas', data: compData.map(d=>d.estrelas), backgroundColor: '#f5c842', borderRadius: 4 },
+        { label: 'Favoritos', data: compData.map(d=>d.favoritos), backgroundColor: '#f54e4e', borderRadius: 4 },
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: textColor } } }, scales: { x: { grid: { display: false }, ticks: { color: textColor } }, y: { grid: { color: gridColor }, ticks: { color: textColor } } } }
+  });
 }
 
 // ========== DIAGNÓSTICO ==========
