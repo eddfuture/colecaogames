@@ -1952,6 +1952,8 @@ function renderGameCards(containerId, list) {
       let va = a[listSortCol] ?? '';
       let vb = b[listSortCol] ?? '';
       if (listSortCol === 'nota') { va = NOTA_NUM[a.nota] || 0; vb = NOTA_NUM[b.nota] || 0; }
+      if (listSortCol === 'tempo') { va = parseFloat(a.tempo) || 0; vb = parseFloat(b.tempo) || 0; return (va - vb) * listSortDir; }
+      if (listSortCol === 'lancamento') { va = parseInt(a.lancamento) || 0; vb = parseInt(b.lancamento) || 0; return (va - vb) * listSortDir; }
       if (typeof va === 'string') return va.localeCompare(vb) * listSortDir;
       return (va - vb) * listSortDir;
     });
