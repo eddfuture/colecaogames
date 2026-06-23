@@ -1561,6 +1561,8 @@ async function init() {
   initTheme();
   updateProgressBar();
   renderSavedFilters();
+  // Set initial browser history state so back button stays on site
+  history.replaceState({ gamelogPage: 'dashboard' }, '', '#dashboard');
   // Restore view mode button state
   if (viewMode === 'list') {
     document.getElementById('btn-grid')?.classList.remove('active');
@@ -3441,16 +3443,7 @@ async function exportToExcel() {
 // ========== NAVIGATION HISTORY ==========
 let pageHistory = [];
 
-function showPage(id) {
-  if (window.innerWidth <= 768) closeMobileMenu();
-  const prev = document.querySelector('.page.active')?.id?.replace('page-', '');
-  if (prev && prev !== id) {
-    pageHistory.push(prev);
-    if (pageHistory.length > 20) pageHistory.shift();
-  }
-  const backBtn = document.getElementById('back-btn');
-  if (backBtn) backBtn.style.display = pageHistory.length > 0 ? 'block' : 'none';
-
+function navigateTo(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const page = document.getElementById(`page-${id}`);
@@ -3471,21 +3464,33 @@ function showPage(id) {
   setTimeout(applyAllVisible, 50);
 }
 
+function showPage(id) {
+  if (window.innerWidth <= 768) closeMobileMenu();
+  const prev = document.querySelector('.page.active')?.id?.replace('page-', '');
+  if (prev && prev !== id) {
+    pageHistory.push(prev);
+    if (pageHistory.length > 20) pageHistory.shift();
+  }
+  const backBtn = document.getElementById('back-btn');
+  if (backBtn) backBtn.style.display = pageHistory.length > 0 ? 'block' : 'none';
+  navigateTo(id);
+  history.pushState({ gamelogPage: id }, '', `#${id}`);
+}
+
 function goBack() {
   if (!pageHistory.length) return;
   const prev = pageHistory.pop();
   const backBtn = document.getElementById('back-btn');
   if (backBtn) backBtn.style.display = pageHistory.length > 0 ? 'block' : 'none';
-  // Navigate without pushing to history
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const page = document.getElementById(`page-${prev}`);
-  if (page) page.classList.add('active');
-  const nav = document.getElementById(`nav-${prev}`);
-  if (nav) nav.classList.add('active');
-  if (prev === 'colecao') filterGames();
-  if (prev === 'dashboard') buildDashboard();
+  navigateTo(prev);
+  history.pushState({ gamelogPage: prev }, '', `#${prev}`);
 }
+
+// Browser back/forward buttons
+window.addEventListener('popstate', e => {
+  const id = e.state?.gamelogPage;
+  if (id) navigateTo(id);
+});
 
 // ========== SAVED FILTERS ==========
 function getSavedFilters() {
