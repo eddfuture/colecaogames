@@ -6443,8 +6443,8 @@
       "plataforma": "Steam",
       "lancamento": 2001,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Mundo Aberto",
+      "tempo": "15",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6452,7 +6452,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1782495523767,
@@ -7998,5 +7999,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:39:43.512Z"
+  "last_updated": "2026-06-26T17:40:00.898Z"
 }
