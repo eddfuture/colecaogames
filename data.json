@@ -6281,8 +6281,8 @@
       "plataforma": "Steam",
       "lancamento": 2007,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Stealth",
+      "tempo": "15",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6290,7 +6290,8 @@
       "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7808,5 +7809,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:14:19.012Z"
+  "last_updated": "2026-06-26T17:14:31.194Z"
 }
