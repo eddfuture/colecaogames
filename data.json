@@ -6293,6 +6293,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1782494180289,
+      "nome": "LEGO Batman: Legacy of the Dark Knight",
+      "plataforma": "Steam",
+      "lancamento": 2026,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7810,5 +7827,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:15:21.863Z"
+  "last_updated": "2026-06-26T17:16:22.304Z"
 }
