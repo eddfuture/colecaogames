@@ -6300,8 +6300,8 @@
       "plataforma": "Steam",
       "lancamento": 2026,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Plataforma",
+      "tempo": "15",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6309,7 +6309,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7828,5 +7829,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:16:35.306Z"
+  "last_updated": "2026-06-26T17:17:16.577Z"
 }
