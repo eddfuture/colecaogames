@@ -6460,8 +6460,8 @@
       "plataforma": "Steam",
       "lancamento": 2002,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Mundo Aberto",
+      "tempo": "17",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6469,7 +6469,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -6881,7 +6882,8 @@
     "1782494711782": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCIwBAqIlg3KhXKAT05bYRJfBKdVadrKTKGB-N-2FcOkvNbg4lf_LqEShf&s=10",
     "1782494678515": "https://imgproxy.eneba.games/-_rLFKV0keIz0bTFGLn3nz7MNC2N5ZdiwZnjurKhTpk/rs:fit:600/ar:1/czM6Ly9wcm9kdWN0/cy5lbmViYS5nYW1l/cy9wcm9kdWN0cy9m/Z25kbWVwcWJyd20w/Z2lyMWlvei5qcGc",
     "1782495000552": "https://upload.wikimedia.org/wikipedia/en/0/04/Look_Outside_Game_Title_Banner.jpg",
-    "1782495231087": "https://upload.wikimedia.org/wikipedia/pt/7/7e/Arte_promocional_de_Enigma_do_Medo.jpg"
+    "1782495231087": "https://upload.wikimedia.org/wikipedia/pt/7/7e/Arte_promocional_de_Enigma_do_Medo.jpg",
+    "1782495523767": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0efFWaZKXUh3d34nJcyqc86sL1g9W-C6nLzu7euESEIn4h1UTtk-ZJc8&s=10"
   },
   "rankings_jogados": {
     "2020": [
@@ -7995,5 +7997,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:38:45.774Z"
+  "last_updated": "2026-06-26T17:39:32.142Z"
 }
