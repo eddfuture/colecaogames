@@ -6347,6 +6347,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1782494571466,
+      "nome": "Resident Evil (2002)",
+      "plataforma": "PSN",
+      "lancamento": 2002,
+      "genero": "Terror",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7867,5 +7884,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:21:41.830Z"
+  "last_updated": "2026-06-26T17:22:53.482Z"
 }
