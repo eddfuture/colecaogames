@@ -6400,6 +6400,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1782495000552,
+      "nome": "Look Outside",
+      "plataforma": "Steam",
+      "lancamento": 2025,
+      "genero": "Terror",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7923,5 +7940,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:29:13.588Z"
+  "last_updated": "2026-06-26T17:30:02.570Z"
 }
