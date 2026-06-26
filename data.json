@@ -6418,6 +6418,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1782495231087,
+      "nome": "O Enigma do Medo",
+      "plataforma": "Steam",
+      "lancamento": 2024,
+      "genero": "Puzzle",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7942,5 +7959,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:30:35.454Z"
+  "last_updated": "2026-06-26T17:33:53.097Z"
 }
