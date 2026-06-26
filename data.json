@@ -6413,7 +6413,7 @@
       "quando": null,
       "nota": null,
       "midia": "Digital",
-      "categoria": null,
+      "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
       "revisitar": false,
@@ -7942,5 +7942,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:30:29.186Z"
+  "last_updated": "2026-06-26T17:30:35.454Z"
 }
