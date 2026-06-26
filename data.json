@@ -6407,8 +6407,8 @@
       "plataforma": "Steam",
       "lancamento": 2025,
       "genero": "Terror",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Survival Horror",
+      "tempo": "14",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6416,7 +6416,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7941,5 +7942,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:30:27.026Z"
+  "last_updated": "2026-06-26T17:30:29.186Z"
 }
