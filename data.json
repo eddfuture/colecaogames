@@ -6453,6 +6453,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1782495523767,
+      "nome": "Grand Theft Auto: Vice City",
+      "plataforma": "Steam",
+      "lancamento": 2002,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7978,5 +7995,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:38:20.453Z"
+  "last_updated": "2026-06-26T17:38:45.774Z"
 }
