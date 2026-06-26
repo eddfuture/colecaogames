@@ -6274,6 +6274,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1782494034744,
+      "nome": "Assassin's Creed",
+      "plataforma": "Steam",
+      "lancamento": 2007,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7790,5 +7807,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:09:39.138Z"
+  "last_updated": "2026-06-26T17:13:56.747Z"
 }
