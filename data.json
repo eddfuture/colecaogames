@@ -6318,8 +6318,8 @@
       "plataforma": "Steam",
       "lancamento": 2018,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Hack and Slash",
+      "tempo": "24",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6327,7 +6327,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -6732,7 +6733,8 @@
     "721114713253337700": "https://media.rawg.io/media/games/087/08727beb32c364d30e8b2a1aa8595f8e.jpg",
     "4882033436667687000": "https://media.rawg.io/media/games/25d/25d9592abbd02dccd67d83108ae79582.jpg",
     "1782494034744": "https://upload.wikimedia.org/wikipedia/pt/d/d0/Assassins_Creed_1_capa.png",
-    "1782494180289": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-OJDzf_lMBF0Mm2YqVbgC1VIHVXRixoL6BPl-GWGiTsDoz9nn1ZXP89On&s=10"
+    "1782494180289": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-OJDzf_lMBF0Mm2YqVbgC1VIHVXRixoL6BPl-GWGiTsDoz9nn1ZXP89On&s=10",
+    "1782494307874": "https://imgproxy.eneba.games/Xm0iwv1njXkAXiJvMW8Ubxb80WK2-R1PfJZ4Ua9w0po/rs:fit:300/ar:1/czM6Ly9wcm9kdWN0/cy5lbmViYS5nYW1l/cy9wcm9kdWN0cy9Z/YnoyeHJJTW9EVWVf/MnVuQUxNbThzUGtf/YmI2SGpFZXA2cmJM/MmYzaXFVLmpwZw"
   },
   "rankings_jogados": {
     "2020": [
@@ -7846,5 +7848,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:18:29.877Z"
+  "last_updated": "2026-06-26T17:19:41.254Z"
 }
