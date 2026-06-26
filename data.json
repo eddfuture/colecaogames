@@ -6311,6 +6311,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1782494307874,
+      "nome": "Devil May Cry HD Collection",
+      "plataforma": "Steam",
+      "lancamento": 2018,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7829,5 +7846,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:17:16.577Z"
+  "last_updated": "2026-06-26T17:18:29.877Z"
 }
