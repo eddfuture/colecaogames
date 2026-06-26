@@ -6382,6 +6382,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1782494711782,
+      "nome": "Baldur's Gate II: Enhanced Edition",
+      "plataforma": "Steam",
+      "lancamento": 2013,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -7903,5 +7920,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-26T17:24:40.528Z"
+  "last_updated": "2026-06-26T17:25:13.789Z"
 }
