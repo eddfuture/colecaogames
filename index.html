@@ -1627,7 +1627,7 @@ function buildDashboard() {
     <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center">
       <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-right:4px">Filtrar por ano:</span>
       <span onclick="setDashAno(null)" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${!anoAtivo ? 'var(--accent)' : 'var(--surface2)'};color:${!anoAtivo ? 'white' : 'var(--muted)'};transition:all 0.15s">Todos</span>
-      ${anosJogados.map(a => `<span onclick="setDashAno(${a})" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${anoAtivo===a ? 'var(--accent)' : 'var(--surface2)'};color:${anoAtivo===a ? 'white' : 'var(--muted)'};transition:all 0.15s">${a}</span>`).join('')}
+      ${anosJogados.map(a => `<span onclick="setDashAno('${a}')" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:${anoAtivo===a ? 'var(--accent)' : 'var(--surface2)'};color:${anoAtivo===a ? 'white' : 'var(--muted)'};transition:all 0.15s">${a}</span>`).join('')}
     </div>
     <div class="stat-card c-total" style="cursor:pointer" onclick="filterFromDashboard('status','')"><div class="num" id="dash-total">0</div><div class="label">Total</div></div>
     <div class="stat-card c-concluido" style="cursor:pointer" onclick="filterFromDashboard('status','3 - Concluído')"><div class="num" id="dash-concluido">0</div><div class="label">Concluídos</div></div>
