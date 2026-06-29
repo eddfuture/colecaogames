@@ -132,10 +132,11 @@
       "quando": null,
       "nota": null,
       "midia": "Física",
-      "categoria": "PRIORIDADE",
+      "categoria": "MUST-DO 26",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 9,
@@ -8000,5 +8001,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-29T13:46:02.005Z"
+  "last_updated": "2026-06-29T13:48:57.183Z"
 }
