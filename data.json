@@ -1166,13 +1166,13 @@
       "genero": "RPG",
       "subgenero": "T-RPG (Tactical RPG)",
       "tempo": "7",
-      "status": "1 - Jogando",
+      "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "5 - Perfeito",
       "midia": "Digital",
-      "categoria": "MUST-DO 26",
+      "categoria": null,
       "favorito": false,
-      "trilha": false,
+      "trilha": true,
       "revisitar": false,
       "replay": false
     },
@@ -7999,5 +7999,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-06-29T11:58:25.476Z"
+  "last_updated": "2026-06-29T11:58:54.807Z"
 }
