@@ -1455,8 +1455,8 @@ const INITIAL_DATA = {"games": [{"id": 1, "nome": "Animal Crossing: New Horizons
 // ========== STATE ==========
 let games = [];
 let currentGameId = null;
-let rankingJogadosYear = '2025';
-let rankingLancadosYear = '2025';
+let rankingJogadosYear = String(new Date().getFullYear());
+let rankingLancadosYear = String(new Date().getFullYear());
 let rankingsJogados = null;
 let rankingsLancados = null;
 
@@ -1572,6 +1572,16 @@ async function init() {
   if (!rankingsJogados) rankingsJogados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_jogados));
   if (!rankingsLancados) rankingsLancados = JSON.parse(JSON.stringify(INITIAL_DATA.ranking_lancados));
 
+  // Migrate: quando=2000 → 'Pré-2020'
+  let migrated = false;
+  games.forEach(g => {
+    if (g.quando == 2000 || g.quando === '2000') {
+      g.quando = 'Pré-2020';
+      migrated = true;
+    }
+  });
+  if (migrated) save();
+
   buildDashboard();
   buildFilters();
   buildStatusFilters();
@@ -1605,8 +1615,13 @@ function buildDashboard() {
   const favoritos = gamesFiltered.filter(g => g.favorito).length;
   const perfeitos = gamesFiltered.filter(g => g.nota === '5 - Perfeito').length;
 
-  // Anos jogados para filtro
-  const anosJogados = [...new Set(games.map(g => g.quando).filter(Boolean))].sort((a,b) => b-a);
+  // Anos jogados para filtro — Pré-2020 sempre por último
+  const anosJogados = [...new Set(games.map(g => g.quando).filter(Boolean))]
+    .sort((a, b) => {
+      if (a === 'Pré-2020') return 1;
+      if (b === 'Pré-2020') return -1;
+      return b - a;
+    });
 
   statsGrid.innerHTML = `
     <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;align-items:center">
@@ -1805,7 +1820,12 @@ function buildFilters() {
   const plataformas = [...new Set(games.map(g => g.plataforma).filter(Boolean))].sort();
   const midias = [...new Set(games.map(g => g.midia).filter(Boolean))].sort();
 
-  const anos = [...new Set(games.map(g => g.quando).filter(Boolean))].sort((a,b)=>b-a).filter(a=>a>2000);
+  const anos = [...new Set(games.map(g => g.quando).filter(Boolean))]
+    .sort((a, b) => {
+      if (a === 'Pré-2020') return 1;
+      if (b === 'Pré-2020') return -1;
+      return b - a;
+    });
   const sq = document.getElementById('filter-quando');
   anos.forEach(a => sq.innerHTML += `<option value="${a}">${a}</option>`);
 
@@ -3207,7 +3227,7 @@ function buildGraficos() {
     if (g.quando && ['3 - Concluído','4 - Platinado'].includes(g.status))
       jogosCounts[g.quando] = (jogosCounts[g.quando]||0)+1;
   });
-  const jogosEntries = Object.entries(jogosCounts).filter(([y]) => y !== '2000').sort((a,b)=>a[0]-b[0]);
+  const jogosEntries = Object.entries(jogosCounts).filter(([y]) => y !== 'Pré-2020').sort((a,b)=>a[0]-b[0]);
   _charts['g-anojogado'] = new Chart(document.getElementById('chart-g-anojogado'), vbarOpts(
     jogosEntries.map(e=>e[0]), jogosEntries.map(e=>e[1]), '#4ef5a0'
   ));
