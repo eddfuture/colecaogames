@@ -317,9 +317,9 @@
       "genero": "Tiro",
       "subgenero": "Nave",
       "tempo": "7",
-      "status": "1 - Jogando",
+      "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "4 - Ótimo",
       "midia": "Física",
       "categoria": null,
       "favorito": false,
@@ -8010,5 +8010,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-03T12:30:50.136Z"
+  "last_updated": "2026-07-03T12:31:21.048Z"
 }
