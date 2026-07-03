@@ -7362,19 +7362,19 @@
       },
       {
         "pos": "7º",
-        "jogo": "Star Fox 64"
+        "jogo": "Star Fox (2026)"
       },
       {
         "pos": "8º",
-        "jogo": "Shadow of the Colossus"
+        "jogo": "Star Fox 64"
       },
       {
         "pos": "9º",
-        "jogo": "Star Fox (1993)"
+        "jogo": "Shadow of the Colossus"
       },
       {
         "pos": "10º",
-        "jogo": "Star Fox (2026)"
+        "jogo": "Star Fox (1993)"
       },
       {
         "pos": "11º",
@@ -8010,5 +8010,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-03T12:30:45.972Z"
+  "last_updated": "2026-07-03T12:30:50.136Z"
 }
