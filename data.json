@@ -283,11 +283,11 @@
       "genero": "Ritmo e Música",
       "subgenero": "Ritmo",
       "tempo": null,
-      "status": "1 - Jogando",
-      "quando": 2026,
+      "status": "2 - Não jogado",
+      "quando": null,
       "nota": null,
       "midia": "Física",
-      "categoria": null,
+      "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
       "revisitar": false,
@@ -8011,5 +8011,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-07T14:20:09.029Z"
+  "last_updated": "2026-07-07T14:20:24.656Z"
 }
