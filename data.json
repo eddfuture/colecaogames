@@ -676,9 +676,9 @@
       "genero": "Soulslike",
       "subgenero": "Soulslike",
       "tempo": "35",
-      "status": "1 - Jogando",
+      "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "4 - Ótimo",
       "midia": "Digital",
       "categoria": null,
       "favorito": false,
@@ -8016,5 +8016,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-28T12:08:59.349Z"
+  "last_updated": "2026-07-28T12:10:05.679Z"
 }
