@@ -6484,7 +6484,7 @@
       "plataforma": "PSN",
       "lancamento": 2024,
       "genero": "Ação",
-      "subgenero": null,
+      "subgenero": "Beat 'em up",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -6493,7 +6493,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -8046,5 +8047,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-28T12:17:57.534Z"
+  "last_updated": "2026-07-28T12:18:00.847Z"
 }
