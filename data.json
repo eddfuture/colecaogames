@@ -7397,6 +7397,10 @@
       {
         "pos": "15º",
         "jogo": "Rhythm Heaven Groove"
+      },
+      {
+        "pos": "16º",
+        "jogo": "Lies of P"
       }
     ],
     "2027": [],
@@ -8020,5 +8024,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-28T12:10:17.581Z"
+  "last_updated": "2026-07-28T12:10:22.054Z"
 }
