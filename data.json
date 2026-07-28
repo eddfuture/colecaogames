@@ -7814,6 +7814,10 @@
         "jogo": "Bluey: The Videogame"
       },
       {
+        "pos": "16º",
+        "jogo": "Lies of P"
+      },
+      {
         "pos": "GOTY",
         "jogo": "Baldur's Gate 3"
       },
@@ -8024,5 +8028,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-07-28T12:11:07.109Z"
+  "last_updated": "2026-07-28T12:11:52.743Z"
 }
