@@ -5255,12 +5255,13 @@
       "tempo": null,
       "status": "3 - Concluído",
       "quando": 2025,
-      "nota": "4 - Ótimo",
+      "nota": "5 - Perfeito",
       "midia": "Física",
       "categoria": null,
-      "favorito": false,
-      "trilha": false,
-      "revisitar": false
+      "favorito": true,
+      "trilha": true,
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 310,
@@ -8066,5 +8067,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-07T13:11:03.235Z"
+  "last_updated": "2026-08-07T14:01:45.896Z"
 }
