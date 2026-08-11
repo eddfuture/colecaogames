@@ -6514,6 +6514,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1786457554153,
+      "nome": "Big Walk",
+      "plataforma": "PSN",
+      "lancamento": 2026,
+      "genero": "Party Game",
+      "subgenero": null,
+      "tempo": null,
+      "status": "1 - Jogando",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8067,5 +8084,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-11T14:12:09.593Z"
+  "last_updated": "2026-08-11T14:12:36.155Z"
 }
