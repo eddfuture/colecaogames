@@ -8060,6 +8060,10 @@
       {
         "pos": "🥉",
         "jogo": "Rhythm Heaven Groove"
+      },
+      {
+        "pos": "4º",
+        "jogo": "Big Walk"
       }
     ],
     "2027": [],
@@ -8086,5 +8090,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-11T14:14:30.957Z"
+  "last_updated": "2026-08-11T14:14:47.557Z"
 }
