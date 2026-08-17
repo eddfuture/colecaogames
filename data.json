@@ -7418,54 +7418,50 @@
       },
       {
         "pos": "6º",
-        "jogo": "Lies of P"
-      },
-      {
-        "pos": "7º",
-        "jogo": "Metroid Prime 4: Beyond"
-      },
-      {
-        "pos": "8º",
-        "jogo": "Star Fox (2026)"
-      },
-      {
-        "pos": "9º",
-        "jogo": "Star Fox 64"
-      },
-      {
-        "pos": "10º",
-        "jogo": "Shadow of the Colossus"
-      },
-      {
-        "pos": "11º",
-        "jogo": "Star Fox (1993)"
-      },
-      {
-        "pos": "12º",
-        "jogo": "Hades"
-      },
-      {
-        "pos": "13º",
-        "jogo": "Rhythm Heaven Groove"
-      },
-      {
-        "pos": "14º",
-        "jogo": "Uncharted: The Lost Legacy"
-      },
-      {
-        "pos": "15º",
-        "jogo": "The Exit 8 Game"
-      },
-      {
-        "pos": "16º",
-        "jogo": "Big Walk"
-      },
-      {
-        "pos": "17º",
         "jogo": "The Legend of Zelda: Ocarina of Time"
       },
       {
-        "pos": "18º",
+        "pos": "7º",
+        "jogo": "Lies of P"
+      },
+      {
+        "pos": "8º",
+        "jogo": "Metroid Prime 4: Beyond"
+      },
+      {
+        "pos": "9º",
+        "jogo": "Star Fox (2026)"
+      },
+      {
+        "pos": "10º",
+        "jogo": "Star Fox 64"
+      },
+      {
+        "pos": "11º",
+        "jogo": "Shadow of the Colossus"
+      },
+      {
+        "pos": "12º",
+        "jogo": "Star Fox (1993)"
+      },
+      {
+        "pos": "13º",
+        "jogo": "Hades"
+      },
+      {
+        "pos": "14º",
+        "jogo": "Rhythm Heaven Groove"
+      },
+      {
+        "pos": "15º",
+        "jogo": "Uncharted: The Lost Legacy"
+      },
+      {
+        "pos": "16º",
+        "jogo": "The Exit 8 Game"
+      },
+      {
+        "pos": "17º",
         "jogo": "TMNT: The Cowabunga Collection"
       }
     ],
@@ -8098,5 +8094,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-17T12:55:41.569Z"
+  "last_updated": "2026-08-17T12:55:48.789Z"
 }
