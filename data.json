@@ -7458,15 +7458,15 @@
       },
       {
         "pos": "16º",
-        "jogo": "TMNT: The Cowabunga Collection"
-      },
-      {
-        "pos": "17º",
         "jogo": "Big Walk"
       },
       {
-        "pos": "18º",
+        "pos": "17º",
         "jogo": "The Legend of Zelda: Ocarina of Time"
+      },
+      {
+        "pos": "18º",
+        "jogo": "TMNT: The Cowabunga Collection"
       }
     ],
     "2027": [],
@@ -8098,5 +8098,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-17T12:55:36.178Z"
+  "last_updated": "2026-08-17T12:55:41.569Z"
 }
