@@ -1052,14 +1052,15 @@
       "genero": "Ação",
       "subgenero": "Plataforma",
       "tempo": "24",
-      "status": "2 - Não jogado",
-      "quando": null,
+      "status": "1 - Jogando",
+      "quando": 2026,
       "nota": null,
       "midia": "Emulador",
       "categoria": "MUST-DO 26",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 63,
@@ -8090,5 +8091,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-17T12:56:24.334Z"
+  "last_updated": "2026-08-17T12:56:36.445Z"
 }
