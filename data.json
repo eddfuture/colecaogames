@@ -7402,23 +7402,23 @@
       },
       {
         "pos": "🥈",
-        "jogo": "Death Stranding 2: On the Beach"
-      },
-      {
-        "pos": "🥉",
         "jogo": "Animal Crossing: New Horizons"
       },
       {
+        "pos": "🥉",
+        "jogo": "The Legend of Zelda: Ocarina of Time"
+      },
+      {
         "pos": "4º",
-        "jogo": "Undertale"
+        "jogo": "Death Stranding 2: On the Beach"
       },
       {
         "pos": "5º",
-        "jogo": "Uncharted 4: A Thief's End"
+        "jogo": "Undertale"
       },
       {
         "pos": "6º",
-        "jogo": "The Legend of Zelda: Ocarina of Time"
+        "jogo": "Uncharted 4: A Thief's End"
       },
       {
         "pos": "7º",
@@ -8094,5 +8094,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-17T12:55:48.789Z"
+  "last_updated": "2026-08-17T12:55:52.138Z"
 }
