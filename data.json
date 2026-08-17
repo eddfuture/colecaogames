@@ -7438,35 +7438,35 @@
       },
       {
         "pos": "11º",
-        "jogo": "Big Walk"
-      },
-      {
-        "pos": "12º",
-        "jogo": "The Legend of Zelda: Ocarina of Time"
-      },
-      {
-        "pos": "13º",
         "jogo": "Star Fox (1993)"
       },
       {
-        "pos": "14º",
+        "pos": "12º",
         "jogo": "Hades"
       },
       {
-        "pos": "15º",
+        "pos": "13º",
         "jogo": "Rhythm Heaven Groove"
       },
       {
-        "pos": "16º",
+        "pos": "14º",
         "jogo": "Uncharted: The Lost Legacy"
       },
       {
-        "pos": "17º",
+        "pos": "15º",
         "jogo": "The Exit 8 Game"
       },
       {
-        "pos": "18º",
+        "pos": "16º",
         "jogo": "TMNT: The Cowabunga Collection"
+      },
+      {
+        "pos": "17º",
+        "jogo": "Big Walk"
+      },
+      {
+        "pos": "18º",
+        "jogo": "The Legend of Zelda: Ocarina of Time"
       }
     ],
     "2027": [],
@@ -8098,5 +8098,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-17T12:55:28.878Z"
+  "last_updated": "2026-08-17T12:55:36.178Z"
 }
