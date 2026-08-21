@@ -6524,13 +6524,13 @@
       "genero": "Party Game",
       "subgenero": "Puzzle",
       "tempo": null,
-      "status": "1 - Jogando",
+      "status": "4 - Platinado",
       "quando": 2026,
-      "nota": null,
+      "nota": "5 - Perfeito",
       "midia": "Digital",
       "categoria": null,
-      "favorito": false,
-      "trilha": false,
+      "favorito": true,
+      "trilha": true,
       "revisitar": false,
       "replay": false
     }
@@ -8091,5 +8091,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-21T13:48:23.132Z"
+  "last_updated": "2026-08-21T13:48:50.030Z"
 }
