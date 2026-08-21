@@ -8060,14 +8060,18 @@
     "2026": [
       {
         "pos": "🥇",
-        "jogo": "Pokémon Pokopia"
+        "jogo": "Big Walk"
       },
       {
         "pos": "🥈",
-        "jogo": "Star Fox (2026)"
+        "jogo": "Pokémon Pokopia"
       },
       {
         "pos": "🥉",
+        "jogo": "Star Fox (2026)"
+      },
+      {
+        "pos": "4º",
         "jogo": "Rhythm Heaven Groove"
       }
     ],
@@ -8095,5 +8099,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-08-21T13:49:10.925Z"
+  "last_updated": "2026-08-21T13:49:22.534Z"
 }
