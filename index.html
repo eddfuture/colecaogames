@@ -3748,8 +3748,8 @@ function buildConsoles() {
         ${hasCover ? '' : '<span style="font-size:48px">🖥️</span>'}
       </div>
       <div class="game-info">
-        <div class="game-name">${c.nome || 'Sem nome'}</div>
         <div class="game-platform">${c.empresa || '—'}</div>
+        <div class="game-name">${c.nome || 'Sem nome'}</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
           ${c.portatil === 'Sim' ? '<span style="font-size:10px;background:rgba(66,165,245,0.15);color:var(--blue);border-radius:6px;padding:1px 6px">📱 Portátil</span>' : ''}
           ${c.desbloqueado === 'Sim' ? '<span style="font-size:10px;background:rgba(78,245,160,0.15);color:var(--green);border-radius:6px;padding:1px 6px">Desbloqueado</span>' : ''}
