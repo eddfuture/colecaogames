@@ -238,7 +238,7 @@
 
   .search-box input::placeholder { color: var(--muted); }
 
-  .page { display: none; padding: 28px; }
+  .page { display: none; }
   .page.active { display: block; }
 
   /* STATS CARDS */
@@ -995,6 +995,9 @@
         <span class="icon">🎮</span> Ranking Plataformas
       </div>
       <div class="nav-section">Ferramentas</div>
+      <div class="nav-item" onclick="showPage('consoles')" id="nav-consoles">
+        <span class="icon">🖥️</span> Consoles
+      </div>
       <div class="nav-item" onclick="showPage('diagnostico')" id="nav-diagnostico">
         <span class="icon">🔧</span> Diagnóstico
       </div>
@@ -1318,6 +1321,17 @@
         </div>
       </div>
     </div>
+    <div class="page" id="page-consoles">
+      <div class="topbar">
+        <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+        <h2>🖥️ Consoles</h2>
+        <button onclick="addConsole()" style="margin-left:auto;padding:6px 14px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">+ Adicionar</button>
+      </div>
+      <div style="padding:28px">
+        <div id="consoles-grid" class="games-grid"></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1651,33 +1665,59 @@ function buildDashboard() {
     if (perfSpan) animateCount(perfSpan, perfeitos);
   }, 50);
 
-  // Jogando Agora
+  // Jogando Agora (até 2 jogos) + Emprestado
   const jogandoAgora = games.filter(g => g.status === '1 - Jogando');
   const jaSection = document.getElementById('jogando-agora-section');
   if (jaSection) {
+    let html = '';
+
     if (jogandoAgora.length) {
-      const g = jogandoAgora[0];
-      const cachedCover = covers[String(g.id)];
-      const hasCover = cachedCover && cachedCover !== 'none';
-      const emoji = getGameEmoji(g);
-      jaSection.innerHTML = `
-        <div onclick="openModal(${g.id})" style="background:var(--surface);border:2px solid var(--gold);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--gold)'">
-          <div style="width:100%;aspect-ratio:3/4;background:var(--surface2);${hasCover ? `background-image:url('${cachedCover}');background-size:cover;background-position:center top` : 'display:flex;align-items:center;justify-content:center;font-size:56px'}">
+      const cards = jogandoAgora.slice(0, 2).map(g => {
+        const cachedCover = covers[String(g.id)];
+        const hasCover = cachedCover && cachedCover !== 'none';
+        const emoji = getGameEmoji(g);
+        return `<div onclick="openModal(${g.id})" style="flex:1;background:var(--surface);border:2px solid var(--gold);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;min-width:0" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--gold)'">
+          <div style="width:100%;aspect-ratio:3/4;background:var(--surface2);${hasCover ? `background-image:url('${cachedCover}');background-size:cover;background-position:center top` : 'display:flex;align-items:center;justify-content:center;font-size:48px'}">
             ${hasCover ? '' : emoji}
           </div>
-          <div style="padding:14px">
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🕹️ Jogando Agora</div>
-            <div style="font-size:14px;font-weight:700;margin-bottom:4px;line-height:1.3">${g.nome}</div>
-            <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${g.plataforma}</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,200,66,0.15);border:1px solid var(--gold);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600">🟡 Jogando</div>
+          <div style="padding:12px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">🕹️ Jogando Agora</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.3">${g.nome}</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${g.plataforma}</div>
+            <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(245,200,66,0.15);border:1px solid var(--gold);border-radius:20px;padding:2px 8px;font-size:10px;color:var(--gold);font-weight:600">🟡 Jogando</div>
           </div>
         </div>`;
+      }).join('');
+      html += `<div style="display:flex;gap:10px;margin-bottom:12px">${cards}</div>`;
     } else {
-      jaSection.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);border-radius:14px;padding:24px;text-align:center;color:var(--muted);font-size:13px">
+      html += `<div style="background:var(--surface);border:1px dashed var(--border);border-radius:14px;padding:24px;text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px">
         <div style="font-size:32px;margin-bottom:8px">🎮</div>
         Nenhum jogo em andamento
       </div>`;
     }
+
+    // Emprestado
+    const emprestado = getEmprestado();
+    const empGame = emprestado ? games.find(g => g.id === emprestado.id) : null;
+    html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">📤 Emprestado</div>
+      ${empGame
+        ? `<div style="font-size:13px;font-weight:600;margin-bottom:4px">${empGame.nome}</div>
+           <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${empGame.plataforma}</div>
+           <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Para: <strong style="color:var(--text)">${emprestado.para || '—'}</strong></div>
+           <button onclick="clearEmprestado()" style="font-size:11px;padding:4px 10px;border-radius:8px;background:transparent;border:1px solid var(--red);color:var(--red);cursor:pointer;font-family:inherit">Devolvido ✓</button>`
+        : `<div style="display:flex;flex-direction:column;gap:8px">
+           <select id="emp-jogo" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:12px;padding:6px 8px;outline:none">
+             <option value="">Selecionar jogo...</option>
+             ${games.map(g => `<option value="${g.id}">${g.nome}</option>`).join('')}
+           </select>
+           <input type="text" id="emp-para" placeholder="Emprestado para..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:12px;padding:6px 8px;outline:none">
+           <button onclick="saveEmprestado()" style="font-size:12px;padding:6px;border-radius:8px;background:var(--accent);border:none;color:white;cursor:pointer;font-family:inherit;font-weight:600">Salvar</button>
+           </div>`
+      }
+    </div>`;
+
+    jaSection.innerHTML = html;
   }
   function countFieldF(field) {
     const counts = {};
@@ -2959,6 +2999,22 @@ async function retryNotFound() {
   filterGames();
 }
 
+// ========== EMPRESTADO ==========
+function getEmprestado() {
+  try { return JSON.parse(localStorage.getItem('emprestado_v1') || 'null'); } catch(e) { return null; }
+}
+function saveEmprestado() {
+  const id = parseInt(document.getElementById('emp-jogo').value);
+  const para = document.getElementById('emp-para').value.trim();
+  if (!id) return;
+  localStorage.setItem('emprestado_v1', JSON.stringify({ id, para }));
+  buildDashboard();
+}
+function clearEmprestado() {
+  localStorage.removeItem('emprestado_v1');
+  buildDashboard();
+}
+
 // ========== FULLSCREEN COVER ==========
 function openFullscreenCover() {
   const mc = document.getElementById('modal-cover');
@@ -3481,6 +3537,7 @@ function navigateTo(id) {
   if (id === 'graficos') buildGraficos();
   if (id === 'hall-of-fame') buildHallOfFame();
   if (id === 'ranking-plataformas') buildRankingPlataformas();
+  if (id === 'consoles') buildConsoles();
   setTimeout(applyAllVisible, 50);
 }
 
@@ -3637,6 +3694,154 @@ function animateCount(el, target, duration = 800) {
   requestAnimationFrame(update);
 }
 
+// ========== CONSOLES ==========
+function getConsoles() {
+  try { return JSON.parse(localStorage.getItem('consoles_v1') || '[]'); } catch(e) { return []; }
+}
+function saveConsoles(list) {
+  localStorage.setItem('consoles_v1', JSON.stringify(list));
+}
+
+function buildConsoles() {
+  const list = getConsoles();
+  const el = document.getElementById('consoles-grid');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🖥️</div><p>Nenhum console cadastrado ainda</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map((c, i) => {
+    const hasCover = c.foto && c.foto !== '';
+    return `<div class="game-card" onclick="editConsole(${i})" style="cursor:pointer">
+      <div class="game-cover" style="${hasCover ? `background-image:url('${c.foto}');background-size:cover;background-position:center top` : ''}">
+        ${hasCover ? '' : '<span style="font-size:48px">🖥️</span>'}
+      </div>
+      <div class="game-info">
+        <div class="game-name">${c.nome || 'Sem nome'}</div>
+        <div class="game-platform">${c.empresa || '—'}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          ${c.desbloqueado === 'Sim' ? '<span style="font-size:10px;background:rgba(78,245,160,0.15);color:var(--green);border-radius:6px;padding:1px 6px">Desbloqueado</span>' : ''}
+          ${c.controles ? `<span style="font-size:10px;color:var(--muted)">${c.controles} controle${c.controles > 1 ? 's' : ''}</span>` : ''}
+          ${c.desde ? `<span style="font-size:10px;color:var(--muted)">Desde ${c.desde}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addConsole() {
+  openConsoleModal(null);
+}
+
+function editConsole(i) {
+  openConsoleModal(i);
+}
+
+function openConsoleModal(idx) {
+  const list = getConsoles();
+  const c = idx !== null && idx !== undefined ? list[idx] : {};
+  const isNew = idx === null || idx === undefined;
+  const idxStr = isNew ? 'null' : idx;
+
+  const existing = document.getElementById('console-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'console-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:16px">${isNew ? '+ Novo Console' : 'Editar Console'}</h3>
+        <span onclick="document.getElementById('console-modal-overlay').remove()" style="cursor:pointer;font-size:20px;color:var(--muted)">✕</span>
+      </div>
+      <div style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="grid-column:1/-1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Foto (URL)</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="con-foto" value="${c.foto||''}" placeholder="Cole uma URL de imagem..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none">
+            <button onclick="previewConsoleFoto()" style="padding:8px 12px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:12px">👁️</button>
+          </div>
+          <div id="con-foto-preview" style="margin-top:8px;${c.foto ? '' : 'display:none'}">
+            <img src="${c.foto||''}" style="height:80px;border-radius:8px;object-fit:cover">
+          </div>
+        </div>
+        ${consoleField('Nome', 'con-nome', c.nome||'', 'text', '1/-1')}
+        ${consoleField('Empresa', 'con-empresa', c.empresa||'', 'text')}
+        ${consoleField('Tenho desde', 'con-desde', c.desde||'', 'number')}
+        ${consoleField('Quantos controles', 'con-controles', c.controles||'', 'number')}
+        ${consoleSelect('Tem controle', 'con-temcontrole', c.temcontrole||'')}
+        ${consoleSelect('Tem cabos', 'con-cabos', c.cabos||'')}
+        ${consoleSelect('Tem carregador', 'con-carregador', c.carregador||'')}
+        ${consoleSelect('Desbloqueado', 'con-desbloqueado', c.desbloqueado||'')}
+        ${consoleSelect('Tem jogos', 'con-jogos', c.jogos||'')}
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end">
+        ${!isNew ? `<button onclick="deleteConsole(${idx})" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--red);color:var(--red);font-family:inherit;cursor:pointer">🗑️ Excluir</button>` : ''}
+        <button onclick="document.getElementById('console-modal-overlay').remove()" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;cursor:pointer">Cancelar</button>
+        <button onclick="saveConsole(${idxStr})" style="padding:8px 20px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-weight:600;cursor:pointer">💾 Salvar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  // NO outside click close — only Cancelar or ✕ closes
+}
+
+function consoleField(label, id, val, type, col='') {
+  return `<div ${col ? `style="grid-column:${col}"` : ''}>
+    <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">${label}</label>
+    <input type="${type}" id="${id}" value="${val}" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none">
+  </div>`;
+}
+
+function consoleSelect(label, id, val) {
+  return `<div>
+    <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">${label}</label>
+    <select id="${id}" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none">
+      <option value="">—</option>
+      <option value="Sim" ${val==='Sim'?'selected':''}>Sim</option>
+      <option value="Não" ${val==='Não'?'selected':''}>Não</option>
+    </select>
+  </div>`;
+}
+
+function previewConsoleFoto() {
+  const url = document.getElementById('con-foto').value.trim();
+  const prev = document.getElementById('con-foto-preview');
+  if (!url) return;
+  prev.style.display = 'block';
+  prev.innerHTML = `<img src="${url}" style="height:80px;border-radius:8px;object-fit:cover">`;
+}
+
+function saveConsole(idx) {
+  const list = getConsoles();
+  const c = {
+    foto: document.getElementById('con-foto').value.trim(),
+    nome: document.getElementById('con-nome').value.trim(),
+    empresa: document.getElementById('con-empresa').value.trim(),
+    desde: document.getElementById('con-desde').value,
+    controles: document.getElementById('con-controles').value,
+    temcontrole: document.getElementById('con-temcontrole').value,
+    cabos: document.getElementById('con-cabos').value,
+    carregador: document.getElementById('con-carregador').value,
+    desbloqueado: document.getElementById('con-desbloqueado').value,
+    jogos: document.getElementById('con-jogos').value,
+  };
+  if (idx === null) list.push(c);
+  else list[idx] = c;
+  saveConsoles(list);
+  document.getElementById('console-modal-overlay').remove();
+  buildConsoles();
+}
+
+function deleteConsole(idx) {
+  if (!confirm('Excluir este console?')) return;
+  const list = getConsoles();
+  list.splice(idx, 1);
+  saveConsoles(list);
+  document.getElementById('console-modal-overlay').remove();
+  buildConsoles();
+}
+
 // ========== DRAG & DROP RANKINGS ==========
 let dragSrc = null;
 let dragType = null;
@@ -3676,6 +3881,7 @@ function addDragToRankingRows() {
 // ========== START ==========
 document.addEventListener('DOMContentLoaded', init);
 </script>
+    <!-- CONSOLES -->
 <!-- MODAL DE ACESSO -->
 <div id="access-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:400px;text-align:center">
