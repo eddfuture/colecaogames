@@ -1328,6 +1328,16 @@
         <button onclick="addConsole()" style="margin-left:auto;padding:6px 14px;border-radius:8px;background:var(--accent);border:none;color:white;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">+ Adicionar</button>
       </div>
       <div style="padding:28px">
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+          <select id="console-filter-empresa" onchange="buildConsoles()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 12px;outline:none">
+            <option value="">Todas as empresas</option>
+          </select>
+          <select id="console-filter-portatil" onchange="buildConsoles()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 12px;outline:none">
+            <option value="">Portátil ou não</option>
+            <option value="Sim">Portátil</option>
+            <option value="Não">Não portátil</option>
+          </select>
+        </div>
         <div id="consoles-grid" class="games-grid"></div>
       </div>
     </div>
@@ -3706,13 +3716,34 @@ function buildConsoles() {
   const list = getConsoles();
   const el = document.getElementById('consoles-grid');
   if (!el) return;
-  if (!list.length) {
-    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🖥️</div><p>Nenhum console cadastrado ainda</p></div>`;
+
+  // Populate empresa filter
+  const empresaSelect = document.getElementById('console-filter-empresa');
+  const empresaAtual = empresaSelect?.value || '';
+  if (empresaSelect) {
+    const empresas = [...new Set(list.map(c => c.empresa).filter(Boolean))].sort();
+    empresaSelect.innerHTML = '<option value="">Todas as empresas</option>' +
+      empresas.map(e => `<option value="${e}" ${empresaAtual===e?'selected':''}>${e}</option>`).join('');
+  }
+
+  const filterEmpresa = empresaSelect?.value || '';
+  const filterPortatil = document.getElementById('console-filter-portatil')?.value || '';
+
+  const filtered = list.filter((c, i) => {
+    if (filterEmpresa && c.empresa !== filterEmpresa) return false;
+    if (filterPortatil && c.portatil !== filterPortatil) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🖥️</div><p>${list.length ? 'Nenhum console com esses filtros' : 'Nenhum console cadastrado ainda'}</p></div>`;
     return;
   }
-  el.innerHTML = list.map((c, i) => {
+
+  el.innerHTML = filtered.map((c, i) => {
+    const realIdx = list.indexOf(c);
     const hasCover = c.foto && c.foto !== '';
-    return `<div class="game-card" onclick="editConsole(${i})" style="cursor:pointer">
+    return `<div class="game-card" onclick="editConsole(${realIdx})" style="cursor:pointer">
       <div class="game-cover" style="${hasCover ? `background-image:url('${c.foto}');background-size:cover;background-position:center top` : ''}">
         ${hasCover ? '' : '<span style="font-size:48px">🖥️</span>'}
       </div>
@@ -3720,6 +3751,7 @@ function buildConsoles() {
         <div class="game-name">${c.nome || 'Sem nome'}</div>
         <div class="game-platform">${c.empresa || '—'}</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          ${c.portatil === 'Sim' ? '<span style="font-size:10px;background:rgba(66,165,245,0.15);color:var(--blue);border-radius:6px;padding:1px 6px">📱 Portátil</span>' : ''}
           ${c.desbloqueado === 'Sim' ? '<span style="font-size:10px;background:rgba(78,245,160,0.15);color:var(--green);border-radius:6px;padding:1px 6px">Desbloqueado</span>' : ''}
           ${c.controles ? `<span style="font-size:10px;color:var(--muted)">${c.controles} controle${c.controles > 1 ? 's' : ''}</span>` : ''}
           ${c.desde ? `<span style="font-size:10px;color:var(--muted)">Desde ${c.desde}</span>` : ''}
@@ -3775,6 +3807,7 @@ function openConsoleModal(idx) {
         ${consoleSelect('Tem carregador', 'con-carregador', c.carregador||'')}
         ${consoleSelect('Desbloqueado', 'con-desbloqueado', c.desbloqueado||'')}
         ${consoleSelect('Tem jogos', 'con-jogos', c.jogos||'')}
+        ${consoleSelect('Portátil', 'con-portatil', c.portatil||'')}
       </div>
       <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end">
         ${!isNew ? `<button onclick="deleteConsole(${idx})" style="padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--red);color:var(--red);font-family:inherit;cursor:pointer">🗑️ Excluir</button>` : ''}
@@ -3825,6 +3858,7 @@ function saveConsole(idx) {
     carregador: document.getElementById('con-carregador').value,
     desbloqueado: document.getElementById('con-desbloqueado').value,
     jogos: document.getElementById('con-jogos').value,
+    portatil: document.getElementById('con-portatil').value,
   };
   if (idx === null) list.push(c);
   else list[idx] = c;
