@@ -1337,6 +1337,12 @@
             <option value="Sim">Portátil</option>
             <option value="Não">Não portátil</option>
           </select>
+          <select id="console-filter-order" onchange="buildConsoles()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 12px;outline:none">
+            <option value="nome-asc">Nome (A-Z)</option>
+            <option value="nome-desc">Nome (Z-A)</option>
+            <option value="ano-asc">Ano de aquisição ↑</option>
+            <option value="ano-desc">Ano de aquisição ↓</option>
+          </select>
         </div>
         <div id="consoles-grid" class="games-grid"></div>
       </div>
@@ -3728,11 +3734,20 @@ function buildConsoles() {
 
   const filterEmpresa = empresaSelect?.value || '';
   const filterPortatil = document.getElementById('console-filter-portatil')?.value || '';
+  const order = document.getElementById('console-filter-order')?.value || 'nome-asc';
 
-  const filtered = list.filter((c, i) => {
+  let filtered = list.filter(c => {
     if (filterEmpresa && c.empresa !== filterEmpresa) return false;
     if (filterPortatil && c.portatil !== filterPortatil) return false;
     return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (order === 'nome-asc') return (a.nome||'').localeCompare(b.nome||'');
+    if (order === 'nome-desc') return (b.nome||'').localeCompare(a.nome||'');
+    if (order === 'ano-asc') return (parseInt(a.desde)||0) - (parseInt(b.desde)||0);
+    if (order === 'ano-desc') return (parseInt(b.desde)||0) - (parseInt(a.desde)||0);
+    return 0;
   });
 
   if (!filtered.length) {
