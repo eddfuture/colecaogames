@@ -6345,8 +6345,8 @@
       "lancamento": 2012,
       "genero": "Terror",
       "subgenero": "Action Horror",
-      "tempo": "21",
-      "status": "2 - Não jogado",
+      "tempo": "20",
+      "status": "7 - Outra Plataforma",
       "quando": null,
       "nota": null,
       "midia": "Digital",
@@ -8168,5 +8168,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:23:44.151Z"
+  "last_updated": "2026-09-03T14:23:56.386Z"
 }
