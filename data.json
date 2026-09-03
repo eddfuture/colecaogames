@@ -6533,6 +6533,23 @@
       "trilha": true,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1788440025368,
+      "nome": "Resident Evil 5",
+      "plataforma": "PlayStation 4",
+      "lancamento": 2009,
+      "genero": "Terror",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8099,5 +8116,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T12:47:04.143Z"
+  "last_updated": "2026-09-03T12:53:47.380Z"
 }
