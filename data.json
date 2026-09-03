@@ -6473,7 +6473,7 @@
       "lancamento": 2024,
       "genero": "Ação",
       "subgenero": "Beat 'em up",
-      "tempo": null,
+      "tempo": "3",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -8178,5 +8178,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:31:49.552Z"
+  "last_updated": "2026-09-03T14:32:03.504Z"
 }
