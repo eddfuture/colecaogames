@@ -1727,7 +1727,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 102,
@@ -6711,7 +6712,7 @@
     "98": "https://upload.wikimedia.org/wikipedia/en/0/0d/Mafia_II_Boxart.jpg",
     "99": "https://upload.wikimedia.org/wikipedia/pt/9/9f/Mafia_III_cover_art.jpg",
     "100": "https://upload.wikimedia.org/wikipedia/pt/9/9d/Red_Dead_Redemption_Undead_Nightmare_capa.png",
-    "101": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhqR7C78ZgotaGp5W8fDs09iPIlg65BToxHI3Lbncjfw&s=10",
+    "101": "https://mfiles.alphacoders.com/889/thumb-1920-889898.jpg",
     "102": "https://static.wikia.nocookie.net/dublagem/images/9/96/The_Last_of_Us_2_capa.png/revision/latest/scale-to-width-down/1200?cb=20250323220738&path-prefix=pt-br",
     "103": "https://upload.wikimedia.org/wikipedia/pt/b/b9/Tomb_Raider_Underworld_capa.png",
     "104": "https://insider-gaming.com/wp-content/uploads/2026/03/Tomodachi-Life-Living-the-Dream.jpg",
@@ -8178,5 +8179,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:32:03.504Z"
+  "last_updated": "2026-09-03T14:34:03.007Z"
 }
