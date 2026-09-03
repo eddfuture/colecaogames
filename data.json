@@ -6584,6 +6584,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1788440054744,
+      "nome": "Resident Evil 8: Village",
+      "plataforma": "PlayStation 4",
+      "lancamento": 2021,
+      "genero": "Terror",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8150,5 +8167,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T12:54:09.012Z"
+  "last_updated": "2026-09-03T12:54:17.147Z"
 }
