@@ -6523,7 +6523,7 @@
       "lancamento": 2009,
       "genero": "Terror",
       "subgenero": "Action Horror",
-      "tempo": null,
+      "tempo": "10",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -8167,5 +8167,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:22:47.051Z"
+  "last_updated": "2026-09-03T14:23:00.934Z"
 }
