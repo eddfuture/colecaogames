@@ -6595,15 +6595,16 @@
       "lancamento": 2016,
       "genero": "Terror",
       "subgenero": null,
-      "tempo": null,
+      "tempo": "22",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
       "midia": "Física",
-      "categoria": null,
+      "categoria": "MUST-DO 26",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7023,7 +7024,8 @@
     "1788440025368": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZh6hHZboi8uHmxVhM9LI_rOv6-EoSEiQJ1Ppa6fJcrAa2ZCcmbnfBZnxX&s=10",
     "1788440037146": "https://images7.kabum.com.br/produtos/fotos/140587/jogo-resident-evil-6-para-pc-steam-digital-para-download_1705068023512_g.jpg",
     "1788440046191": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSDryeks2OFpAFyq4ud2EvfDlddinwHKSB7QQaRZ-ei6xeOTSJxM_EkeOg&s=10",
-    "1788440054744": "https://preview.redd.it/resident-evil-village-um-bom-jogo-um-p%C3%A9ssimo-resident-evil-v0-dx9fsk3jn4pf1.jpeg?auto=webp&s=03f3c7a4c8f39b01839b463fd663bff9aa7d908d"
+    "1788440054744": "https://preview.redd.it/resident-evil-village-um-bom-jogo-um-p%C3%A9ssimo-resident-evil-v0-dx9fsk3jn4pf1.jpeg?auto=webp&s=03f3c7a4c8f39b01839b463fd663bff9aa7d908d",
+    "1788440063627": "https://static.wikia.nocookie.net/residentevil/images/3/34/Bio0hd-cll_top_img02_us.jpg/revision/latest?cb=20151209154742"
   },
   "rankings_jogados": {
     "2020": [
@@ -8173,5 +8175,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:26:23.003Z"
+  "last_updated": "2026-09-03T14:27:10.534Z"
 }
