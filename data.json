@@ -6567,6 +6567,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1788440046191,
+      "nome": "Resident Evil 7: Biohazard",
+      "plataforma": "PlayStation 4",
+      "lancamento": 2017,
+      "genero": "Terror",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8133,5 +8150,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T12:53:59.858Z"
+  "last_updated": "2026-09-03T12:54:09.012Z"
 }
