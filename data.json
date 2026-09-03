@@ -6558,8 +6558,8 @@
       "plataforma": "PlayStation 4",
       "lancamento": 2017,
       "genero": "Terror",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Survival Horror",
+      "tempo": "9",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6567,7 +6567,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1788440054744,
@@ -7019,7 +7020,8 @@
     "1785843890512": "https://m.media-amazon.com/images/M/MV5BZGUxOTg3NjYtZWE5Yy00MzkzLTkyNTItNzM3MDc0MmRkYjFkXkEyXkFqcGc@._V1_.jpg",
     "1786457554153": "https://m.media-amazon.com/images/M/MV5BNjExOGQyMmYtMWRlZS00YWRlLTgyMWEtNTY1N2RjMzhiNTcwXkEyXkFqcGc@._V1_.jpg",
     "1788440025368": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZh6hHZboi8uHmxVhM9LI_rOv6-EoSEiQJ1Ppa6fJcrAa2ZCcmbnfBZnxX&s=10",
-    "1788440037146": "https://images7.kabum.com.br/produtos/fotos/140587/jogo-resident-evil-6-para-pc-steam-digital-para-download_1705068023512_g.jpg"
+    "1788440037146": "https://images7.kabum.com.br/produtos/fotos/140587/jogo-resident-evil-6-para-pc-steam-digital-para-download_1705068023512_g.jpg",
+    "1788440046191": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSDryeks2OFpAFyq4ud2EvfDlddinwHKSB7QQaRZ-ei6xeOTSJxM_EkeOg&s=10"
   },
   "rankings_jogados": {
     "2020": [
@@ -8169,5 +8171,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:24:18.089Z"
+  "last_updated": "2026-09-03T14:25:05.651Z"
 }
