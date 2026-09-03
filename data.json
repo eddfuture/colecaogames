@@ -6364,7 +6364,7 @@
       "lancamento": 2012,
       "genero": "RPG",
       "subgenero": "C-RPG",
-      "tempo": "-150",
+      "tempo": "50",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -8177,5 +8177,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:31:38.260Z"
+  "last_updated": "2026-09-03T14:31:43.577Z"
 }
