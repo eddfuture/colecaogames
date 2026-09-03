@@ -6381,8 +6381,8 @@
       "plataforma": "Steam",
       "lancamento": 2013,
       "genero": "RPG",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "C-RPG",
+      "tempo": "50",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6390,7 +6390,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1782495000552,
@@ -8176,5 +8177,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:30:22.021Z"
+  "last_updated": "2026-09-03T14:30:55.125Z"
 }
