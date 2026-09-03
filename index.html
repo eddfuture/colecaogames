@@ -1091,6 +1091,8 @@
             <option value="nota-desc">Melhor nota</option>
             <option value="quando-desc">Mais recente</option>
             <option value="lancamento-desc">Lançamento recente</option>
+            <option value="tempo-asc">Tempo ↑ (menor)</option>
+            <option value="tempo-desc">Tempo ↓ (maior)</option>
           </select>
           <button onclick="saveCurrentFilter()" style="padding:5px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;cursor:pointer;white-space:nowrap" title="Salvar filtro atual">💾 Salvar filtro</button>
           <button onclick="clearAllFilters()" id="btn-clear-filters" style="display:none;padding:5px 10px;border-radius:8px;background:rgba(245,78,78,0.1);border:1px solid var(--red);color:var(--red);font-size:11px;cursor:pointer;white-space:nowrap">✕ Limpar filtros</button>
@@ -1473,6 +1475,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="deleteGame()" style="color:var(--red);border-color:var(--red)">🗑️ Excluir</button>
       <button class="btn btn-ghost" onclick="closeModalForce()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveGame()">💾 Salvar</button>
     </div>
@@ -1989,6 +1992,14 @@ function filterGames() {
     if (order === 'nota-desc') return (NOTA_NUM[b.nota] || 0) - (NOTA_NUM[a.nota] || 0);
     if (order === 'quando-desc') return (b.quando || 0) - (a.quando || 0);
     if (order === 'lancamento-desc') return (b.lancamento || 0) - (a.lancamento || 0);
+    if (order === 'tempo-asc') {
+      const diff = (parseFloat(a.tempo) || 0) - (parseFloat(b.tempo) || 0);
+      return diff !== 0 ? diff : a.nome.localeCompare(b.nome);
+    }
+    if (order === 'tempo-desc') {
+      const diff = (parseFloat(b.tempo) || 0) - (parseFloat(a.tempo) || 0);
+      return diff !== 0 ? diff : a.nome.localeCompare(b.nome);
+    }
     return 0;
   });
 
@@ -2391,6 +2402,7 @@ function gameCard(g) {
     <div class="game-cover" data-gameid="${g.id}" ${coverBg}>
       <span class="no-cover" style="font-size:36px;${nocoverDisplay}">${emoji}</span>
       <div class="status-dot ${si.cls}"></div>
+      ${g.tempo ? `<span style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;backdrop-filter:blur(4px)">${g.tempo}h</span>` : ''}
     </div>
     <div class="game-info">
       <div class="game-name">${g.nome}</div>
@@ -2499,6 +2511,22 @@ function closeModal(e) {
 function closeModalForce() {
   document.getElementById('modal-overlay').classList.remove('open');
   currentGameId = null;
+}
+
+function deleteGame() {
+  if (!isEditMode) { alert('⚠️ Entre com a senha de edição para fazer alterações.'); return; }
+  const g = games.find(x => x.id === currentGameId);
+  if (!g) return;
+  if (!confirm(`Excluir "${g.nome}" da coleção? Esta ação não pode ser desfeita.`)) return;
+  games = games.filter(x => x.id !== currentGameId);
+  delete covers[String(currentGameId)];
+  saveCovers();
+  save();
+  closeModalForce();
+  filterGames();
+  buildDashboard();
+  updateSidebar();
+  updateProgressBar();
 }
 
 function saveGame() {
