@@ -6540,8 +6540,8 @@
       "plataforma": "PlayStation 4",
       "lancamento": 2012,
       "genero": "Terror",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Action Horror",
+      "tempo": "20",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6549,7 +6549,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1788440046191,
@@ -8167,5 +8168,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:23:06.046Z"
+  "last_updated": "2026-09-03T14:23:44.151Z"
 }
