@@ -1377,15 +1377,16 @@
       "lancamento": 2017,
       "genero": "Tiro",
       "subgenero": "Battle Royale",
-      "tempo": null,
-      "status": "2 - Não jogado",
+      "tempo": "200",
+      "status": "6 - Sem Interesse",
       "quando": null,
       "nota": null,
       "midia": "Digital",
       "categoria": "GAME AWARDS",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 82,
@@ -8175,5 +8176,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-03T14:27:10.534Z"
+  "last_updated": "2026-09-03T14:30:22.021Z"
 }
