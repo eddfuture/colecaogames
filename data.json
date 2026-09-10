@@ -6617,7 +6617,7 @@
       "plataforma": "PSN",
       "lancamento": 2012,
       "genero": "RPG",
-      "subgenero": "TBS (Turn-Based)",
+      "subgenero": "J-RPG",
       "tempo": "65",
       "status": "2 - Não jogado",
       "quando": null,
@@ -8199,5 +8199,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-10T12:43:19.356Z"
+  "last_updated": "2026-09-10T12:43:39.301Z"
 }
