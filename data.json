@@ -6610,6 +6610,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1789043797563,
+      "nome": "Persona 4 Golden",
+      "plataforma": "PSN",
+      "lancamento": 2012,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8180,5 +8197,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-10T12:33:16.535Z"
+  "last_updated": "2026-09-10T12:36:39.574Z"
 }
