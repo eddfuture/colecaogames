@@ -2259,23 +2259,6 @@
       "revisitar": false
     },
     {
-      "id": 133,
-      "nome": "LEGO The Incredibles",
-      "plataforma": "PSN",
-      "lancamento": 2018,
-      "genero": "Ação",
-      "subgenero": "Plataforma",
-      "tempo": "10",
-      "status": "2 - Não jogado",
-      "quando": null,
-      "nota": null,
-      "midia": "Digital",
-      "categoria": null,
-      "favorito": false,
-      "trilha": false,
-      "revisitar": false
-    },
-    {
       "id": 134,
       "nome": "Life is Strange: Before the Storm",
       "plataforma": "Steam",
@@ -6763,7 +6746,6 @@
     "130": "https://i.redd.it/fallout-3s-cover-art-goes-hard-af-v0-sv7ww60x4rab1.jpg?width=510&format=pjpg&auto=webp&s=5d8c616bec3881066b41c32124c8317b6d71d97a",
     "131": "https://upload.wikimedia.org/wikipedia/pt/d/d3/Grand_Theft_Auto_San_Andreas_capa.png",
     "132": "https://upload.wikimedia.org/wikipedia/en/1/13/Lego_DC_Super-Villains_Cover.jpg",
-    "133": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9GoGoGdBTKRDZRwsI1cRT80-C2T_ZDkrbD5hBxm9IYlRBg_-8igQQGCk&s=10",
     "134": "https://upload.wikimedia.org/wikipedia/pt/5/5f/LIS_Before_the_Storm_capa.jpg",
     "135": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ98TKuqpWGXiQIsiIN5hPphX1phVEzuRya9NY5mWTTJIPz63jlu_F8JfE&s=10",
     "136": "https://upload.wikimedia.org/wikipedia/pt/thumb/0/03/Lords_of_the_Fallen_%282023%29.jpg/250px-Lords_of_the_Fallen_%282023%29.jpg",
@@ -8199,5 +8181,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-11T14:46:39.462Z"
+  "last_updated": "2026-09-11T14:50:30.221Z"
 }
