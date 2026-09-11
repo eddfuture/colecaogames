@@ -2361,23 +2361,6 @@
       "revisitar": false
     },
     {
-      "id": 140,
-      "nome": "Naruto to Boruto: Shinobi Striker",
-      "plataforma": "PSN",
-      "lancamento": 2018,
-      "genero": "Luta",
-      "subgenero": "3D",
-      "tempo": "15",
-      "status": "2 - Não jogado",
-      "quando": null,
-      "nota": null,
-      "midia": "Digital",
-      "categoria": null,
-      "favorito": false,
-      "trilha": false,
-      "revisitar": false
-    },
-    {
       "id": 141,
       "nome": "Nioh",
       "plataforma": "PSN",
@@ -6752,7 +6735,6 @@
     "137": "https://upload.wikimedia.org/wikipedia/pt/a/ae/Mafia_Definitive_Edition.jpg",
     "138": "https://upload.wikimedia.org/wikipedia/pt/8/8f/MiddleEarthShadowOfWar.jpg",
     "139": "https://upload.wikimedia.org/wikipedia/pt/9/9d/Mortal_Kombat_1_PS5_capa_digital.png",
-    "140": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPkXcsC7-ddOX63yLOtikRKg96u28sAAh5KmbSFLUQtRh3lI3hFKUz9wlE&s=10",
     "141": "https://external-preview.redd.it/nioh-physical-game-cover-mobile-wallpaper-v0-ppW4URjwMQv6Seop23IuIc0VaIFDJxjh8PXy0tI9uC0.jpg?auto=webp&s=1854f285b3ac2b7bde7ffe013c1cc65b3caffd36",
     "142": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPtpjbp06LCUT1bnG_rdoxrP_QSC_ed0W_IgCzL0ceT0UrMPa4DWBOayXP&s=10",
     "143": "https://upload.wikimedia.org/wikipedia/pt/f/f9/Wolfenstein_The_New_Order_capa.png",
@@ -8181,5 +8163,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-11T14:50:30.221Z"
+  "last_updated": "2026-09-11T14:53:49.964Z"
 }
