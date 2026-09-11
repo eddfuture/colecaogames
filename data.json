@@ -1256,7 +1256,7 @@
     {
       "id": 75,
       "nome": "Control",
-      "plataforma": "PSN",
+      "plataforma": "Steam",
       "lancamento": 2019,
       "genero": "Aventura",
       "subgenero": "Ficção Interativa",
@@ -1268,7 +1268,8 @@
       "categoria": "GAME AWARDS",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 76,
@@ -8145,5 +8146,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-11T14:54:34.172Z"
+  "last_updated": "2026-09-11T16:55:49.061Z"
 }
