@@ -6246,7 +6246,7 @@
       "lancamento": 2007,
       "genero": "Ação",
       "subgenero": "Stealth",
-      "tempo": "15",
+      "tempo": "8",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -8151,5 +8151,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-15T12:48:09.465Z"
+  "last_updated": "2026-09-15T12:48:25.465Z"
 }
