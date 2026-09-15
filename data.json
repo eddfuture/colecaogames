@@ -1124,7 +1124,7 @@
       "lancamento": 2019,
       "genero": "RPG",
       "subgenero": "C-RPG",
-      "tempo": "35",
+      "tempo": "25",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -1132,7 +1132,8 @@
       "categoria": "MUST-DO 26",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 68,
@@ -8151,5 +8152,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-15T12:48:25.465Z"
+  "last_updated": "2026-09-15T12:48:53.699Z"
 }
