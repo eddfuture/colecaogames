@@ -7515,6 +7515,10 @@
       {
         "pos": "18º",
         "jogo": "TMNT: The Cowabunga Collection"
+      },
+      {
+        "pos": "19º",
+        "jogo": "The Legend of Zelda: Majora's Mask"
       }
     ],
     "2027": [],
@@ -8146,5 +8150,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-15T12:13:16.107Z"
+  "last_updated": "2026-09-15T12:13:24.639Z"
 }
