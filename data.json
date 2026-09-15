@@ -1107,7 +1107,7 @@
       "lancamento": 1995,
       "genero": "RPG",
       "subgenero": "J-RPG",
-      "tempo": "23",
+      "tempo": "18",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -1115,7 +1115,8 @@
       "categoria": "MUST-DO 26",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 67,
@@ -8152,5 +8153,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-15T12:48:53.699Z"
+  "last_updated": "2026-09-15T12:49:16.857Z"
 }
