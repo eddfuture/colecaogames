@@ -1036,7 +1036,7 @@
       "lancamento": 2000,
       "genero": "Ação",
       "subgenero": "Plataforma",
-      "tempo": "-2",
+      "tempo": "0",
       "status": "3 - Concluído",
       "quando": 2026,
       "nota": "5 - Perfeito",
@@ -8150,5 +8150,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-15T12:16:08.736Z"
+  "last_updated": "2026-09-15T12:16:15.439Z"
 }
