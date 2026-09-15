@@ -2402,7 +2402,7 @@ function gameCard(g) {
     <div class="game-cover" data-gameid="${g.id}" ${coverBg}>
       <span class="no-cover" style="font-size:36px;${nocoverDisplay}">${emoji}</span>
       <div class="status-dot ${si.cls}"></div>
-      ${g.tempo ? `<span style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;backdrop-filter:blur(4px)">${g.tempo}h</span>` : ''}
+      ${g.tempo && parseFloat(g.tempo) > 0 ? `<span style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;backdrop-filter:blur(4px)">${g.tempo}h</span>` : ''}
     </div>
     <div class="game-info">
       <div class="game-name">${g.nome}</div>
