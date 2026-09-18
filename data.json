@@ -6598,6 +6598,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1789734888661,
+      "nome": "Trails in the Sky 1st Chapter",
+      "plataforma": "Nintendo Switch",
+      "lancamento": 2025,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8170,5 +8187,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-18T12:34:19.340Z"
+  "last_updated": "2026-09-18T12:34:50.695Z"
 }
