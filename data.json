@@ -6581,6 +6581,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1789734857325,
+      "nome": "The Legend of Zelda: Ocarina of Time (2026)",
+      "plataforma": "Nintendo Switch 2",
+      "lancamento": 2026,
+      "genero": "Aventura",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8153,5 +8170,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-18T12:33:09.776Z"
+  "last_updated": "2026-09-18T12:34:19.340Z"
 }
