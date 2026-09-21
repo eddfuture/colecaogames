@@ -2066,14 +2066,15 @@
       "genero": "Terror",
       "subgenero": "Action Horror",
       "tempo": "5",
-      "status": "2 - Não jogado",
-      "quando": null,
+      "status": "1 - Jogando",
+      "quando": 2026,
       "nota": null,
       "midia": "Digital",
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 123,
@@ -8191,5 +8192,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-21T13:35:30.585Z"
+  "last_updated": "2026-09-21T13:35:41.692Z"
 }
