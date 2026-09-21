@@ -6447,15 +6447,16 @@
       "lancamento": 2026,
       "genero": "RPG",
       "subgenero": null,
-      "tempo": null,
-      "status": "2 - Não jogado",
+      "tempo": "50",
+      "status": "1 - Jogando",
       "quando": null,
       "nota": null,
       "midia": "Física",
       "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1786457554153,
@@ -8192,5 +8193,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-21T13:35:41.692Z"
+  "last_updated": "2026-09-21T13:35:54.216Z"
 }
