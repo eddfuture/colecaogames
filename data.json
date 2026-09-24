@@ -7566,6 +7566,10 @@
       {
         "pos": "20º",
         "jogo": "TMNT: The Cowabunga Collection"
+      },
+      {
+        "pos": "21º",
+        "jogo": "Alan Wake's American Nightmare"
       }
     ],
     "2027": [],
@@ -8197,5 +8201,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-24T13:02:03.680Z"
+  "last_updated": "2026-09-24T13:02:14.704Z"
 }
