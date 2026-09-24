@@ -2060,15 +2060,15 @@
     },
     {
       "id": 122,
-      "nome": "Alan Wake: American Nightmare",
+      "nome": "Alan Wake's American Nightmare",
       "plataforma": "Steam",
       "lancamento": 2012,
       "genero": "Terror",
       "subgenero": "Action Horror",
       "tempo": "5",
-      "status": "1 - Jogando",
+      "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "2 - Fraco",
       "midia": "Digital",
       "categoria": null,
       "favorito": false,
@@ -8197,5 +8197,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-24T13:01:40.506Z"
+  "last_updated": "2026-09-24T13:02:03.680Z"
 }
