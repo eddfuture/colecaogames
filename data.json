@@ -6619,6 +6619,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1790343517001,
+      "nome": "Quantum Break",
+      "plataforma": "Steam",
+      "lancamento": 2016,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8201,5 +8218,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-25T13:37:37.187Z"
+  "last_updated": "2026-09-25T13:38:39.003Z"
 }
