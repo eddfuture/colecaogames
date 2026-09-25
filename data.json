@@ -6626,8 +6626,8 @@
       "plataforma": "Steam",
       "lancamento": 2016,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Ficção Interativa",
+      "tempo": "10",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6635,7 +6635,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7056,7 +7057,8 @@
     "1788440063627": "https://static.wikia.nocookie.net/residentevil/images/3/34/Bio0hd-cll_top_img02_us.jpg/revision/latest?cb=20151209154742",
     "1789043797563": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAArkAyngmUdBl0TT4JWyWO-Qdm5vNgvENpC9TljRGL168p7sFs5_T4eg&s=10",
     "1789734857325": "https://static.wikia.nocookie.net/dublagem/images/8/8f/The_Legend_of_Zelda_Ocarina_of_Time.png/revision/latest?cb=20260908175834&path-prefix=pt-br",
-    "1789734888661": "https://s.pacn.ws/1/p/1ca/869421.1.jpg?v=swlr95"
+    "1789734888661": "https://s.pacn.ws/1/p/1ca/869421.1.jpg?v=swlr95",
+    "1790343517001": "https://store-images.s-microsoft.com/image/apps.58202.68618454610217617.0bf16429-e940-40f4-b483-920166ef2ce1.4eff9aca-cf9d-4807-9477-1dec43be2726?q=90&w=512&h=768&mode=crop&format=jpg&background=#0078D7"
   },
   "rankings_jogados": {
     "2020": [
@@ -8218,5 +8220,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-25T13:38:39.003Z"
+  "last_updated": "2026-09-25T13:39:32.784Z"
 }
