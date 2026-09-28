@@ -6644,7 +6644,7 @@
       "plataforma": "PlayStation 5",
       "lancamento": 2027,
       "genero": "RPG",
-      "subgenero": null,
+      "subgenero": "J-RPG",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -6653,7 +6653,8 @@
       "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -8238,5 +8239,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-28T14:52:50.427Z"
+  "last_updated": "2026-09-28T14:52:59.887Z"
 }
