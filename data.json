@@ -6696,7 +6696,7 @@
       "plataforma": "PlayStation 5",
       "lancamento": 2026,
       "genero": "Ação",
-      "subgenero": null,
+      "subgenero": "Mundo Aberto",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -6705,7 +6705,8 @@
       "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7128,7 +7129,8 @@
     "1789734857325": "https://static.wikia.nocookie.net/dublagem/images/8/8f/The_Legend_of_Zelda_Ocarina_of_Time.png/revision/latest?cb=20260908175834&path-prefix=pt-br",
     "1789734888661": "https://s.pacn.ws/1/p/1ca/869421.1.jpg?v=swlr95",
     "1790343517001": "https://store-images.s-microsoft.com/image/apps.58202.68618454610217617.0bf16429-e940-40f4-b483-920166ef2ce1.4eff9aca-cf9d-4807-9477-1dec43be2726?q=90&w=512&h=768&mode=crop&format=jpg&background=#0078D7",
-    "1790607148730": "https://store-images.s-microsoft.com/image/apps.37213.13927691614829760.be11486c-a4d6-41b4-9db0-9a6555a5d788.244797fb-ed89-4aa9-b729-e459adbac6c0"
+    "1790607148730": "https://store-images.s-microsoft.com/image/apps.37213.13927691614829760.be11486c-a4d6-41b4-9db0-9a6555a5d788.244797fb-ed89-4aa9-b729-e459adbac6c0",
+    "1790788777300": "https://i.redd.it/141ybyf8q48h1.jpeg"
   },
   "rankings_jogados": {
     "2020": [
@@ -8290,5 +8292,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-30T17:19:39.301Z"
+  "last_updated": "2026-09-30T17:20:32.250Z"
 }
