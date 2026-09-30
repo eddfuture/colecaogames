@@ -6655,6 +6655,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1790788749449,
+      "nome": "Xenoblade Chronicles 2 (Switch 2 Edition)",
+      "plataforma": "Nintendo Switch 2",
+      "lancamento": 2026,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": "PRIORIDADE",
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8239,5 +8256,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-30T16:58:29.962Z"
+  "last_updated": "2026-09-30T17:19:11.451Z"
 }
