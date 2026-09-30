@@ -6672,6 +6672,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1790788762298,
+      "nome": "Nintendo Switch Sports Resort",
+      "plataforma": "Nintendo Switch 2",
+      "lancamento": 2026,
+      "genero": "Party Game",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8256,5 +8273,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-30T17:19:11.451Z"
+  "last_updated": "2026-09-30T17:19:24.300Z"
 }
