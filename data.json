@@ -6679,7 +6679,7 @@
       "plataforma": "Nintendo Switch 2",
       "lancamento": 2026,
       "genero": "Party Game",
-      "subgenero": null,
+      "subgenero": "Minigames",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -6688,7 +6688,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1790788777300,
@@ -8293,5 +8294,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-09-30T17:21:01.671Z"
+  "last_updated": "2026-09-30T17:21:10.602Z"
 }
