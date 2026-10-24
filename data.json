@@ -6556,8 +6556,8 @@
       "genero": "Terror",
       "subgenero": null,
       "tempo": "13",
-      "status": "2 - Não jogado",
-      "quando": null,
+      "status": "1 - Jogando",
+      "quando": 2026,
       "nota": null,
       "midia": "Física",
       "categoria": "MUST-DO 26",
@@ -8296,5 +8296,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-10-03T12:32:23.090Z"
+  "last_updated": "2026-10-24T12:12:22.596Z"
 }
