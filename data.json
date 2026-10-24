@@ -6681,7 +6681,7 @@
       "lancamento": 2026,
       "genero": "Party Game",
       "subgenero": "Minigames",
-      "tempo": null,
+      "tempo": "20",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -8296,5 +8296,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-10-24T12:12:22.596Z"
+  "last_updated": "2026-10-24T12:15:22.962Z"
 }
