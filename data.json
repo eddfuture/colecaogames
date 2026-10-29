@@ -6713,19 +6713,20 @@
     {
       "id": 1793284213260,
       "nome": "Resident Evil Remake (Origins Collection)",
-      "plataforma": "",
+      "plataforma": "PlayStation 4",
       "lancamento": 2016,
       "genero": "Terror",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Action Horror",
+      "tempo": "10",
       "status": "1 - Jogando",
-      "quando": null,
+      "quando": 2026,
       "nota": null,
       "midia": "Física",
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -8313,5 +8314,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-10-29T14:30:15.263Z"
+  "last_updated": "2026-10-29T14:30:36.302Z"
 }
