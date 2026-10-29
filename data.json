@@ -6555,8 +6555,8 @@
       "lancamento": 2016,
       "genero": "Terror",
       "subgenero": "Action Horror",
-      "tempo": "11",
-      "status": "1 - Jogando",
+      "tempo": "10",
+      "status": "2 - Não jogado",
       "quando": 2026,
       "nota": null,
       "midia": "Física",
@@ -8315,5 +8315,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-10-29T14:31:26.759Z"
+  "last_updated": "2026-10-29T14:31:43.031Z"
 }
