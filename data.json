@@ -6728,6 +6728,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1793709024217,
+      "nome": "Xenoblade Chronicles 3 (Switch 2 Edition)",
+      "plataforma": "Nintendo Switch 2",
+      "lancamento": 2022,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8316,5 +8333,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-03T12:29:56.292Z"
+  "last_updated": "2026-11-03T12:30:26.224Z"
 }
