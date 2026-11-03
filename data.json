@@ -7876,30 +7876,26 @@
       },
       {
         "pos": "6º",
-        "jogo": "Xenoblade Chronicles: Definitive Edition"
-      },
-      {
-        "pos": "7º",
         "jogo": "Resident Evil 3: Remake"
       },
       {
-        "pos": "8º",
+        "pos": "7º",
         "jogo": "Doom Eternal"
       },
       {
-        "pos": "9º",
+        "pos": "8º",
         "jogo": "ASTRO’s Playroom"
       },
       {
-        "pos": "10º",
+        "pos": "9º",
         "jogo": "One Piece: Pirate Warriors 4"
       },
       {
-        "pos": "11º",
+        "pos": "10º",
         "jogo": "Hades"
       },
       {
-        "pos": "12º",
+        "pos": "11º",
         "jogo": "Cyberpunk 2077"
       },
       {
@@ -8335,5 +8331,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-03T12:33:17.193Z"
+  "last_updated": "2026-11-03T12:33:44.960Z"
 }
