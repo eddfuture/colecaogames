@@ -4343,7 +4343,7 @@
       "plataforma": "Nintendo Switch",
       "lancamento": 2020,
       "genero": "RPG",
-      "subgenero": "J-RPG",
+      "subgenero": "MMORPG",
       "tempo": null,
       "status": "3 - Concluído",
       "quando": 2022,
@@ -4352,7 +4352,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 259,
@@ -8315,5 +8316,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-03T12:29:32.951Z"
+  "last_updated": "2026-11-03T12:29:44.152Z"
 }
