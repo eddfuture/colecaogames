@@ -6660,9 +6660,9 @@
       "id": 1790788749449,
       "nome": "Xenoblade Chronicles 2 (Switch 2 Edition)",
       "plataforma": "Nintendo Switch 2",
-      "lancamento": 2026,
+      "lancamento": 2027,
       "genero": "RPG",
-      "subgenero": null,
+      "subgenero": "MMORPG",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -8315,5 +8315,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-03T12:28:45.389Z"
+  "last_updated": "2026-11-03T12:29:32.951Z"
 }
