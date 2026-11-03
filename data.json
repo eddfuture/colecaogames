@@ -6735,8 +6735,8 @@
       "plataforma": "Nintendo Switch 2",
       "lancamento": 2022,
       "genero": "RPG",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "J-RPG",
+      "tempo": "62",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6744,7 +6744,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7171,7 +7172,8 @@
     "1790788777300": "https://i.redd.it/141ybyf8q48h1.jpeg",
     "1790788762298": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2pwUUm5p29Qv-qrl-fVT6bzyBPXvfeHl--EX8Kx1EX1CBomHPaxuhweI&s=10",
     "1790788749449": "https://preview.redd.it/do-you-think-nintendo-will-make-a-switch-2-edition-of-v0-4qd46pktpj7f1.jpeg?width=640&crop=smart&auto=webp&s=c76116821b4c73b9e2fe9611a1556c7f0406f5f4",
-    "1793284213260": "https://static.wikia.nocookie.net/residentevil/images/3/34/Bio0hd-cll_top_img02_us.jpg/revision/latest?cb=20151209154742"
+    "1793284213260": "https://static.wikia.nocookie.net/residentevil/images/3/34/Bio0hd-cll_top_img02_us.jpg/revision/latest?cb=20151209154742",
+    "1793709024217": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeW8qMjLQe-Uur7N3lgywIDPy8PCzGrNYGTxmurZPry8RSq_7VZBkuPTJi&s=10"
   },
   "rankings_jogados": {
     "2020": [
@@ -8333,5 +8335,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-03T12:30:26.224Z"
+  "last_updated": "2026-11-03T12:32:30.183Z"
 }
