@@ -1258,8 +1258,8 @@
     },
     {
       "id": 75,
-      "nome": "Control",
-      "plataforma": "Steam",
+      "nome": "Control: Ultimate Edition",
+      "plataforma": "PlayStation 5",
       "lancamento": 2019,
       "genero": "Aventura",
       "subgenero": "Ficção Interativa",
@@ -6822,7 +6822,7 @@
     "72": "https://upload.wikimedia.org/wikipedia/pt/9/90/A_Plague_Tale_Requiem_capa.jpg",
     "73": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0-xZSTkdD-hVyTK0Z8wWwyFscfh3-supNWGacMf78UjW-uoVsA0wlw6s&s=10",
     "74": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvq0Zt0HHDgxTV20KUc1gXHx-gR68ZdSHvQ9ZJQWUTbw&s=10",
-    "75": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS82IqHy4m6RYqvc9OVkE_och4X_P9KfCfztFEjUEAtzUtGbtD0Y03nhKTw&s=10",
+    "75": "https://preview.redd.it/control-ultimate-edition-cover-recreation-v0-h7qzlwl8jtg51.png?auto=webp&s=fba6669531cd0955dfc45658e9dab99362d01aee",
     "76": "https://store-images.s-microsoft.com/image/apps.18860.66773763610413114.5c7115ed-b566-4d24-80ce-7027cb5b7c3e.e1d91fd3-d9ed-4be4-aedf-437e5d9820fe",
     "77": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHrwBeejkk4OZ5WBGeaF2_3s4ZHGaFZ0tsbkeQ8nwQ2dr_l94Zg946ZiU&s=10",
     "78": "https://m.media-amazon.com/images/M/MV5BMjA4NWE1YWMtNjQ4ZC00Y2Q3LWFjMGEtNGVhM2FmYzJjMzM1XkEyXkFqcGc@._V1_.jpg",
@@ -8331,5 +8331,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-06T12:53:37.019Z"
+  "last_updated": "2026-11-06T12:56:15.809Z"
 }
