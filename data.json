@@ -6746,6 +6746,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1794228021084,
+      "nome": "Metroid Ravenous",
+      "plataforma": "Nintendo Switch 2",
+      "lancamento": 2027,
+      "genero": "Metroidvania",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8333,7 +8350,11 @@
     "Red Dead Redemption 2": 235,
     "Doom": 76,
     "Uncharted 4: A Thief's End": 328,
-    "Dark Souls II": 191
+    "Dark Souls II": 191,
+    "Resident Evil 4: Remake": 16,
+    "Xenoblade Chronicles 3": 1793709024217,
+    "Resident Evil Village": 1788440054744,
+    "Control": 75
   },
-  "last_updated": "2026-11-09T12:35:44.805Z"
+  "last_updated": "2026-11-09T12:40:23.097Z"
 }
