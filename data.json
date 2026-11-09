@@ -7704,6 +7704,10 @@
       {
         "pos": "21º",
         "jogo": "TMNT: The Cowabunga Collection"
+      },
+      {
+        "pos": "22º",
+        "jogo": "Resident Evil (Origins Collection)"
       }
     ],
     "2027": [],
@@ -8331,5 +8335,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-09T12:28:00.110Z"
+  "last_updated": "2026-11-09T12:33:43.150Z"
 }
