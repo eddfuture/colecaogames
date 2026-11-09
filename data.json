@@ -6718,10 +6718,10 @@
       "lancamento": 2016,
       "genero": "Terror",
       "subgenero": "Action Horror",
-      "tempo": "10",
-      "status": "1 - Jogando",
+      "tempo": "0",
+      "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "4 - Ótimo",
       "midia": "Física",
       "categoria": null,
       "favorito": false,
@@ -7172,7 +7172,7 @@
     "1790788777300": "https://i.redd.it/141ybyf8q48h1.jpeg",
     "1790788762298": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2pwUUm5p29Qv-qrl-fVT6bzyBPXvfeHl--EX8Kx1EX1CBomHPaxuhweI&s=10",
     "1790788749449": "https://preview.redd.it/do-you-think-nintendo-will-make-a-switch-2-edition-of-v0-4qd46pktpj7f1.jpeg?width=640&crop=smart&auto=webp&s=c76116821b4c73b9e2fe9611a1556c7f0406f5f4",
-    "1793284213260": "https://static.wikia.nocookie.net/residentevil/images/3/34/Bio0hd-cll_top_img02_us.jpg/revision/latest?cb=20151209154742",
+    "1793284213260": "https://i.pinimg.com/736x/65/4b/60/654b60b7642f4290cd6422d22b25c82c.jpg",
     "1793709024217": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeW8qMjLQe-Uur7N3lgywIDPy8PCzGrNYGTxmurZPry8RSq_7VZBkuPTJi&s=10"
   },
   "rankings_jogados": {
@@ -8335,5 +8335,5 @@
     "Uncharted 4: A Thief's End": 328,
     "Dark Souls II": 191
   },
-  "last_updated": "2026-11-09T12:33:51.777Z"
+  "last_updated": "2026-11-09T12:34:43.500Z"
 }
