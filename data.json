@@ -6753,7 +6753,7 @@
       "plataforma": "Nintendo Switch 2",
       "lancamento": 2027,
       "genero": "Metroidvania",
-      "subgenero": null,
+      "subgenero": "Metroidvania",
       "tempo": null,
       "status": "2 - Não jogado",
       "quando": null,
@@ -6762,7 +6762,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -8357,5 +8358,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-09T12:40:37.732Z"
+  "last_updated": "2026-11-09T12:40:51.108Z"
 }
