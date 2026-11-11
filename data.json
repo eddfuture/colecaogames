@@ -6557,7 +6557,7 @@
       "genero": "Terror",
       "subgenero": "Action Horror",
       "tempo": "0",
-      "status": "1 - Jogando",
+      "status": "3 - Concluído",
       "quando": 2026,
       "nota": null,
       "midia": "Física",
@@ -8358,5 +8358,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-11T16:30:50.040Z"
+  "last_updated": "2026-11-11T16:31:22.061Z"
 }
