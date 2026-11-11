@@ -6559,7 +6559,7 @@
       "tempo": "0",
       "status": "3 - Concluído",
       "quando": 2026,
-      "nota": null,
+      "nota": "3 - Bom",
       "midia": "Física",
       "categoria": null,
       "favorito": false,
@@ -8358,5 +8358,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-11T16:31:22.061Z"
+  "last_updated": "2026-11-11T16:31:31.262Z"
 }
