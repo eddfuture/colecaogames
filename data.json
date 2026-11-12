@@ -6592,12 +6592,12 @@
       "lancamento": 2026,
       "genero": "Ação",
       "subgenero": "Plataforma",
-      "tempo": null,
-      "status": "2 - Não jogado",
-      "quando": null,
+      "tempo": "40",
+      "status": "1 - Jogando",
+      "quando": 2026,
       "nota": null,
       "midia": "Física",
-      "categoria": "PRIORIDADE",
+      "categoria": null,
       "favorito": false,
       "trilha": false,
       "revisitar": false,
@@ -8362,5 +8362,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-11T16:33:14.157Z"
+  "last_updated": "2026-11-12T12:36:34.229Z"
 }
