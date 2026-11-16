@@ -6771,8 +6771,8 @@
       "plataforma": "PlayStation 5",
       "lancamento": 2024,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Hack and Slash",
+      "tempo": "22",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6780,7 +6780,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 1794838473124,
@@ -8399,5 +8400,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-16T14:16:24.393Z"
+  "last_updated": "2026-11-16T14:16:27.991Z"
 }
