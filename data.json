@@ -6788,8 +6788,8 @@
       "plataforma": "PlayStation 5",
       "lancamento": 2024,
       "genero": "Ação",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "Plataforma",
+      "tempo": "10",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6797,7 +6797,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -8397,5 +8398,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-16T14:15:28.194Z"
+  "last_updated": "2026-11-16T14:15:41.013Z"
 }
