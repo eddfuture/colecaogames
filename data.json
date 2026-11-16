@@ -6781,6 +6781,23 @@
       "favorito": false,
       "trilha": false,
       "revisitar": false
+    },
+    {
+      "id": 1794838473124,
+      "nome": "LEGO Horizon Adventures",
+      "plataforma": "PlayStation 5",
+      "lancamento": 2024,
+      "genero": "Ação",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Física",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8379,5 +8396,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-16T14:14:12.708Z"
+  "last_updated": "2026-11-16T14:14:35.127Z"
 }
