@@ -4257,7 +4257,7 @@
     {
       "id": 253,
       "nome": "The Last of Us: Part II",
-      "plataforma": "PlayStation 4",
+      "plataforma": "PlayStation 5",
       "lancamento": 2020,
       "genero": "Aventura",
       "subgenero": "Ficção Interativa",
@@ -4269,7 +4269,8 @@
       "categoria": null,
       "favorito": true,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 254,
@@ -8402,5 +8403,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-19T18:24:35.912Z"
+  "last_updated": "2026-11-19T18:24:45.577Z"
 }
