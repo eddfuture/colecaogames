@@ -1731,9 +1731,10 @@
       "nota": null,
       "midia": "Física",
       "categoria": null,
-      "favorito": true,
+      "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 103,
@@ -8401,5 +8402,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-19T18:24:31.483Z"
+  "last_updated": "2026-11-19T18:24:35.912Z"
 }
