@@ -6812,8 +6812,8 @@
       "plataforma": "Steam",
       "lancamento": 2015,
       "genero": "RPG",
-      "subgenero": null,
-      "tempo": null,
+      "subgenero": "C-RPG",
+      "tempo": "60",
       "status": "2 - Não jogado",
       "quando": null,
       "nota": null,
@@ -6821,7 +6821,8 @@
       "categoria": null,
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     }
   ],
   "covers": {
@@ -7252,7 +7253,8 @@
     "1793709024217": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeW8qMjLQe-Uur7N3lgywIDPy8PCzGrNYGTxmurZPry8RSq_7VZBkuPTJi&s=10",
     "1794228021084": "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/c119e73a-1877-4356-9f2b-e512c53b6b71/dmsx0ua-87d797ae-e473-4e16-b3d9-7da7c3eeb712.jpg/v1/fit/w_414,h_414,q_70,strp/killer_mom_by_samdrawsstuff123_dmsx0ua-414w.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTIzNCIsInBhdGgiOiIvZi9jMTE5ZTczYS0xODc3LTQzNTYtOWYyYi1lNTEyYzUzYjZiNzEvZG1zeDB1YS04N2Q3OTdhZS1lNDczLTRlMTYtYjNkOS03ZGE3YzNlZWI3MTIuanBnIiwid2lkdGgiOiI8PTEyMzQifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.lm_qNtqsh2tlQl3_EHgZZ1GS7ee3wlqf32B2qNu6mPI",
     "1794838473124": "https://preview.redd.it/discussion-which-of-these-upcoming-games-are-you-the-most-v0-0jzz7cl0gkod1.jpg?width=1024&format=pjpg&auto=webp&s=9b5e637c9ec3fb7a0ae15a1c31963ec07e61736e",
-    "1794838450705": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHghPrgA6HK4RgH9xJObzwGwW8cl4MBBL3Lrmn6FW9WL-2r20XzJyQzawz&s=10"
+    "1794838450705": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHghPrgA6HK4RgH9xJObzwGwW8cl4MBBL3Lrmn6FW9WL-2r20XzJyQzawz&s=10",
+    "1795781914673": "https://cdn.awsli.com.br/2500x2500/229/229111/produto/339860629/1-mda3d74tap.png"
   },
   "rankings_jogados": {
     "2020": [
@@ -8422,5 +8424,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-27T12:18:36.675Z"
+  "last_updated": "2026-11-27T12:19:24.726Z"
 }
