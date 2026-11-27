@@ -604,7 +604,7 @@
     },
     {
       "id": 36,
-      "nome": "Divinity: Original Sin II",
+      "nome": "Divinity: Original Sin II (Definitive Edition)",
       "plataforma": "Steam",
       "lancamento": 2016,
       "genero": "RPG",
@@ -617,7 +617,8 @@
       "categoria": "PRIORIDADE",
       "favorito": false,
       "trilha": false,
-      "revisitar": false
+      "revisitar": false,
+      "replay": false
     },
     {
       "id": 37,
@@ -8404,5 +8405,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-27T12:16:35.377Z"
+  "last_updated": "2026-11-27T12:17:59.671Z"
 }
