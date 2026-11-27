@@ -6805,6 +6805,23 @@
       "trilha": false,
       "revisitar": false,
       "replay": false
+    },
+    {
+      "id": 1795781914673,
+      "nome": "Divinity: Original Sin (Enhanced Edition)",
+      "plataforma": "Steam",
+      "lancamento": 2015,
+      "genero": "RPG",
+      "subgenero": null,
+      "tempo": null,
+      "status": "2 - Não jogado",
+      "quando": null,
+      "nota": null,
+      "midia": "Digital",
+      "categoria": null,
+      "favorito": false,
+      "trilha": false,
+      "revisitar": false
     }
   ],
   "covers": {
@@ -8405,5 +8422,5 @@
     "Resident Evil Village": 1788440054744,
     "Control": 75
   },
-  "last_updated": "2026-11-27T12:17:59.671Z"
+  "last_updated": "2026-11-27T12:18:36.675Z"
 }
